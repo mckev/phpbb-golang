@@ -1,0 +1,103 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html>
+<!-- Ref: phpBB old: https://www.financialwisdomforum.org/forum/viewtopic.php?t=122828 -->
+<!-- Ref: phpBB 3.3: https://github.com/phpbb/phpbb/blob/master/phpBB/styles/prosilver/template/overall_header.html -->
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Title</title>
+    <link href="/styles/prosilver/theme/stylesheet.css" rel="stylesheet">
+    <link href="/assets/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        .site_logo {
+            background-image: url("/assets/images/fwf_logo.svg");
+            width: 75px;
+            height: 75px;
+            background-size: contain;
+        }
+    </style>
+</head>
+
+<body id="phpbb" class="nojs notouch section-index ltr">
+    <div id="wrap" class="wrap">
+        <a id="top" class="top-anchor" accesskey="t"></a>
+        <div id="page-header">
+            <div class="headerbar" role="banner">
+                <div class="inner">
+                    <div id="site-description" class="site-description">
+                        <a id="logo" class="logo" href="/index" title="Board index">
+                            <span class="site_logo"></span>
+                        </a>
+                        <h1>My Forum</h1>
+                        <p>My Forum Description</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navbar" role="navigation">
+                <div class="inner">
+                    <ul id="nav-main" class="nav-main linklist" role="menubar">
+                        <li id="quick-links" class="quick-links dropdown-container responsive-menu"
+                            data-skip-responsive="true">
+                            <a href="#" class="dropdown-trigger">
+                                <i class="icon fa-bars fa-fw" aria-hidden="true"></i><span>Quick links</span>
+                            </a>
+                            <div class="dropdown">
+                                <div class="pointer">
+                                    <div class="pointer-inner"></div>
+                                </div>
+                                <ul class="dropdown-contents" role="menu">
+                                    <li class="separator"></li>
+                                    <li>
+                                        <a href="./search.php?search_id=unanswered" role="menuitem">
+                                            <i class="icon fa-file-o fa-fw icon-gray"
+                                                aria-hidden="true"></i><span>Unanswered topics</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="./search.php?search_id=active_topics" role="menuitem">
+                                            <i class="icon fa-file-o fa-fw icon-blue"
+                                                aria-hidden="true"></i><span>Active topics</span>
+                                        </a>
+                                    </li>
+                                    <li class="separator"></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li data-skip-responsive="true">
+                            <a href="/forum/help/faq" rel="help" title="Frequently Asked Questions" role="menuitem">
+                                <i class="icon fa-question-circle fa-fw" aria-hidden="true"></i><span>FAQ</span>
+                            </a>
+                        </li>
+                        <li data-last-responsive="true">
+                            <a href="/forum/rules" rel="help" title="View the Rules of this Board" role="menuitem">
+                                <i class="icon fa-book fa-fw" aria-hidden="true"></i><span>Rules</span>
+                            </a>
+                        </li>
+                        <li class="" data-last-responsive="true">
+                            <a href="/forum/contactadmin" role="menuitem">
+                                <i class="icon fa-envelope fa-fw" aria-hidden="true"></i><span>Contact us</span>
+                            </a>
+                        </li>
+                        <li class="rightside" data-skip-responsive="true">
+                            <a href="./ucp.php" title="Login" accesskey="x" role="menuitem">
+                                <i class="icon fa-power-off fa-fw" aria-hidden="true"></i><span>Login</span>
+                            </a>
+                        </li>
+                        <li class="rightside" data-skip-responsive="true">
+                            <a href="./ucp.php" role="menuitem">
+                                <i class="icon fa-pencil-square-o  fa-fw" aria-hidden="true"></i><span>Register</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>
+{{end}}
