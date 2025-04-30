@@ -1,2 +1,79 @@
 # golang-bb
 A bulletin board inspired by phpBB. It uses basic HTML, without JavaScript.
+
+
+# Setting up Development Environment on Windows
+ 1. Setting up WSL2
+      - Launch Command Prompt as Administrator.
+      - Enable WSL with the latest Ubuntu version:
+          ```
+          wsl --install --distribution Ubuntu-24.04
+          ```
+      - Reboot.
+      - Once rebooted, "wsl" command now provides much more options:
+          ```
+          wsl --help
+          ```
+      - Launch WSL:
+          ```
+          wsl
+          ```
+      - Upgrade all packages:
+          ```
+          $ apt list --installed
+          $ sudo apt update
+          $ sudo apt full-upgrade
+          Do you want to continue? [Y/n] y
+          $ apt list --installed
+          ```
+
+ 2. Install Docker Daemon
+      - Install Docker Daemon:
+          ```
+          $ sudo apt install -y docker.io
+          ```
+      - This automatically launches "/usr/bin/dockerd" in the background.
+      - Add current user into "docker" group to be able to use docker command without sudo:
+          ```
+          $ id
+          $ sudo usermod -aG docker $USER
+          ```
+      - Re-launch WSL.
+      - Verify Docker installation:
+          ```
+          $ docker run hello-world
+          Hello from Docker!
+          This message shows that your installation appears to be working correctly.
+          ```
+
+ 3. Develop Golang inside a Container:
+      - Refs:
+          - https://code.visualstudio.com/docs/remote/containers
+          - https://github.com/microsoft/vscode-remote-try-go
+      - Launch WSL:
+          ```
+          wsl
+          ```
+      - Launch Visual Studio Code:
+          ```
+          $ code . &
+          ```
+        This launches Visual Studio Code on Windows, and not Linux, but it's able to connect to /var/run/docker.sock. Magic?
+      - Install "Dev Containers" extension in Visual Studio Code:
+          - Click "View  >  Command Palette..."  (or press F1 or Ctrl+Shift+P).
+          - Click "Extensions: Install Extensions".
+          - Search Extensions in Marketplace: Dev Containers
+          - Click "Install".
+          - Restart the Visual Studio Code.
+      - Reopen the code in Container:
+          - Click "View  >  Command Palette...".
+          - Click "Dev Containers: Reopen in Container".
+          - Visual Studio Code shows "Dev Container: Go" (green background) at the bottom left of the screen.
+      - Press F5 to run/debug the code.
+
+    Troubleshooting:
+      - To resolve issue "Docker returned an error. Make sure the Docker daemon is running and select an option how to proceed." and on terminal shows "Docker returned an error code ENOENT, message: Exectuable 'docker' not found on PATH":
+          - Click "View  >  Command Palette...".
+          - Click "Extensions: Show Enabled Extensions".
+          - On "Dev Containers" extension, click "Manage (Gear icon)  >  Extension Settings".
+          - On "Containers: Execute in WSL", make sure "[X] Controls whether CLI commands should always be executed in WSL." is checked.
