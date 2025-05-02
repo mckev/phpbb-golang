@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"path/filepath"
 	"text/template"
@@ -16,13 +17,21 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	urlPath := filepath.Clean(r.URL.Path)
 	logger.Debugf(ctx, "%s %s", httpMethod, urlPath)
 
-	templateOutput, _ := template.ParseFiles("./view/templates/overall.html")
-	templateOutput.ExecuteTemplate(w, "layout", nil)
+	if urlPath == "/" {
+		io.WriteString(w, "Welcome to Golang BB!")
+	} else if urlPath == "/main" {
+		templateOutput, _ := template.ParseFiles("./view/templates/overall.html", "./view/templates/main.html")
+		templateOutput.ExecuteTemplate(w, "overall", nil)
+	} else if urlPath == "/posts" {
+		templateOutput, _ := template.ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
+		templateOutput.ExecuteTemplate(w, "overall", nil)
+	}
 }
 
 func main() {
 	ctx := context.Background()
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./view/static/assets/"))))
+	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./view/static/images/"))))
 	http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("./view/static/styles/"))))
 	http.HandleFunc("/", serveTemplate)
 	portNumber := 9000
