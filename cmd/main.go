@@ -22,6 +22,9 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	} else if urlPath == "/main" {
 		templateOutput, _ := template.ParseFiles("./view/templates/overall.html", "./view/templates/main.html")
 		templateOutput.ExecuteTemplate(w, "overall", nil)
+	} else if urlPath == "/topics" {
+		templateOutput, _ := template.ParseFiles("./view/templates/overall.html", "./view/templates/topics.html")
+		templateOutput.ExecuteTemplate(w, "overall", nil)
 	} else if urlPath == "/posts" {
 		templateOutput, _ := template.ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
 		templateOutput.ExecuteTemplate(w, "overall", nil)
