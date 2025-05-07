@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"golang-bb/internal/logger"
+	"phpbb-golang/internal/logger"
 )
 
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
