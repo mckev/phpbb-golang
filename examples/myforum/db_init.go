@@ -5,22 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	_ "github.com/mattn/go-sqlite3"
-
-	"phpbb-golang/internal/logger"
+	"phpbb-golang/model"
 )
-
-func OpenDb(ctx context.Context, tableName string) *sql.DB {
-	// Refs:
-	//   - https://go.dev/doc/tutorial/database-access
-	//   - https://www.phpbb.com/demo/
-	dbDSN := fmt.Sprintf("file:./db/%s.db?_foreign_keys=on", tableName)
-	db, err := sql.Open("sqlite3", dbDSN)
-	if err != nil {
-		logger.Fatalf(ctx, "Error while opening Database DSN %s: %s", dbDSN, err)
-	}
-	return db
-}
 
 func PopulateDb(ctx context.Context) error {
 	// Ref: https://www.erdcloud.com/d/23zvQbme2zHiLtYmf
@@ -28,73 +14,42 @@ func PopulateDb(ctx context.Context) error {
 	// Schema
 	var dbForum, dbTopic, dbPost *sql.DB
 	{
-		dbForum = OpenDb(ctx, "forums")
+		dbForum = model.OpenDb(ctx, "forums")
+		defer dbForum.Close()
 		sql := `DROP TABLE IF EXISTS forums`
 		_, err := dbForum.Exec(sql)
 		if err != nil {
-			return fmt.Errorf("Error while dropping table forums: %s", err)
+			return fmt.Errorf("Error while dropping forums table: %s", err)
 		}
-		// On PostgreSQL:  forum_id MEDIUMINT(8) PRIMARY KEY AUTOINCREMENT NOT NULL,
-		sql = `CREATE TABLE forums (
-			forum_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			parent_id MEDIUMINT(8) NOT NULL DEFAULT '0',
-			forum_name VARCHAR(255) NOT NULL DEFAULT '',
-			forum_desc TEXT NOT NULL DEFAULT '',
-			FOREIGN KEY (parent_id) REFERENCES forums(forum_id)
-		)`
-		_, err = dbForum.Exec(sql)
+		err = model.InitForums(ctx)
 		if err != nil {
-			return fmt.Errorf("Error while creating table forums: %s", err)
-		}
-		_, err = dbForum.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc) VALUES (?, ?, ?, ?)`, 0, 0, "Root", "")
-		if err != nil {
-			return fmt.Errorf("Error while inserting table forums: %s", err)
+			return fmt.Errorf("Error while initializing forums table: %s", err)
 		}
 	}
 	{
-		dbTopic = OpenDb(ctx, "topics")
+		dbTopic = model.OpenDb(ctx, "topics")
+		defer dbTopic.Close()
 		sql := `DROP TABLE IF EXISTS topics`
 		_, err := dbTopic.Exec(sql)
 		if err != nil {
-			return fmt.Errorf("Error while dropping table topics: %s", err)
+			return fmt.Errorf("Error while dropping topics table: %s", err)
 		}
-		// On PostgreSQL:  topic_id INT(10) PRIMARY KEY AUTOINCREMENT NOT NULL,
-		sql = `CREATE TABLE topics (
-			topic_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			forum_id MEDIUMINT(8) NOT NULL DEFAULT '0',
-			topic_title VARCHAR(255) NOT NULL DEFAULT '',
-			topic_time INT(11) NOT NULL DEFAULT '0',
-			topic_first_post_id INT(10) NOT NULL DEFAULT '0',
-			topic_last_post_id INT(10) NOT NULL DEFAULT '0',
-			topic_views MEDIUMINT(8) NOT NULL DEFAULT '0',
-			FOREIGN KEY (forum_id) REFERENCES forums(forum_id)
-		)`
-		_, err = dbTopic.Exec(sql)
+		err = model.InitTopics(ctx)
 		if err != nil {
-			return fmt.Errorf("Error while creating table topics: %s", err)
+			return fmt.Errorf("Error while initializing topics table: %s", err)
 		}
 	}
 	{
-		dbPost = OpenDb(ctx, "posts")
+		dbPost = model.OpenDb(ctx, "posts")
+		defer dbPost.Close()
 		sql := `DROP TABLE IF EXISTS posts`
 		_, err := dbPost.Exec(sql)
 		if err != nil {
-			return fmt.Errorf("Error while dropping table posts: %s", err)
+			return fmt.Errorf("Error while dropping posts table: %s", err)
 		}
-		// On PostgreSQL:  post_id INT(10) PRIMARY KEY AUTOINCREMENT NOT NULL,
-		sql = `CREATE TABLE posts (
-			post_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			topic_id INT(10) NOT NULL DEFAULT '0',
-			forum_id MEDIUMINT(8) NOT NULL DEFAULT '0',
-			post_subject VARCHAR(255) NOT NULL DEFAULT '',
-			post_text MEDIUMTEXT NOT NULL DEFAULT '',
-			post_time INT(11) NOT NULL DEFAULT '0',
-			FOREIGN KEY (topic_id) REFERENCES topics(topic_id),
-			FOREIGN KEY (forum_id) REFERENCES forums(forum_id)
-		)`
-		_, err = dbPost.Exec(sql)
+		err = model.InitPosts(ctx)
 		if err != nil {
-			return fmt.Errorf("Error while creating table posts: %s", err)
+			return fmt.Errorf("Error while initializing posts table: %s", err)
 		}
 	}
 

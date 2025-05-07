@@ -9,7 +9,9 @@ import (
 	"text/template"
 
 	"phpbb-golang/examples/myforum"
+	"phpbb-golang/internal/helper"
 	"phpbb-golang/internal/logger"
+	"phpbb-golang/model"
 )
 
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +40,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 func init_example(ctx context.Context) {
 	err := myforum.PopulateDb(ctx)
 	if err != nil {
-		logger.Errorf(ctx, "Unable to populate forums table: %s", err)
+		logger.Errorf(ctx, "Error while populating database: %s", err)
 		return
 	}
 }
@@ -46,7 +48,16 @@ func init_example(ctx context.Context) {
 func main() {
 	ctx := context.Background()
 
-	init_example(ctx)
+	{
+		init_example(ctx)
+		forums, err := model.ListForums(ctx)
+		if err != nil {
+			logger.Errorf(ctx, "Error while listing forums: %s", err)
+		}
+		for _, forum := range forums {
+			logger.Infof(ctx, "%s", helper.JsonDumps(forum))
+		}
+	}
 
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./view/static/assets/"))))
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./view/static/images/"))))
