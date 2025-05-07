@@ -39,7 +39,7 @@ func ListForums(ctx context.Context) ([]Forum, error) {
 	var forums []Forum
 	db := OpenDb(ctx, "forums")
 	defer db.Close()
-	rows, err := db.Query("SELECT * FROM forums ORDER BY forum_id")
+	rows, err := db.Query("SELECT forum_id, parent_id, forum_name, forum_desc FROM forums ORDER BY forum_id")
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying forums table: %s", err)
 	}
