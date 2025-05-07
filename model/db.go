@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"phpbb-golang/internal/logger"
 
 	_ "github.com/mattn/go-sqlite3"
+
+	"phpbb-golang/internal/logger"
 )
 
 func OpenDb(ctx context.Context, tableName string) *sql.DB {
