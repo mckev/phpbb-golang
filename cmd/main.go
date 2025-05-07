@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"phpbb-golang/examples/myforum"
 	"phpbb-golang/internal/logger"
 )
 
@@ -34,8 +35,19 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func init_example(ctx context.Context) {
+	err := myforum.PopulateDb(ctx)
+	if err != nil {
+		logger.Errorf(ctx, "Unable to populate forums table: %s", err)
+		return
+	}
+}
+
 func main() {
 	ctx := context.Background()
+
+	init_example(ctx)
+
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./view/static/assets/"))))
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./view/static/images/"))))
 	http.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("./view/static/styles/"))))

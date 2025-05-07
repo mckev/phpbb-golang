@@ -1,4 +1,7 @@
 {
     "editor.formatOnSave": true,
+    "go.lintFlags": [
+        "--exclude=error strings should not be capitalized (ST1005)",
+    ],
     "html.format.wrapLineLength": 500
 }
