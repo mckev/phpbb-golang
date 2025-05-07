@@ -3,9 +3,9 @@ A bulletin board inspired by phpBB. Written in Golang. It is using basic HTML, w
 
 
 # Screenshots
-![Main page](docs/screenshots/main.png?raw=true "Main page")
-![Topics page](docs/screenshots/topics.png?raw=true "Topics page")
-![Posts page](docs/screenshots/posts.png?raw=true "Posts page")
+![Main page](examples/myforum/screenshots/main.png?raw=true "Main page")
+![Topics page](examples/myforum/screenshots/topics.png?raw=true "Topics page")
+![Posts page](examples/myforum/screenshots/posts.png?raw=true "Posts page")
 
 
 # Setting up Development Environment on Windows
