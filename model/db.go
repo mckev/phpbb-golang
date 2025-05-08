@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"path"
 
 	_ "github.com/mattn/go-sqlite3"
 
@@ -14,7 +15,7 @@ func OpenDb(ctx context.Context, tableName string) *sql.DB {
 	// Refs:
 	//   - https://go.dev/doc/tutorial/database-access
 	//   - https://www.phpbb.com/demo/
-	dbDSN := fmt.Sprintf("file:./model/db/%s.db?_foreign_keys=on", tableName)
+	dbDSN := fmt.Sprintf("file:./model/db/%s.db?_foreign_keys=on", path.Base(tableName))
 	db, err := sql.Open("sqlite3", dbDSN)
 	if err != nil {
 		logger.Fatalf(ctx, "Error while opening %s table on database %s: %s", tableName, dbDSN, err)
@@ -26,14 +27,14 @@ func DropDb(ctx context.Context, tableName string) error {
 	// This is destructive!!
 	db := OpenDb(ctx, tableName)
 	defer db.Close()
-	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", Escape(tableName)))
+	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", SqlEscape(tableName)))
 	if err != nil {
 		return fmt.Errorf("Error while dropping %s table: %s", tableName, err)
 	}
 	return nil
 }
 
-func Escape(sql string) string {
+func SqlEscape(sql string) string {
 	// Escape the SQL data so that it is safe to use in query string. Please use prepared statement instead.
 	// Ref: https://stackoverflow.com/questions/31647406/mysql-real-escape-string-equivalent-for-golang
 	dest := make([]byte, 0, 2*len(sql))
