@@ -83,3 +83,31 @@ A bulletin board inspired by phpBB. Written in Golang. It is using basic HTML, w
           - Click "Extensions: Show Enabled Extensions".
           - On "Dev Containers" extension, click "Manage (Gear icon)  >  Extension Settings".
           - On "Containers: Execute in WSL", make sure "[X] Controls whether CLI commands should always be executed in WSL." is checked.
+
+
+# Development Tips
+ 1. To rebuild development environment:
+      - Launch Visual Studio Code.
+      - Click "View  >  Command Palette...".
+      - Click "Dev Containers: Rebuild Container".
+      - Run:
+          ```
+          go mod download
+          ```
+
+ 2. To run tests:
+      ```
+      go test ./...
+      ```
+
+    To force running all tests:
+      ```
+      go clean -testcache
+      ```
+
+ 3. To update "go.mod" and "go.sum" files:
+      ```
+      rm -f go.mod go.sum
+      go mod init phpbb-golang
+      go mod tidy
+      ```
