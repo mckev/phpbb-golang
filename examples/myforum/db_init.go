@@ -50,7 +50,7 @@ func PopulateDb(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		forumABId, err := model.InsertForum(ctx, forumAId, "Retirement, Pensions and <Peace> of Mind", "Preparing for life after work. RRSPs, RRIFs, TFSAs, annuities and meeting future financial and psychological needs.")
+		forumABId, err := model.InsertForum(ctx, forumAId, "Retirement, <script>alert('Test XSS')</script> Pensions and Peace of Mind", "Preparing for life after work. RRSPs, RRIFs, TFSAs, annuities and meeting future financial and psychological needs.")
 		if err != nil {
 			return err
 		}
