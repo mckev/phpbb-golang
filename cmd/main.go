@@ -22,18 +22,53 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 	if urlPath == "/" {
 		io.WriteString(w, "Welcome to Golang BB!")
-	} else if urlPath == "/main" {
-		templateOutput, _ := template.ParseFiles("./view/templates/overall.html", "./view/templates/main.html")
-		templateOutput.ExecuteTemplate(w, "overall", nil)
-	} else if urlPath == "/forums" {
-		templateOutput, _ := template.ParseFiles("./view/templates/overall.html", "./view/templates/forums.html")
-		templateOutput.ExecuteTemplate(w, "overall", nil)
-	} else if urlPath == "/topics" {
-		templateOutput, _ := template.ParseFiles("./view/templates/overall.html", "./view/templates/topics.html")
-		templateOutput.ExecuteTemplate(w, "overall", nil)
-	} else if urlPath == "/posts" {
-		templateOutput, _ := template.ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
-		templateOutput.ExecuteTemplate(w, "overall", nil)
+	} else if urlPath == "/myforum/main" {
+		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/main.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing template files: %s", err)
+			return
+		}
+		err = templateOutput.ExecuteTemplate(w, "overall", nil)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing template: %s", err)
+			return
+		}
+	} else if urlPath == "/myforum/forums" {
+		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/forums.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing template files: %s", err)
+			return
+		}
+		err = templateOutput.ExecuteTemplate(w, "overall", nil)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing template: %s", err)
+			return
+		}
+	} else if urlPath == "/myforum/topics" {
+		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/topics.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing template files: %s", err)
+			return
+		}
+		err = templateOutput.ExecuteTemplate(w, "overall", nil)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing template: %s", err)
+			return
+		}
+	} else if urlPath == "/myforum/posts" {
+		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/posts.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing template files: %s", err)
+			return
+		}
+		err = templateOutput.ExecuteTemplate(w, "overall", nil)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing template: %s", err)
+			return
+		}
+	} else {
+		logger.Errorf(ctx, "URL Path not supported: %s", urlPath)
+		return
 	}
 }
 
