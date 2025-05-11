@@ -12,6 +12,7 @@ func TestConvertBbcodeToHtml_Basic(t *testing.T) {
 	expected := "<b>Hello World</b>"
 	if actual != expected {
 		t.Errorf("Got %s, wanted %s", actual, expected)
+		return
 	}
 }
 
@@ -21,6 +22,7 @@ func TestConvertBbcodeToHtml_Quote(t *testing.T) {
 	expected := "<blockquote><cite>Somebody said:</cite>text</blockquote>"
 	if actual != expected {
 		t.Errorf("Got %s, wanted %s", actual, expected)
+		return
 	}
 }
 
@@ -30,6 +32,7 @@ func TestConvertBbcodeToHtml_UnmatchedClosingTags(t *testing.T) {
 	expected := `<div style="text-align: center;">[b]text</div>`
 	if actual != expected {
 		t.Errorf("Got %s, wanted %s", actual, expected)
+		return
 	}
 }
 
@@ -41,6 +44,7 @@ func TestConvertBbcodeToHtml_Ambiguous(t *testing.T) {
 		expected := `[quote=<b>text</b>[/quote]`
 		if actual != expected {
 			t.Errorf("Got %s, wanted %s", actual, expected)
+			return
 		}
 	}
 	{
@@ -49,6 +53,7 @@ func TestConvertBbcodeToHtml_Ambiguous(t *testing.T) {
 		expected := `[quote=text[/quote]`
 		if actual != expected {
 			t.Errorf("Got %s, wanted %s", actual, expected)
+			return
 		}
 	}
 }
@@ -59,6 +64,7 @@ func TestConvertBbcodeToHtml_BlockQuote(t *testing.T) {
 	expected := `<blockquote><div><cite><a href="/users?u=123">User</a> wrote: <a aria-label="View quoted post" href="/topics?p=456"><i aria-hidden="true" class="icon fa-arrow-circle-up fa-fw"></i></a></cite>text</div></blockquote>`
 	if actual != expected {
 		t.Errorf("Got %s, wanted %s", actual, expected)
+		return
 	}
 }
 
@@ -68,5 +74,6 @@ func TestConvertBbcodeToHtml_BlockQuoteXss(t *testing.T) {
 	expected := `<blockquote><div><cite><a href="/users?u=123&lt;script&gt;">User&lt;script&gt;</a> wrote: <a aria-label="View quoted post" href="/topics?p=&lt;script&gt;456"><i aria-hidden="true" class="icon fa-arrow-circle-up fa-fw"></i></a></cite>text &lt;script&gt; text</div></blockquote>`
 	if actual != expected {
 		t.Errorf("Got %s, wanted %s", actual, expected)
+		return
 	}
 }
