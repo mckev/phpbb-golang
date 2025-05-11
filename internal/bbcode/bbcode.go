@@ -1,7 +1,11 @@
 package bbcode
 
 import (
+	"time"
+
 	"github.com/frustra/bbcode"
+
+	"phpbb-golang/internal/helper"
 )
 
 func ConvertBbcodeToHtml(bbcodeStr string) string {
@@ -21,6 +25,18 @@ func ConvertBbcodeToHtml(bbcodeStr string) string {
 func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	// Custom tag [blockquote]
 	// Ref: https://www.phpbb.com/community/viewtopic.php?t=2649439: Quotes are formatted like this in the database:  [quote="User" post_id="???" time="???" userid="???"]
+	// Hierarchy:
+	//   - blockquoteHtmlTag <blockquote>
+	//       - divHtmlTag <div>
+	//           - citeHtmlTag <cite>
+	//               - userLinkTag <a href=<user_id>>
+	//                   - <user_name>
+	//               - " wrote: "
+	//               - postLinkTag <a href=<post_id>>
+	//                   - postIconTag <i class="icon fa-arrow-circle-up fa-fw">
+	//               - timeTag <span>
+	//                   - <time>
+	//           - <text>
 	blockquoteHtmlTag := bbcode.NewHTMLTag("")
 	blockquoteHtmlTag.Name = "blockquote"
 	in := node.GetOpeningTag()
@@ -35,6 +51,10 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	postid := ""
 	if val, ok := in.Args["post_id"]; ok && val != "" {
 		postid = val
+	}
+	var unixTimeInt64 int64
+	if val, ok := in.Args["time"]; ok && val != "" {
+		unixTimeInt64 = helper.StrToInt64(val, 0)
 	}
 	divHtmlTag := bbcode.NewHTMLTag("")
 	divHtmlTag.Name = "div"
@@ -63,6 +83,14 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	postIconTag.AppendChild(bbcode.NewHTMLTag(""))
 	postLinkTag.AppendChild(postIconTag)
 	citeHtmlTag.AppendChild(postLinkTag)
+	timeTag := bbcode.NewHTMLTag("")
+	timeTag.Name = "span"
+	timeTag.Attrs = map[string]string{
+		"class": "responsive-hide",
+	}
+	unixTime := time.Unix(unixTimeInt64, 0)
+	timeTag.AppendChild(bbcode.NewHTMLTag(unixTime.Format(time.RFC822)))
+	citeHtmlTag.AppendChild(timeTag)
 	divHtmlTag.AppendChild(citeHtmlTag)
 	text := bbcode.CompileText(node) // The text within [blockquote]...[/blockquote]
 	divHtmlTag.AppendChild(bbcode.NewHTMLTag(text))
