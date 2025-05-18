@@ -10,29 +10,27 @@ import (
 func PopulateDb(ctx context.Context) error {
 	// Schema
 	{
-		err := model.DropDb(ctx, "forums")
+		err := model.DropDb(ctx, "posts")
+		if err != nil {
+			return fmt.Errorf("Error while dropping posts table: %s", err)
+		}
+		err = model.DropDb(ctx, "topics")
+		if err != nil {
+			return fmt.Errorf("Error while dropping topics table: %s", err)
+		}
+		err = model.DropDb(ctx, "forums")
 		if err != nil {
 			return fmt.Errorf("Error while dropping forums table: %s", err)
 		}
-		err = model.InitForums(ctx)
-		if err != nil {
-			return fmt.Errorf("Error while initializing forums table: %s", err)
-		}
 	}
 	{
-		err := model.DropDb(ctx, "topics")
+		err := model.InitForums(ctx)
 		if err != nil {
-			return fmt.Errorf("Error while dropping topics table: %s", err)
+			return fmt.Errorf("Error while initializing forums table: %s", err)
 		}
 		err = model.InitTopics(ctx)
 		if err != nil {
 			return fmt.Errorf("Error while initializing topics table: %s", err)
-		}
-	}
-	{
-		err := model.DropDb(ctx, "posts")
-		if err != nil {
-			return fmt.Errorf("Error while dropping posts table: %s", err)
 		}
 		err = model.InitPosts(ctx)
 		if err != nil {
@@ -40,7 +38,7 @@ func PopulateDb(ctx context.Context) error {
 		}
 	}
 
-	// Data
+	// Forums
 	{
 		forumAId, err := model.InsertForum(ctx, 0, "Your Money", "")
 		if err != nil {
@@ -83,9 +81,16 @@ func PopulateDb(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		_, err = model.InsertForum(ctx, forumBId, "Now Hear This!", "Announcements from the Management and assistance with forum software. New to FWF? Please consider introducing yourself")
+		forumBBId, err := model.InsertForum(ctx, forumBId, "Now Hear This!", "Announcements from the Management and assistance with forum software. New to FWF? Please consider introducing yourself")
 		if err != nil {
 			return err
+		}
+		{
+			// Topics: Now Hear This!
+			_, err := model.InsertTopic(ctx, forumBBId, "We're now powered by phpBB 3.3")
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

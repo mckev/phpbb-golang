@@ -35,6 +35,20 @@ func InitForums(ctx context.Context) error {
 	return nil
 }
 
+func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc string) (int, error) {
+	db := OpenDb(ctx, "forums")
+	defer db.Close()
+	res, err := db.Exec(`INSERT INTO forums (parent_id, forum_name, forum_desc) VALUES ($1, $2, $3)`, parentId, forumName, forumDesc)
+	if err != nil {
+		return -1, fmt.Errorf("Error while inserting forum '%s' with description '%s' and parent forum %d into forums table: %s", forumName, forumDesc, parentId, err)
+	}
+	forumId, err := res.LastInsertId()
+	if err != nil {
+		return -1, fmt.Errorf("Error while retrieving last insert id for forum '%s': %s", forumName, err)
+	}
+	return int(forumId), nil
+}
+
 func ListForums(ctx context.Context) ([]Forum, error) {
 	// Ref: https://go.dev/doc/tutorial/database-access
 	db := OpenDb(ctx, "forums")
@@ -56,18 +70,4 @@ func ListForums(ctx context.Context) ([]Forum, error) {
 		return nil, fmt.Errorf("Error on rows on forums table: %s", err)
 	}
 	return forums, nil
-}
-
-func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc string) (int, error) {
-	db := OpenDb(ctx, "forums")
-	defer db.Close()
-	res, err := db.Exec(`INSERT INTO forums (parent_id, forum_name, forum_desc) VALUES ($1, $2, $3)`, parentId, forumName, forumDesc)
-	if err != nil {
-		return -1, fmt.Errorf("Error while inserting forum %s with description %s and parent %d into forums table: %s", forumName, forumDesc, parentId, err)
-	}
-	forumId, err := res.LastInsertId()
-	if err != nil {
-		return -1, fmt.Errorf("Error while retrieving last insert id: %s", err)
-	}
-	return int(forumId), nil
 }
