@@ -1,6 +1,6 @@
 module phpbb-golang
 
-go 1.23.8
+go 1.23.4
 
 require (
 	github.com/frustra/bbcode v0.0.0-20201127003707-6ef347fbe1c8
