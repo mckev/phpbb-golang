@@ -9,9 +9,7 @@ import (
 	"text/template"
 
 	"phpbb-golang/examples/myforum"
-	"phpbb-golang/internal/helper"
 	"phpbb-golang/internal/logger"
-	"phpbb-golang/model"
 )
 
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
@@ -72,39 +70,12 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func init_example(ctx context.Context) {
-	err := myforum.PopulateDb(ctx)
-	if err != nil {
-		logger.Errorf(ctx, "Error while populating database: %s", err)
-		return
-	}
-}
-
 func main() {
 	ctx := context.Background()
 
-	{
-		init_example(ctx)
-		logger.Infof(ctx, "Forums:")
-		forums, err := model.ListForums(ctx)
-		if err != nil {
-			logger.Errorf(ctx, "Error while listing forums: %s", err)
-		}
-		for _, forum := range forums {
-			logger.Infof(ctx, "%s", helper.JsonDumps(forum))
-		}
-		logger.Infof(ctx, "")
-
-		logger.Infof(ctx, "Topics of 'Now Hear This!':")
-		topics, err := model.ListTopics(ctx, 10)
-		if err != nil {
-			logger.Errorf(ctx, "Error while listing topics: %s", err)
-		}
-		for _, topic := range topics {
-			logger.Infof(ctx, "%s", helper.JsonDumps(topic))
-		}
-		logger.Infof(ctx, "")
-	}
+	// MyForum example
+	myforum.InitMyforum(ctx)
+	myforum.DebugMyforum(ctx)
 
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./view/static/assets/"))))
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./view/static/images/"))))
