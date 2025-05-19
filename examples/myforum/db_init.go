@@ -87,7 +87,30 @@ func PopulateDb(ctx context.Context) error {
 		}
 		{
 			// Topics: Now Hear This!
-			_, err := model.InsertTopic(ctx, forumBBId, "We're now powered by phpBB 3.3")
+			topicBB1Id, err := model.InsertTopic(ctx, forumBBId, "We're now powered by phpBB 3.3")
+			if err != nil {
+				return err
+			}
+			_, err = model.InsertPost(ctx, topicBB1Id, forumBBId, "We're now powered by phpBB 3.3", `We are pleased to announce that the board has been upgraded to the [url=https://www.phpbb.com/about/launch/]phpBB 3.3[/url] Feature Release.
+
+There have only been minor changes to the user interface and features that a keen eyed observer might see. We expect that many of you probably won't be able to notice any difference.
+
+For the most part this upgrade was about getting the underlying components and frameworks to a more modern base, which should result in some performance improvement.
+
+For those keeping track, the fix for [url=https://www.financialwisdomforum.org/forum/viewtopic.php?p=650049#p650049]this bug[/url] hasn't been included in this phpBB feature release. It is due in the next, currently unscheduled, bugfix release. A reminder that the workaround is to delete the PM when reading it, not from the list of PMs.
+
+Please use this topic if you encounter any problems.`)
+			if err != nil {
+				return err
+			}
+			_, err = model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar_Investor" user_id="636" post_id="659301" time="1586687280"]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
+
+I would't know anything had changed if not for your posts/updates.
+As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`)
+			if err != nil {
+				return err
+			}
+			_, err = model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: We're now powered by phpBB 3.3", `Haven't noticed any differences.`)
 			if err != nil {
 				return err
 			}

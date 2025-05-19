@@ -35,4 +35,14 @@ func DebugMyforum(ctx context.Context) {
 		logger.Infof(ctx, "%s", helper.JsonDumps(topic))
 	}
 	logger.Infof(ctx, "")
+
+	logger.Infof(ctx, "Posts of 'We're now powered by phpBB 3.3':")
+	posts, err := model.ListPosts(ctx, 1)
+	if err != nil {
+		logger.Errorf(ctx, "Error while listing posts: %s", err)
+	}
+	for _, post := range posts {
+		logger.Infof(ctx, "%s", helper.JsonDumps(post))
+	}
+	logger.Infof(ctx, "")
 }
