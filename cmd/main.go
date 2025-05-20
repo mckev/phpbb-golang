@@ -10,6 +10,7 @@ import (
 
 	"phpbb-golang/examples/myforum"
 	"phpbb-golang/internal/logger"
+	"phpbb-golang/model"
 )
 
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
@@ -60,6 +61,28 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err = templateOutput.ExecuteTemplate(w, "overall", nil)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing template: %s", err)
+			return
+		}
+	} else if urlPath == "/posts" {
+		templateOutput, err := template.ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing template files: %s", err)
+			return
+		}
+		posts, err := model.ListPosts(ctx, 1)
+		if err != nil {
+			logger.Errorf(ctx, "Error while listing posts: %s", err)
+			return
+		}
+		type PostsPageData struct {
+			Posts []model.Post
+		}
+		postsPageData := PostsPageData{
+			Posts: posts,
+		}
+		err = templateOutput.ExecuteTemplate(w, "overall", postsPageData)
 		if err != nil {
 			logger.Errorf(ctx, "Error while executing template: %s", err)
 			return
