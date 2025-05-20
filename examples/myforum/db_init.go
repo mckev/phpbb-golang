@@ -51,9 +51,17 @@ func PopulateDb(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	err = model.SetUserType(ctx, user1, model.USER_FOUNDER)
+	if err != nil {
+		return err
+	}
 	user2, err := model.InsertUser(ctx, "PeculiarInvestor", "Password1", `[url=https://www.finiki.org/wiki/Main_Page][img]https://www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg[/img]finiki, the Canadian financial wiki[/url] New editors wanted and welcomed, please help collaborate and improve the wiki.
 
 "Normal people... believe that if it ain't broke, don't fix it. Engineers believe that if it ain't broke, it doesn't have enough features yet." - Scott Adams`)
+	if err != nil {
+		return err
+	}
+	err = model.SetUserType(ctx, user2, model.USER_FOUNDER)
 	if err != nil {
 		return err
 	}
@@ -145,9 +153,21 @@ Please use this topic if you encounter any problems.`, user2)
 			if err != nil {
 				return err
 			}
+			err = model.IncreaseNumPostsForUser(ctx, user2)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForUser(ctx, user2)
+			if err != nil {
+				return err
+			}
 			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar_Investor" user_id="636" post_id="659301" time="1586687280"]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
 I would't know anything had changed if not for your posts/updates.
 As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`, user3)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForUser(ctx, user3)
 			if err != nil {
 				return err
 			}
@@ -155,7 +175,10 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
-
+			err = model.IncreaseNumPostsForUser(ctx, user4)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

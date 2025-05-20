@@ -68,22 +68,26 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if urlPath == "/posts" {
-		// Function Maps
+		// Template Functions
 		funcMap := template.FuncMap{
 			"fnUnixTimeToStr": func(unixTime int64) string {
 				return helper.UnixTimeToStr(unixTime)
 			},
-			"fnBbcodeToHtml": func(s string) template.HTML {
-				// To print raw, unescaped HTML within a Go HTML template, the html/template package provides the HTML type. By converting a string containing HTML to template.HTML, you can instruct the template engine to render it as raw HTML instead of escaping it for safe output.
+			"fnBbcodeToHtml": func(bbcodeStr string) template.HTML {
+				// To print raw, unescaped HTML within a Go HTML template, the html/template package provides the template.HTML type. By converting a string containing HTML to template.HTML, you can instruct the template engine to render it as raw HTML instead of escaping it for safe output.
 				// Warning: Since this Go template function outputs raw HTML, make sure it is safe from attacks such as XSS.
-				return template.HTML(bbcode.ConvertBbcodeToHtml(s))
+				return template.HTML(bbcode.ConvertBbcodeToHtml(bbcodeStr))
 			},
 		}
+
+		// Prepare template files
 		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
 		if err != nil {
 			logger.Errorf(ctx, "Error while parsing template files: %s", err)
 			return
 		}
+
+		// Prepare data
 		TOPIC_ID := 2
 		posts, err := model.ListPosts(ctx, TOPIC_ID)
 		if err != nil {
@@ -91,8 +95,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		users, err := model.ListUsers(ctx, TOPIC_ID)
-		// Convert users from a list into a map
-		usersMap := map[int]model.User{}
+		usersMap := map[int]model.User{} // Convert users from a list into a map
 		for _, user := range users {
 			usersMap[user.UserId] = user
 		}
@@ -104,6 +107,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			Posts:    posts,
 			UsersMap: usersMap,
 		}
+
 		// Go HTML Templates:
 		//   - Go's html/template package automatically strips HTML comments (<!-- comment -->) during template execution.
 		//   - Go templates do not inherently support nested template definitions in the way one might expect from other templating engines. While you can define templates within other templates using {{define}}, they are all effectively "hoisted" to the top level and treated as independent templates within a single namespace. This means you can't directly access a nested template as a property of its parent.

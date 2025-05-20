@@ -25,11 +25,12 @@ func GenerateRandomSalt(length int) string {
 func HashPassword(password string, salt string) string {
 	passwordWithSalt := fmt.Sprintf("%s:%s", salt, password)
 	hashedPasswordWithSalt := Sha256(passwordWithSalt)
-	return fmt.Sprintf("sha256:%s:%s", salt, hashedPasswordWithSalt)
+	hashedPasswordWithSaltAndHeader := fmt.Sprintf("sha256:%s:%s", salt, hashedPasswordWithSalt)
+	return hashedPasswordWithSaltAndHeader
 }
 
-func IsPasswordCorrect(password string, hashedPasswordWithSalt string) bool {
-	parts := strings.Split(hashedPasswordWithSalt, ":")
+func IsPasswordCorrect(password string, hashedPasswordWithSaltAndHeader string) bool {
+	parts := strings.Split(hashedPasswordWithSaltAndHeader, ":")
 	if len(parts) != 3 {
 		return false
 	}
@@ -37,7 +38,7 @@ func IsPasswordCorrect(password string, hashedPasswordWithSalt string) bool {
 		return false
 	}
 	salt := parts[1]
-	if HashPassword(password, salt) != hashedPasswordWithSalt {
+	if HashPassword(password, salt) != hashedPasswordWithSaltAndHeader {
 		return false
 	}
 	return true

@@ -41,11 +41,11 @@ func InsertTopic(ctx context.Context, forumId int, topicTitle string) (int, erro
 	topicTime := now.Unix()
 	res, err := db.Exec(`INSERT INTO topics (forum_id, topic_title, topic_time) VALUES ($1, $2, $3)`, forumId, topicTitle, topicTime)
 	if err != nil {
-		return -1, fmt.Errorf("Error while inserting topic '%s' with parent forum %d into topics table: %s", topicTitle, forumId, err)
+		return -1, fmt.Errorf("Error while inserting topic title '%s' with forum id %d into topics table: %s", topicTitle, forumId, err)
 	}
 	topicId, err := res.LastInsertId()
 	if err != nil {
-		return -1, fmt.Errorf("Error while retrieving last insert id for topic '%s': %s", topicTitle, err)
+		return -1, fmt.Errorf("Error while retrieving last insert id for topic title '%s': %s", topicTitle, err)
 	}
 	return int(topicId), nil
 }
@@ -55,19 +55,19 @@ func ListTopics(ctx context.Context, forumId int) ([]Topic, error) {
 	defer db.Close()
 	rows, err := db.Query("SELECT topic_id, forum_id, topic_title, topic_time FROM topics WHERE forum_id = $1 ORDER BY topic_id", forumId)
 	if err != nil {
-		return nil, fmt.Errorf("Error while querying topics table: %s", err)
+		return nil, fmt.Errorf("Error while querying topics table for forum id %d: %s", forumId, err)
 	}
 	defer rows.Close()
 	var topics []Topic
 	for rows.Next() {
 		var topic Topic
 		if err := rows.Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicTime); err != nil {
-			return nil, fmt.Errorf("Error while scanning rows on topics table: %s", err)
+			return nil, fmt.Errorf("Error while scanning rows on topics table for forum id %d: %s", forumId, err)
 		}
 		topics = append(topics, topic)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("Error on rows on topics table: %s", err)
+		return nil, fmt.Errorf("Error on rows on topics table for forum id %d: %s", forumId, err)
 	}
 	return topics, nil
 }

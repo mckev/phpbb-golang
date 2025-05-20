@@ -10,47 +10,47 @@ import (
 type Severity int
 
 const (
-	Debug Severity = iota
-	Info
-	Warning
-	Error
-	Critical
+	DEBUG Severity = iota
+	INFO
+	WARNING
+	ERROR
+	CRITICAL
 )
 
 func handleLog(ctx context.Context, severity Severity, message string) {
 	prefix := "UNKNOWN"
 	switch severity {
-	case Debug:
+	case DEBUG:
 		prefix = "DEBUG"
-	case Info:
+	case INFO:
 		prefix = "INFO"
-	case Warning:
+	case WARNING:
 		prefix = "WARN"
-	case Error:
+	case ERROR:
 		prefix = "ERROR"
-	case Critical:
+	case CRITICAL:
 		prefix = "FATAL"
 	}
 	log.Printf("%s: %s", prefix, message)
 }
 
 func Debugf(ctx context.Context, format string, v ...any) {
-	handleLog(ctx, Debug, fmt.Sprintf(format, v...))
+	handleLog(ctx, DEBUG, fmt.Sprintf(format, v...))
 }
 
 func Infof(ctx context.Context, format string, v ...any) {
-	handleLog(ctx, Info, fmt.Sprintf(format, v...))
+	handleLog(ctx, INFO, fmt.Sprintf(format, v...))
 }
 
 func Warnf(ctx context.Context, format string, v ...any) {
-	handleLog(ctx, Warning, fmt.Sprintf(format, v...))
+	handleLog(ctx, WARNING, fmt.Sprintf(format, v...))
 }
 
 func Errorf(ctx context.Context, format string, v ...any) {
-	handleLog(ctx, Error, fmt.Sprintf(format, v...))
+	handleLog(ctx, ERROR, fmt.Sprintf(format, v...))
 }
 
 func Fatalf(ctx context.Context, format string, v ...any) {
-	handleLog(ctx, Critical, fmt.Sprintf(format, v...))
+	handleLog(ctx, CRITICAL, fmt.Sprintf(format, v...))
 	os.Exit(1)
 }

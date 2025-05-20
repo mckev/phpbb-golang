@@ -30,7 +30,7 @@ func InitForums(ctx context.Context) error {
 	}
 	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc) VALUES ($1, $2, $3, $4)`, 0, 0, "root", "")
 	if err != nil {
-		return fmt.Errorf("Error while inserting root forums table: %s", err)
+		return fmt.Errorf("Error while inserting root into forums table: %s", err)
 	}
 	return nil
 }
@@ -40,11 +40,11 @@ func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc 
 	defer db.Close()
 	res, err := db.Exec(`INSERT INTO forums (parent_id, forum_name, forum_desc) VALUES ($1, $2, $3)`, parentId, forumName, forumDesc)
 	if err != nil {
-		return -1, fmt.Errorf("Error while inserting forum '%s' with description '%s' and parent forum %d into forums table: %s", forumName, forumDesc, parentId, err)
+		return -1, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent forum %d into forums table: %s", forumName, forumDesc, parentId, err)
 	}
 	forumId, err := res.LastInsertId()
 	if err != nil {
-		return -1, fmt.Errorf("Error while retrieving last insert id for forum '%s': %s", forumName, err)
+		return -1, fmt.Errorf("Error while retrieving last insert id for forum name '%s': %s", forumName, err)
 	}
 	return int(forumId), nil
 }

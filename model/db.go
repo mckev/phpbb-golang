@@ -17,24 +17,24 @@ func OpenDb(ctx context.Context, tableName string) *sql.DB {
 	dbDSN := "file:./model/db/main.db?_foreign_keys=on"
 	db, err := sql.Open("sqlite3", dbDSN)
 	if err != nil {
-		logger.Fatalf(ctx, "Error while opening %s table on database %s: %s", tableName, dbDSN, err)
+		logger.Fatalf(ctx, "Error while opening table '%s' on database '%s': %s", tableName, dbDSN, err)
 	}
 	return db
 }
 
 func DropDb(ctx context.Context, tableName string) error {
-	// This is destructive!!
+	// Warning: This is destructive!!
 	db := OpenDb(ctx, tableName)
 	defer db.Close()
 	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", SqlEscape(tableName)))
 	if err != nil {
-		return fmt.Errorf("Error while dropping %s table: %s", tableName, err)
+		return fmt.Errorf("Error while dropping table '%s': %s", tableName, err)
 	}
 	return nil
 }
 
 func SqlEscape(sql string) string {
-	// Escape the SQL data so that it is safe to use in query string. Please use prepared statement instead.
+	// Escape the SQL data so that it is safe to use in query string. Please use prepared statement instead!
 	// Ref: https://stackoverflow.com/questions/31647406/mysql-real-escape-string-equivalent-for-golang
 	dest := make([]byte, 0, 2*len(sql))
 	var escape byte
