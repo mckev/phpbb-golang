@@ -10,6 +10,7 @@ import (
 
 	"phpbb-golang/examples/myforum"
 	"phpbb-golang/internal/bbcode"
+	"phpbb-golang/internal/helper"
 	"phpbb-golang/internal/logger"
 	"phpbb-golang/model"
 )
@@ -69,7 +70,10 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	} else if urlPath == "/posts" {
 		// Function Maps
 		funcMap := template.FuncMap{
-			"fnBbcode": func(s string) template.HTML {
+			"fnUnixTimeToStr": func(unixTime int64) string {
+				return helper.UnixTimeToStr(unixTime)
+			},
+			"fnBbcodeToHtml": func(s string) template.HTML {
 				// To print raw, unescaped HTML within a Go HTML template, the html/template package provides the HTML type. By converting a string containing HTML to template.HTML, you can instruct the template engine to render it as raw HTML instead of escaping it for safe output.
 				return template.HTML(bbcode.ConvertBbcodeToHtml(s))
 			},

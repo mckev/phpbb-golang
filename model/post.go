@@ -12,7 +12,7 @@ type Post struct {
 	ForumId     int    `json:"forum_id"`
 	PostSubject string `json:"post_subject"`
 	PostText    string `json:"post_text"`
-	PostTime    int    `json:"post_time"`
+	PostTime    int64  `json:"post_time"`
 }
 
 func InitPosts(ctx context.Context) error {

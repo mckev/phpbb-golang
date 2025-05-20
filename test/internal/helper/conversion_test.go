@@ -34,3 +34,12 @@ func TestStrToInt64_Invalid(t *testing.T) {
 		return
 	}
 }
+
+func TestUnixTimeToStr(t *testing.T) {
+	actual := helper.UnixTimeToStr(1234567890)
+	expected := "13 Feb 09 23:31 UTC"
+	if actual != expected {
+		t.Errorf("Got %s, wanted %s", actual, expected)
+		return
+	}
+}

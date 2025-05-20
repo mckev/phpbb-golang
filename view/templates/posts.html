@@ -50,11 +50,11 @@
                         <a class="unread" href="./viewtopic.php?p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f#p{{ .PostId }}" title="Post">
                             <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">Post</span>
                         </a>
-                        <span class="responsive-hide">by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=636&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">Peculiar_Investor</a></strong> &raquo; </span><time datetime="2020-04-11T03:11:49+00:00">10 Apr 2020 23:11</time>
+                        <span class="responsive-hide">by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=636&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">Peculiar_Investor</a></strong> &raquo; </span><time>{{ .PostTime | fnUnixTimeToStr }}</time>
                     </p>
-                    <span class="hide postdetails" data-quote-url="./posting.php?mode=quote&amp;p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" data-posttime="1586574709" data-poster-id="636" data-poster-name="Peculiar_Investor"></span>
+                    <span class="hide postdetails" data-quote-url="./posting.php?mode=quote&amp;p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" data-posttime="{{ .PostTime }}" data-poster-id="636" data-poster-name="Peculiar_Investor"></span>
                     <div class="content">
-                        {{ .PostText | fnBbcode }}
+                        {{ .PostText | fnBbcodeToHtml }}
                     </div>
                     <div id="sig{{ .PostId }}" class="signature"><a href="//www.finiki.org/wiki/Main_Page" class="postlink"><img src="//www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg" alt="finiki logo" width="17" height="17">
                             finiki, the Canadian financial wiki

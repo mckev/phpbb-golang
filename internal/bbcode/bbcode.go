@@ -1,8 +1,6 @@
 package bbcode
 
 import (
-	"time"
-
 	"github.com/frustra/bbcode"
 
 	"phpbb-golang/internal/helper"
@@ -52,9 +50,9 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	if val, ok := in.Args["post_id"]; ok && val != "" {
 		postid = val
 	}
-	var unixTimeInt64 int64
+	var unixTime int64
 	if val, ok := in.Args["time"]; ok && val != "" {
-		unixTimeInt64 = helper.StrToInt64(val, 0)
+		unixTime = helper.StrToInt64(val, 0)
 	}
 	divHtmlTag := bbcode.NewHTMLTag("")
 	divHtmlTag.Name = "div"
@@ -88,8 +86,7 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	timeTag.Attrs = map[string]string{
 		"class": "responsive-hide",
 	}
-	unixTime := time.Unix(unixTimeInt64, 0)
-	timeTag.AppendChild(bbcode.NewHTMLTag(unixTime.Format(time.RFC822)))
+	timeTag.AppendChild(bbcode.NewHTMLTag(helper.UnixTimeToStr(unixTime)))
 	citeHtmlTag.AppendChild(timeTag)
 	divHtmlTag.AppendChild(citeHtmlTag)
 	text := bbcode.CompileText(node) // The text within [blockquote]...[/blockquote]
