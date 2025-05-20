@@ -75,6 +75,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			},
 			"fnBbcodeToHtml": func(s string) template.HTML {
 				// To print raw, unescaped HTML within a Go HTML template, the html/template package provides the HTML type. By converting a string containing HTML to template.HTML, you can instruct the template engine to render it as raw HTML instead of escaping it for safe output.
+				// Warning: Since this Go template function outputs raw HTML, make sure it is safe from attacks such as XSS.
 				return template.HTML(bbcode.ConvertBbcodeToHtml(s))
 			},
 		}
@@ -83,16 +84,25 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while parsing template files: %s", err)
 			return
 		}
-		posts, err := model.ListPosts(ctx, 1)
+		TOPIC_ID := 2
+		posts, err := model.ListPosts(ctx, TOPIC_ID)
 		if err != nil {
 			logger.Errorf(ctx, "Error while listing posts: %s", err)
 			return
 		}
+		users, err := model.ListUsers(ctx, TOPIC_ID)
+		// Convert users from a list into a map
+		usersMap := map[int]model.User{}
+		for _, user := range users {
+			usersMap[user.UserId] = user
+		}
 		type PostsPageData struct {
-			Posts []model.Post
+			Posts    []model.Post
+			UsersMap map[int]model.User
 		}
 		postsPageData := PostsPageData{
-			Posts: posts,
+			Posts:    posts,
+			UsersMap: usersMap,
 		}
 		// Go HTML Templates:
 		//   - Go's html/template package automatically strips HTML comments (<!-- comment -->) during template execution.

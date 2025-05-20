@@ -22,9 +22,17 @@ func PopulateDb(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("Error while dropping forums table: %s", err)
 		}
+		err = model.DropDb(ctx, "users")
+		if err != nil {
+			return fmt.Errorf("Error while dropping users table: %s", err)
+		}
 	}
 	{
-		err := model.InitForums(ctx)
+		err := model.InitUsers(ctx)
+		if err != nil {
+			return fmt.Errorf("Error while initializing users table: %s", err)
+		}
+		err = model.InitForums(ctx)
 		if err != nil {
 			return fmt.Errorf("Error while initializing forums table: %s", err)
 		}
@@ -36,6 +44,26 @@ func PopulateDb(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("Error while initializing posts table: %s", err)
 		}
+	}
+
+	// Users
+	user1, err := model.InsertUser(ctx, "The Management", "Password1", "Sic transit gloria mundi. Tuesday is usually worse. - Robert A. Heinlein, Starman Jones")
+	if err != nil {
+		return err
+	}
+	user2, err := model.InsertUser(ctx, "PeculiarInvestor", "Password1", `[url=https://www.finiki.org/wiki/Main_Page][img]https://www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg[/img]finiki, the Canadian financial wiki[/url] New editors wanted and welcomed, please help collaborate and improve the wiki.
+
+"Normal people... believe that if it ain't broke, don't fix it. Engineers believe that if it ain't broke, it doesn't have enough features yet." - Scott Adams`)
+	if err != nil {
+		return err
+	}
+	user3, err := model.InsertUser(ctx, "OnlyMyOpinion", "Password1", "")
+	if err != nil {
+		return err
+	}
+	user4, err := model.InsertUser(ctx, "DenisD", "Password4", "")
+	if err != nil {
+		return err
 	}
 
 	// Forums
@@ -86,12 +114,26 @@ func PopulateDb(ctx context.Context) error {
 			return err
 		}
 		{
-			// Topics: Now Hear This!
-			topicBB1Id, err := model.InsertTopic(ctx, forumBBId, "We're now powered by phpBB 3.3")
+			// Topic of "Now Hear This!" forum : Introduce Yourself
+			topicBB1Id, err := model.InsertTopic(ctx, forumBBId, "Introduce Yourself")
 			if err != nil {
 				return err
 			}
-			_, err = model.InsertPost(ctx, topicBB1Id, forumBBId, "We're now powered by phpBB 3.3", `We are pleased to announce that the board has been upgraded to the [url=https://www.phpbb.com/about/launch/]phpBB 3.3[/url] Feature Release.
+			_, err = model.InsertPost(ctx, topicBB1Id, forumBBId, "Introduce Yourself", `Greetings. The purpose of this thread is to allow new posters to introduce themselves if they wish, giving as much - or as little - background as they want.
+
+Posting on this thread is entirely voluntary - but, if you do wish to post, thank you and welcome to the Financial Wisdom Forum (FWF)!
+
+-- The Management`, user1)
+			if err != nil {
+				return err
+			}
+
+			// Topic of "Now Hear This!" forum : We're now powered by phpBB 3.3
+			topicBB2Id, err := model.InsertTopic(ctx, forumBBId, "We're now powered by phpBB 3.3")
+			if err != nil {
+				return err
+			}
+			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "We're now powered by phpBB 3.3", `We are pleased to announce that the board has been upgraded to the [url=https://www.phpbb.com/about/launch/]phpBB 3.3[/url] Feature Release.
 
 There have only been minor changes to the user interface and features that a keen eyed observer might see. We expect that many of you probably won't be able to notice any difference.
 
@@ -99,20 +141,21 @@ For the most part this upgrade was about getting the underlying components and f
 
 For those keeping track, the fix for [url=https://www.financialwisdomforum.org/forum/viewtopic.php?p=650049#p650049]this bug[/url] hasn't been included in this phpBB feature release. It is due in the next, currently unscheduled, bugfix release. A reminder that the workaround is to delete the PM when reading it, not from the list of PMs.
 
-Please use this topic if you encounter any problems.`)
+Please use this topic if you encounter any problems.`, user2)
 			if err != nil {
 				return err
 			}
-			_, err = model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar_Investor" user_id="636" post_id="659301" time="1586687280"]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
+			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar_Investor" user_id="636" post_id="659301" time="1586687280"]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
 I would't know anything had changed if not for your posts/updates.
-As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`)
+As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`, user3)
 			if err != nil {
 				return err
 			}
-			_, err = model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: We're now powered by phpBB 3.3", `Haven't noticed any differences.`)
+			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `Haven't noticed any differences.`, user4)
 			if err != nil {
 				return err
 			}
+
 		}
 	}
 	return nil

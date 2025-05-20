@@ -14,53 +14,53 @@
         </div>
     </div>
 
-    {{ range $.Posts }}
-    <!-- Post {{ .PostId }} -->
-    <div id="p{{ .PostId }}" class="post has-profile bg2">
+    {{ $root := . }}
+    {{ range $post := $root.Posts }}
+    {{ $userId := $post.UserId }}
+    {{ $user := index $root.UsersMap $userId }}
+    <!-- Post {{ $post.PostId }} -->
+    <div id="p{{ $post.PostId }}" class="post has-profile bg2">
         <div class="inner">
-            <dl class="postprofile" id="profile{{ .PostId }}">
+            <dl class="postprofile" id="profile{{ $post.PostId }}">
                 <dt class="has-profile-rank has-avatar">
                     <div class="avatar-container">
-                        <a href="./memberlist.php?mode=viewprofile&amp;u=636&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="avatar"><img class="avatar" src="./download/file.php?avatar=636_1735827993.jpg" width="100" height="100" alt="User avatar" /></a>
+                        <a href="./memberlist.php?mode=viewprofile&amp;u={{ $user.UserId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="avatar"><img class="avatar" src="./download/file.php?avatar={{ $user.UserId }}_1735827993.jpg" width="100" height="100" alt="User avatar" /></a>
                     </div>
-                    <a href="./memberlist.php?mode=viewprofile&amp;u=636&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">Peculiar_Investor</a>
+                    <a href="./memberlist.php?mode=viewprofile&amp;u={{ $user.UserId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">{{ $user.UserName }}</a>
                 </dt>
                 <dd class="profile-rank">Administrator<br /><img src="./images/ranks/modern-ranks/administrator.png" alt="Administrator" title="Administrator" /></dd>
-                <dd class="profile-posts"><strong>Posts:</strong> <a href="./search.php?author_id=636&amp;sr=posts&amp;sid=16b0d49d7062ba91d398d249acdd580f">14141</a></dd>
-                <dd class="profile-joined"><strong>Joined:</strong> 01 Mar 2005 14:52</dd>
+                <dd class="profile-posts"><strong>Posts:</strong> <a href="./search.php?author_id={{ $user.UserId }}&amp;sr=posts&amp;sid=16b0d49d7062ba91d398d249acdd580f">14141</a></dd>
+                <dd class="profile-joined"><strong>Joined:</strong> {{ $user.UserRegTime | fnUnixTimeToStr }} </dd>
             </dl>
             <div class="postbody">
-                <div id="post_content{{ .PostId }}">
+                <div id="post_content{{ $post.PostId }}">
                     <h3 class="first">
-                        <a href="./viewtopic.php?p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f#p{{ .PostId }}">{{ .PostSubject }}</a>
+                        <a href="./viewtopic.php?p={{ $post.PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f#p{{ $post.PostId }}">{{ $post.PostSubject }}</a>
                     </h3>
                     <ul class="post-buttons">
                         <li>
-                            <a href="./posting.php?mode=quote&amp;p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" title="Reply with quote" class="button button-icon-only">
+                            <a href="./posting.php?mode=quote&amp;p={{ $post.PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" title="Reply with quote" class="button button-icon-only">
                                 <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote</span>
                             </a>
                         </li>
                         <li>
-                            <a data-post-id="{{ .PostId }}" title="Select to quote multiple posts" class="button button-icon-only multiquote" onclick="multiquote(this)">
+                            <a data-post-id="{{ $post.PostId }}" title="Select to quote multiple posts" class="button button-icon-only multiquote" onclick="multiquote(this)">
                                 <i class="icon fa-comments fa-fw" aria-hidden="true"></i><span class="sr-only">Quote</span>
                             </a>
                         </li>
                     </ul>
                     <p class="author">
-                        <a class="unread" href="./viewtopic.php?p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f#p{{ .PostId }}" title="Post">
+                        <a class="unread" href="./viewtopic.php?p={{ $post.PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f#p{{ $post.PostId }}" title="Post">
                             <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">Post</span>
                         </a>
-                        <span class="responsive-hide">by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=636&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">Peculiar_Investor</a></strong> &raquo; </span><time>{{ .PostTime | fnUnixTimeToStr }}</time>
+                        <span class="responsive-hide">by <strong><a href="./memberlist.php?mode=viewprofile&amp;u={{ $user.UserId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">{{ $user.UserName }}</a></strong> &raquo; </span><time>{{ $post.PostTime | fnUnixTimeToStr }}</time>
                     </p>
-                    <span class="hide postdetails" data-quote-url="./posting.php?mode=quote&amp;p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" data-posttime="{{ .PostTime }}" data-poster-id="636" data-poster-name="Peculiar_Investor"></span>
+                    <span class="hide postdetails" data-quote-url="./posting.php?mode=quote&amp;p={{ $post.PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" data-posttime="{{ $post.PostTime }}" data-poster-id="{{ $user.UserId }}" data-poster-name="{{ $user.UserName }}"></span>
                     <div class="content">
-                        {{ .PostText | fnBbcodeToHtml }}
+                        {{ $post.PostText | fnBbcodeToHtml }}
                     </div>
-                    <div id="sig{{ .PostId }}" class="signature"><a href="//www.finiki.org/wiki/Main_Page" class="postlink"><img src="//www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg" alt="finiki logo" width="17" height="17">
-                            finiki, the Canadian financial wiki
-                        </a> New editors wanted and welcomed, please help collaborate and improve the wiki.<br>
-                        <br>
-                        "Normal people… believe that if it ain’t broke, don’t fix it. Engineers believe that if it ain’t broke, it doesn’t have enough features yet." – Scott Adams
+                    <div id="sig{{ $post.PostId }}" class="signature">
+                        {{ $user.UserSig | fnBbcodeToHtml }}
                     </div>
                 </div>
             </div>

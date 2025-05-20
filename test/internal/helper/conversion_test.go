@@ -1,8 +1,9 @@
 package helper
 
 import (
-	"phpbb-golang/internal/helper"
 	"testing"
+
+	"phpbb-golang/internal/helper"
 )
 
 func TestStrToInt64(t *testing.T) {

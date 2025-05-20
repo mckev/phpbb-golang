@@ -27,7 +27,8 @@ func DebugMyforum(ctx context.Context) {
 	logger.Infof(ctx, "")
 
 	logger.Infof(ctx, "Topics of 'Now Hear This!':")
-	topics, err := model.ListTopics(ctx, 10)
+	FORUM_ID := 10
+	topics, err := model.ListTopics(ctx, FORUM_ID)
 	if err != nil {
 		logger.Errorf(ctx, "Error while listing topics: %s", err)
 	}
@@ -37,12 +38,23 @@ func DebugMyforum(ctx context.Context) {
 	logger.Infof(ctx, "")
 
 	logger.Infof(ctx, "Posts of 'We're now powered by phpBB 3.3':")
-	posts, err := model.ListPosts(ctx, 1)
+	TOPIC_ID := 2
+	posts, err := model.ListPosts(ctx, TOPIC_ID)
 	if err != nil {
 		logger.Errorf(ctx, "Error while listing posts: %s", err)
 	}
 	for _, post := range posts {
 		logger.Infof(ctx, "%s", helper.JsonDumps(post))
+	}
+	logger.Infof(ctx, "")
+
+	logger.Infof(ctx, "Users of 'We're now powered by phpBB 3.3':")
+	users, err := model.ListUsers(ctx, TOPIC_ID)
+	if err != nil {
+		logger.Errorf(ctx, "Error while listing users: %s", err)
+	}
+	for _, user := range users {
+		logger.Infof(ctx, "%s", helper.JsonDumps(user))
 	}
 	logger.Infof(ctx, "")
 }
