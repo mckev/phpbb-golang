@@ -104,7 +104,6 @@ Please use this topic if you encounter any problems.`)
 				return err
 			}
 			_, err = model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar_Investor" user_id="636" post_id="659301" time="1586687280"]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
-
 I would't know anything had changed if not for your posts/updates.
 As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`)
 			if err != nil {

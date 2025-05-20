@@ -14,10 +14,11 @@
         </div>
     </div>
 
-    <!-- Post 659128 -->
-    <div id="p659128" class="post has-profile bg2">
+    {{ range $.Posts }}
+    <!-- Post {{ .PostId }} -->
+    <div id="p{{ .PostId }}" class="post has-profile bg2">
         <div class="inner">
-            <dl class="postprofile" id="profile659128">
+            <dl class="postprofile" id="profile{{ .PostId }}">
                 <dt class="has-profile-rank has-avatar">
                     <div class="avatar-container">
                         <a href="./memberlist.php?mode=viewprofile&amp;u=636&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="avatar"><img class="avatar" src="./download/file.php?avatar=636_1735827993.jpg" width="100" height="100" alt="User avatar" /></a>
@@ -27,63 +28,35 @@
                 <dd class="profile-rank">Administrator<br /><img src="./images/ranks/modern-ranks/administrator.png" alt="Administrator" title="Administrator" /></dd>
                 <dd class="profile-posts"><strong>Posts:</strong> <a href="./search.php?author_id=636&amp;sr=posts&amp;sid=16b0d49d7062ba91d398d249acdd580f">14141</a></dd>
                 <dd class="profile-joined"><strong>Joined:</strong> 01 Mar 2005 14:52</dd>
-                <dd class="profile-custom-field profile-phpbb_location"><strong>Location:</strong> Calgary</dd>
-                <dd class="profile-contact">
-                    <strong>Contact:</strong>
-                    <div class="dropdown-container dropdown-left">
-                        <a href="#" class="dropdown-trigger" title="Contact Peculiar_Investor">
-                            <i class="icon fa-commenting-o fa-fw icon-lg" aria-hidden="true"></i><span class="sr-only">Contact Peculiar_Investor</span>
-                        </a>
-                        <div class="dropdown">
-                            <div class="pointer">
-                                <div class="pointer-inner"></div>
-                            </div>
-                            <div class="dropdown-contents contact-icons">
-                                <div>
-                                    <a href="https://www.finiki.org" title="Website" class="last-cell">
-                                        <span class="contact-icon phpbb_website-icon">Website</span> </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </dd>
             </dl>
             <div class="postbody">
-                <div id="post_content659128">
-
+                <div id="post_content{{ .PostId }}">
                     <h3 class="first">
-                        <a href="./viewtopic.php?p=659128&amp;sid=16b0d49d7062ba91d398d249acdd580f#p659128">We're now powered by phpBB 3.3</a>
+                        <a href="./viewtopic.php?p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f#p{{ .PostId }}">{{ .PostSubject }}</a>
                     </h3>
                     <ul class="post-buttons">
                         <li>
-                            <a href="./posting.php?mode=quote&amp;p=659128&amp;sid=16b0d49d7062ba91d398d249acdd580f" title="Reply with quote" class="button button-icon-only">
+                            <a href="./posting.php?mode=quote&amp;p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" title="Reply with quote" class="button button-icon-only">
                                 <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote</span>
                             </a>
                         </li>
                         <li>
-                            <a data-post-id="659128" title="Select to quote multiple posts" class="button button-icon-only multiquote" onclick="multiquote(this)">
+                            <a data-post-id="{{ .PostId }}" title="Select to quote multiple posts" class="button button-icon-only multiquote" onclick="multiquote(this)">
                                 <i class="icon fa-comments fa-fw" aria-hidden="true"></i><span class="sr-only">Quote</span>
                             </a>
                         </li>
                     </ul>
                     <p class="author">
-                        <a class="unread" href="./viewtopic.php?p=659128&amp;sid=16b0d49d7062ba91d398d249acdd580f#p659128" title="Post">
+                        <a class="unread" href="./viewtopic.php?p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f#p{{ .PostId }}" title="Post">
                             <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">Post</span>
                         </a>
                         <span class="responsive-hide">by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=636&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">Peculiar_Investor</a></strong> &raquo; </span><time datetime="2020-04-11T03:11:49+00:00">10 Apr 2020 23:11</time>
                     </p>
-                    <span class="hide postdetails" data-quote-url="./posting.php?mode=quote&amp;p=659128&amp;sid=16b0d49d7062ba91d398d249acdd580f" data-posttime="1586574709" data-poster-id="636" data-poster-name="Peculiar_Investor"></span>
-                    <div class="content">We are pleased to announce that the board has been upgraded to the <a href="https://www.phpbb.com/about/launch/" class="postlink">phpBB 3.3</a> Feature Release.<br>
-                        <br>
-                        There have only been minor changes to the user interface and features that a keen eyed observer might see. We expect that many of you probably won't be able to notice any difference. <br>
-                        <br>
-                        For the most part this upgrade was about getting the underlying components and frameworks to a more modern base, which should result in some performance improvement. <br>
-                        <br>
-                        For those keeping track, the fix for <a href="https://www.financialwisdomforum.org/forum/viewtopic.php?p=650049#p650049" class="postlink">this bug</a> hasn't been included in this phpBB feature release. It is due in the next, currently unscheduled, bugfix release. A reminder that the workaround is to delete the PM when reading it, not from the list of PMs.<br>
-                        <br>
-                        Please use this topic if you encounter any problems.
+                    <span class="hide postdetails" data-quote-url="./posting.php?mode=quote&amp;p={{ .PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" data-posttime="1586574709" data-poster-id="636" data-poster-name="Peculiar_Investor"></span>
+                    <div class="content">
+                        {{ .PostText | fnBbcode }}
                     </div>
-                    <div id="sig659128" class="signature"><a href="//www.finiki.org/wiki/Main_Page" class="postlink"><img src="//www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg" alt="finiki logo" width="17" height="17">
+                    <div id="sig{{ .PostId }}" class="signature"><a href="//www.finiki.org/wiki/Main_Page" class="postlink"><img src="//www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg" alt="finiki logo" width="17" height="17">
                             finiki, the Canadian financial wiki
                         </a> New editors wanted and welcomed, please help collaborate and improve the wiki.<br>
                         <br>
@@ -99,113 +72,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Post 659306 -->
-    <div id="p659306" class="post has-profile bg2">
-        <div class="inner">
-            <dl class="postprofile" id="profile659306">
-                <dt class="has-profile-rank no-avatar">
-                    <div class="avatar-container">
-                    </div>
-                    <a href="./memberlist.php?mode=viewprofile&amp;u=9207&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">OnlyMyOpinion</a>
-                </dt>
-                <dd class="profile-rank">Veteran Contributor<br /><img src="./images/ranks/modern-ranks/member.png" alt="Veteran Contributor" title="Veteran Contributor" /></dd>
-                <dd class="profile-posts"><strong>Posts:</strong> <a href="./search.php?author_id=9207&amp;sr=posts&amp;sid=16b0d49d7062ba91d398d249acdd580f">4899</a></dd>
-                <dd class="profile-joined"><strong>Joined:</strong> 24 Jan 2014 23:17</dd>
-            </dl>
-            <div class="postbody">
-                <div id="post_content659306">
-                    <h3>
-                        <a href="./viewtopic.php?p=659306&amp;sid=16b0d49d7062ba91d398d249acdd580f#p659306">Re: We're now powered by phpBB 3.3</a>
-                    </h3>
-                    <ul class="post-buttons">
-                        <li>
-                            <a href="./posting.php?mode=quote&amp;p=659306&amp;sid=16b0d49d7062ba91d398d249acdd580f" title="Reply with quote" class="button button-icon-only">
-                                <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a data-post-id="659306" title="Select to quote multiple posts" class="button button-icon-only multiquote" onclick="multiquote(this)">
-                                <i class="icon fa-comments fa-fw" aria-hidden="true"></i><span class="sr-only">Quote</span>
-                            </a>
-                        </li>
-                    </ul>
-                    <p class="author">
-                        <a class="unread" href="./viewtopic.php?p=659306&amp;sid=16b0d49d7062ba91d398d249acdd580f#p659306" title="Post">
-                            <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">Post</span>
-                        </a>
-                        <span class="responsive-hide">by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=9207&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">OnlyMyOpinion</a></strong> &raquo; </span><time datetime="2020-04-12T14:43:33+00:00">12 Apr 2020 10:43</time>
-                    </p>
-                    <span class="hide postdetails" data-quote-url="./posting.php?mode=quote&amp;p=659306&amp;sid=16b0d49d7062ba91d398d249acdd580f" data-posttime="1586702613" data-poster-id="9207" data-poster-name="OnlyMyOpinion"></span>
-                    <div class="content">
-                        <blockquote cite="./viewtopic.php?p=659301&amp;sid=16b0d49d7062ba91d398d249acdd580f#p659301">
-                            <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=636&amp;sid=16b0d49d7062ba91d398d249acdd580f">Peculiar_Investor</a> wrote: <a href="./viewtopic.php?p=659301&amp;sid=16b0d49d7062ba91d398d249acdd580f#p659301" aria-label="View quoted post" data-post-id="659301" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">12 Apr 2020 10:28</span></cite>
-                                Has anyone else even noticed we upgraded and have you found anything else that might have changed?
-                            </div>
-                        </blockquote>
-                        I would't know anything had changed if not for your posts/updates. <br>
-                        As always, thanks for the work you and others do to keep FWF such an excellent site and resource. <img class="smilies" src="./images/smilies/1f44d.svg" width="17" height="17" alt=":thumbsup:" title="Thumbs up">
-                    </div>
-                </div>
-            </div>
-            <div class="back2top">
-                <a href="#top" class="top" title="Top">
-                    <i class="icon fa-chevron-circle-up fa-fw icon-gray" aria-hidden="true"></i>
-                    <span class="sr-only">Top</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Post 659307 -->
-    <div id="p659307" class="post has-profile bg1">
-        <div class="inner">
-            <dl class="postprofile" id="profile659307">
-                <dt class="has-profile-rank no-avatar">
-                    <div class="avatar-container">
-                    </div>
-                    <a href="./memberlist.php?mode=viewprofile&amp;u=29&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">DenisD</a>
-                </dt>
-                <dd class="profile-rank">Veteran Contributor<br /><img src="./images/ranks/modern-ranks/member.png" alt="Veteran Contributor" title="Veteran Contributor" /></dd>
-                <dd class="profile-posts"><strong>Posts:</strong> <a href="./search.php?author_id=29&amp;sr=posts&amp;sid=16b0d49d7062ba91d398d249acdd580f">4292</a></dd>
-                <dd class="profile-joined"><strong>Joined:</strong> 19 Feb 2005 01:24</dd>
-                <dd class="profile-custom-field profile-phpbb_location"><strong>Location:</strong> Calgary</dd>
-            </dl>
-            <div class="postbody">
-                <div id="post_content659307">
-                    <h3>
-                        <a href="./viewtopic.php?p=659307&amp;sid=16b0d49d7062ba91d398d249acdd580f#p659307">Re: We're now powered by phpBB 3.3</a>
-                    </h3>
-                    <ul class="post-buttons">
-                        <li>
-                            <a href="./posting.php?mode=quote&amp;p=659307&amp;sid=16b0d49d7062ba91d398d249acdd580f" title="Reply with quote" class="button button-icon-only">
-                                <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a data-post-id="659307" title="Select to quote multiple posts" class="button button-icon-only multiquote" onclick="multiquote(this)">
-                                <i class="icon fa-comments fa-fw" aria-hidden="true"></i><span class="sr-only">Quote</span>
-                            </a>
-                        </li>
-                    </ul>
-                    <p class="author">
-                        <a class="unread" href="./viewtopic.php?p=659307&amp;sid=16b0d49d7062ba91d398d249acdd580f#p659307" title="Post">
-                            <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">Post</span>
-                        </a>
-                        <span class="responsive-hide">by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=29&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">DenisD</a></strong> &raquo; </span><time datetime="2020-04-12T14:44:49+00:00">12 Apr 2020 10:44</time>
-                    </p>
-                    <span class="hide postdetails" data-quote-url="./posting.php?mode=quote&amp;p=659307&amp;sid=16b0d49d7062ba91d398d249acdd580f" data-posttime="1586702689" data-poster-id="29" data-poster-name="DenisD"></span>
-                    <div class="content">Haven't noticed any differences.</div>
-                </div>
-            </div>
-            <div class="back2top">
-                <a href="#top" class="top" title="Top">
-                    <i class="icon fa-chevron-circle-up fa-fw icon-gray" aria-hidden="true"></i>
-                    <span class="sr-only">Top</span>
-                </a>
-            </div>
-        </div>
-    </div>
+    {{ end }}
 
     <!-- Bottom bar -->
     <div class="action-bar bar-bottom">

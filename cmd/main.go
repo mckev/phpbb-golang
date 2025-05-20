@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"path/filepath"
-	"text/template"
 
 	"phpbb-golang/examples/myforum"
+	"phpbb-golang/internal/bbcode"
 	"phpbb-golang/internal/logger"
 	"phpbb-golang/model"
 )
@@ -66,7 +67,14 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if urlPath == "/posts" {
-		templateOutput, err := template.ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
+		// Function Maps
+		funcMap := template.FuncMap{
+			"fnBbcode": func(s string) template.HTML {
+				// To print raw, unescaped HTML within a Go HTML template, the html/template package provides the HTML type. By converting a string containing HTML to template.HTML, you can instruct the template engine to render it as raw HTML instead of escaping it for safe output.
+				return template.HTML(bbcode.ConvertBbcodeToHtml(s))
+			},
+		}
+		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
 		if err != nil {
 			logger.Errorf(ctx, "Error while parsing template files: %s", err)
 			return
@@ -82,6 +90,13 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		postsPageData := PostsPageData{
 			Posts: posts,
 		}
+		// Go HTML Templates:
+		//   - Go's html/template package automatically strips HTML comments (<!-- comment -->) during template execution.
+		//   - Go templates do not inherently support nested template definitions in the way one might expect from other templating engines. While you can define templates within other templates using {{define}}, they are all effectively "hoisted" to the top level and treated as independent templates within a single namespace. This means you can't directly access a nested template as a property of its parent.
+		//     To achieve a similar effect as nested templates, you should define each template separately and then compose them using the {{template}} action. When calling {{template}}, you can pass data to the included template using a dot ., which represents the current data context.
+		//     If you need to access data from a parent template, you can either pass it explicitly to the nested template or use variables to store the data before calling the nested template.
+		//   - In Go templates, . refers to the current context, which changes within a range loop to the current element being iterated over.
+		//     To access the outer struct's fields from within the inner loop, $ is used, which always refers to the root context (the original data passed to the template).
 		err = templateOutput.ExecuteTemplate(w, "overall", postsPageData)
 		if err != nil {
 			logger.Errorf(ctx, "Error while executing template: %s", err)
