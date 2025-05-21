@@ -96,7 +96,7 @@ func GetTopic(ctx context.Context, topicId int) (Topic, error) {
 			// No result found
 			return Topic{}, nil
 		}
-		return Topic{}, fmt.Errorf("Error while scanning row on topic table for topic id %d: %s", topicId, err)
+		return Topic{}, fmt.Errorf("Error while scanning row on topics table for topic id %d: %s", topicId, err)
 	}
 	return topic, nil
 }

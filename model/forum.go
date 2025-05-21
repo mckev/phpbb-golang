@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 )
 
@@ -28,9 +29,9 @@ func InitForums(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("Error while creating forums table: %s", err)
 	}
-	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc) VALUES ($1, $2, $3, $4)`, 0, 0, "root", "")
+	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc) VALUES ($1, $2, $3, $4)`, 0, 0, "Root Forum", "")
 	if err != nil {
-		return fmt.Errorf("Error while inserting root into forums table: %s", err)
+		return fmt.Errorf("Error while inserting root forum into forums table: %s", err)
 	}
 	return nil
 }
@@ -70,4 +71,19 @@ func ListForums(ctx context.Context) ([]Forum, error) {
 		return nil, fmt.Errorf("Error on rows on forums table: %s", err)
 	}
 	return forums, nil
+}
+
+func GetForum(ctx context.Context, forumId int) (Forum, error) {
+	db := OpenDb(ctx, "forums")
+	defer db.Close()
+	row := db.QueryRow("SELECT forum_id, parent_id, forum_name, forum_desc FROM forums WHERE forum_id = $1", forumId)
+	var forum Forum
+	if err := row.Scan(&forum.ForumId, &forum.ParentId, &forum.ForumName, &forum.ForumDesc); err != nil {
+		if err == sql.ErrNoRows {
+			// No result found
+			return Forum{}, nil
+		}
+		return Forum{}, fmt.Errorf("Error while scanning row on forums table for forum id %d: %s", forumId, err)
+	}
+	return forum, nil
 }

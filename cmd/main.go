@@ -101,6 +101,10 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			logger.Errorf(ctx, "Error while getting topic: %s", err)
 		}
+		forum, err := model.GetForum(ctx, topic.ForumId)
+		if err != nil {
+			logger.Errorf(ctx, "Error while getting forum: %s", err)
+		}
 		posts, err := model.ListPosts(ctx, topicId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while listing posts: %s", err)
@@ -112,11 +116,13 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			usersMap[user.UserId] = user
 		}
 		type PostsPageData struct {
+			Forum    model.Forum
 			Topic    model.Topic
 			Posts    []model.Post
 			UsersMap map[int]model.User
 		}
 		postsPageData := PostsPageData{
+			Forum:    forum,
 			Topic:    topic,
 			Posts:    posts,
 			UsersMap: usersMap,

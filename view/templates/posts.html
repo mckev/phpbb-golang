@@ -4,10 +4,10 @@
     <!-- Topic title -->
     {{ $root := . }}
     {{ $topic := $root.Topic }}
-    <h2 class="topic-title"><a href="./viewtopic.php?t=122828&amp;sid=16b0d49d7062ba91d398d249acdd580f">{{ $topic.TopicTitle }}</a></h2>
+    <h2 class="topic-title"><a href="./posts?t={{ $topic.TopicId }}">{{ $topic.TopicTitle }}</a></h2>
 
     <div class="action-bar bar-top">
-        <a href="./posting.php?mode=reply&amp;t=122828&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="button" title="Post a reply">
+        <a href="./posting.php?mode=reply&amp;t={{ $topic.TopicId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="button" title="Post a reply">
             <span>Post Reply</span> <i class="icon fa-reply fa-fw" aria-hidden="true"></i>
         </a>
         <div class="pagination">
@@ -99,7 +99,7 @@
 
     <!-- Bottom bar -->
     <div class="action-bar bar-bottom">
-        <a href="./posting.php?mode=reply&amp;t=122828&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="button" title="Post a reply">
+        <a href="./posting.php?mode=reply&amp;t={{ $topic.TopicId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="button" title="Post a reply">
             <span>Post Reply</span> <i class="icon fa-reply fa-fw" aria-hidden="true"></i>
         </a>
         <div class="pagination">
@@ -110,8 +110,9 @@
 
     <div class="action-bar actions-jump">
         <p class="jumpbox-return">
-            <a href="./viewforum.php?f=8&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="left-box arrow-left" accesskey="r">
-                <i class="icon fa-angle-left fa-fw icon-black" aria-hidden="true"></i><span>Return to "Now Hear This!"</span>
+            {{ $forum := $root.Forum }}
+            <a href="./topics?f={{ $forum.ForumId }}" class="left-box arrow-left" accesskey="r">
+                <i class="icon fa-angle-left fa-fw icon-black" aria-hidden="true"></i><span>Return to "{{ $forum.ForumName }}"</span>
             </a>
         </p>
     </div>
