@@ -135,6 +135,14 @@ Posting on this thread is entirely voluntary - but, if you do wish to post, than
 			if err != nil {
 				return err
 			}
+			err = model.IncreaseNumPostsForTopic(ctx, topicBB1Id)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForUser(ctx, user1)
+			if err != nil {
+				return err
+			}
 
 			// Topic of "Now Hear This!" forum : We're now powered by phpBB 3.3
 			topicBB2Id, err := model.InsertTopic(ctx, forumBBId, "We're now powered by phpBB 3.3")
@@ -153,6 +161,10 @@ Please use this topic if you encounter any problems.`, user2)
 			if err != nil {
 				return err
 			}
+			err = model.IncreaseNumPostsForTopic(ctx, topicBB2Id)
+			if err != nil {
+				return err
+			}
 			err = model.IncreaseNumPostsForUser(ctx, user2)
 			if err != nil {
 				return err
@@ -167,11 +179,19 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
+			err = model.IncreaseNumPostsForTopic(ctx, topicBB2Id)
+			if err != nil {
+				return err
+			}
 			err = model.IncreaseNumPostsForUser(ctx, user3)
 			if err != nil {
 				return err
 			}
 			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `Haven't noticed any differences.`, user4)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForTopic(ctx, topicBB2Id)
 			if err != nil {
 				return err
 			}

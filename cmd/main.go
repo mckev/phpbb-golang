@@ -20,10 +20,12 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	httpMethod := r.Method
 	urlPath := filepath.Clean(r.URL.Path)
 	logger.Debugf(ctx, "%s %s", httpMethod, urlPath)
+	queryParams := r.URL.Query()
 
 	if urlPath == "/" {
 		io.WriteString(w, "Welcome to Golang BB!")
 	} else if urlPath == "/myforum/main" {
+		// To try: http://localhost:9000/myforum/main
 		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/main.html")
 		if err != nil {
 			logger.Errorf(ctx, "Error while parsing template files: %s", err)
@@ -35,6 +37,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if urlPath == "/myforum/forums" {
+		// To try: http://localhost:9000/myforum/forums
 		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/forums.html")
 		if err != nil {
 			logger.Errorf(ctx, "Error while parsing template files: %s", err)
@@ -46,6 +49,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if urlPath == "/myforum/topics" {
+		// To try: http://localhost:9000/myforum/topics
 		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/topics.html")
 		if err != nil {
 			logger.Errorf(ctx, "Error while parsing template files: %s", err)
@@ -57,6 +61,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if urlPath == "/myforum/posts" {
+		// To try: http://localhost:9000/myforum/posts
 		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/posts.html")
 		if err != nil {
 			logger.Errorf(ctx, "Error while parsing template files: %s", err)
@@ -68,6 +73,10 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if urlPath == "/posts" {
+		// To try: http://localhost:9000/posts?t=2
+		// Parse query string. We use queryParams.Get("key") to retrieve the first value for a given query parameter.
+		topicId := helper.StrToInt(queryParams.Get("t"), -1)
+
 		// Template Functions
 		funcMap := template.FuncMap{
 			"fnUnixTimeToStr": func(unixTime int64) string {
@@ -88,22 +97,27 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Prepare data
-		TOPIC_ID := 2
-		posts, err := model.ListPosts(ctx, TOPIC_ID)
+		topic, err := model.GetTopic(ctx, topicId)
+		if err != nil {
+			logger.Errorf(ctx, "Error while getting topic: %s", err)
+		}
+		posts, err := model.ListPosts(ctx, topicId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while listing posts: %s", err)
 			return
 		}
-		users, err := model.ListUsers(ctx, TOPIC_ID)
+		users, err := model.ListUsers(ctx, topicId)
 		usersMap := map[int]model.User{} // Convert users from a list into a map
 		for _, user := range users {
 			usersMap[user.UserId] = user
 		}
 		type PostsPageData struct {
+			Topic    model.Topic
 			Posts    []model.Post
 			UsersMap map[int]model.User
 		}
 		postsPageData := PostsPageData{
+			Topic:    topic,
 			Posts:    posts,
 			UsersMap: usersMap,
 		}

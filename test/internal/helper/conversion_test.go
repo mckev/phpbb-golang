@@ -6,6 +6,37 @@ import (
 	"phpbb-golang/internal/helper"
 )
 
+func TestStrToInt(t *testing.T) {
+	numstr := "42"
+	actual := helper.StrToInt(numstr, -1)
+	expected := 42
+	if actual != expected {
+		t.Errorf("Got %d, wanted %d", actual, expected)
+		return
+	}
+}
+
+func TestStrToInt_Invalid(t *testing.T) {
+	{
+		numstr := "abc"
+		actual := helper.StrToInt(numstr, -1)
+		expected := -1
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+	{
+		numstr := ""
+		actual := helper.StrToInt(numstr, -1)
+		expected := -1
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+}
+
 func TestStrToInt64(t *testing.T) {
 	numstr := "9223372036854775807"
 	actual := helper.StrToInt64(numstr, -1)
