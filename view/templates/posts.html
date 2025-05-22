@@ -1,8 +1,8 @@
 {{ define "body" }}
+{{ $root := . }}
 <div id="page-body" class="page-body" role="main">
 
     <!-- Topic title -->
-    {{ $root := . }}
     {{ $topic := $root.Topic }}
     <h2 class="topic-title"><a href="./posts?t={{ $topic.TopicId }}">{{ $topic.TopicTitle }}</a></h2>
 

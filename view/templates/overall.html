@@ -1,4 +1,5 @@
 {{ define "overall" }}
+{{ $root := . }}
 <!DOCTYPE html>
 <html>
 <!-- Ref: phpBB old: https://www.financialwisdomforum.org/forum/viewtopic.php?t=122828 -->
@@ -95,15 +96,16 @@
 
                     <ul id="nav-breadcrumbs" class="nav-breadcrumbs linklist navlinks" role="menubar">
                         <li class="breadcrumbs" itemscope itemtype="https://schema.org/BreadcrumbList">
-                            <span class="crumb" itemtype="https://schema.org/ListItem" itemprop="itemListElement" itemscope><a itemprop="item" href="./index.php?sid=16b0d49d7062ba91d398d249acdd580f" accesskey="h" data-navbar-reference="index"><i class="icon fa-home fa-fw"></i><span itemprop="name">Board index</span></a>
+                            <span class="crumb" itemtype="https://schema.org/ListItem" itemprop="itemListElement" itemscope><a itemprop="item" href="./forums" accesskey="h" data-navbar-reference="index"><i class="icon fa-home fa-fw"></i><span itemprop="name">Board index</span></a>
                                 <meta itemprop="position" content="1" />
                             </span>
-                            <span class="crumb" itemtype="https://schema.org/ListItem" itemprop="itemListElement" itemscope data-forum-id="23"><a itemprop="item" href="./viewforum.php?f=23&amp;sid=16b0d49d7062ba91d398d249acdd580f"><span itemprop="name">... and Your Life</span></a>
-                                <meta itemprop="position" content="2" />
+                            {{ $forumNavCounter := 2 }}
+                            {{ range $forumNavTrail := $root.ForumNavTrails }}
+                            <span class="crumb" itemtype="https://schema.org/ListItem" itemprop="itemListElement" itemscope data-forum-id="{{ $forumNavTrail.ForumId }}"><a itemprop="item" href="./forums?f={{ $forumNavTrail.ForumId }}"><span itemprop="name">{{ $forumNavTrail.ForumName }} </span></a>
+                                <meta itemprop="position" content="{{ $forumNavCounter }}" />
                             </span>
-                            <span class="crumb" itemtype="https://schema.org/ListItem" itemprop="itemListElement" itemscope data-forum-id="8"><a itemprop="item" href="./viewforum.php?f=8&amp;sid=16b0d49d7062ba91d398d249acdd580f"><span itemprop="name">Now Hear This!</span></a>
-                                <meta itemprop="position" content="3" />
-                            </span>
+                            {{ $forumNavCounter = fnAdd $forumNavCounter 1 }}
+                            {{ end }}
                         </li>
                     </ul>
                 </div>

@@ -79,6 +79,9 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 		// Template Functions
 		funcMap := template.FuncMap{
+			"fnAdd": func(x, y int) int {
+				return x + y
+			},
 			"fnUnixTimeToStr": func(unixTime int64) string {
 				return helper.UnixTimeToStr(unixTime)
 			},
@@ -115,17 +118,23 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		for _, user := range users {
 			usersMap[user.UserId] = user
 		}
+		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forum.ForumId)
+		if err != nil {
+			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forum.ForumId, err)
+		}
 		type PostsPageData struct {
-			Forum    model.Forum
-			Topic    model.Topic
-			Posts    []model.Post
-			UsersMap map[int]model.User
+			Forum          model.Forum
+			Topic          model.Topic
+			Posts          []model.Post
+			UsersMap       map[int]model.User
+			ForumNavTrails []model.Forum
 		}
 		postsPageData := PostsPageData{
-			Forum:    forum,
-			Topic:    topic,
-			Posts:    posts,
-			UsersMap: usersMap,
+			Forum:          forum,
+			Topic:          topic,
+			Posts:          posts,
+			UsersMap:       usersMap,
+			ForumNavTrails: forumNavTrails,
 		}
 
 		// Go HTML Templates:

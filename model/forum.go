@@ -87,3 +87,33 @@ func GetForum(ctx context.Context, forumId int) (Forum, error) {
 	}
 	return forum, nil
 }
+
+func ComputeForumNavTrails(ctx context.Context, forumId int) ([]Forum, error) {
+	// Given a Forum Id, find its parents until Root Forum
+	forums, err := ListForums(ctx)
+	if err != nil {
+		return []Forum{}, fmt.Errorf("Error while listing forums upon computing Forum Nav Trails: %s", err)
+	}
+	// Convert users from a list into a map
+	forumsMap := map[int]Forum{}
+	for _, forum := range forums {
+		forumsMap[forum.ForumId] = forum
+	}
+	var forumNavTrails []Forum
+	depth := 0
+	MAX_DEPTH := 7
+	id := forumId
+	for true {
+		forum := forumsMap[id]
+		if forum.ForumId == 0 {
+			break
+		}
+		forumNavTrails = append([]Forum{forum}, forumNavTrails...)
+		depth++
+		if depth > MAX_DEPTH {
+			return []Forum{}, fmt.Errorf("Error while computing Forum Nav Trails for forum id %d: Path too deep", forumId)
+		}
+		id = forum.ParentId
+	}
+	return forumNavTrails, nil
+}
