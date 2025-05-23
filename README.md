@@ -8,6 +8,7 @@ While the user interface is intentionally minimalistic, it is powered by a moder
   - BBCode Support: Simple markup for user-friendly content formatting.
   - SQLite (default): Zero-config, file-based database for quick deployment setup. Can be migrated to PostgreSQL for production-grade performance.
   - Dockerized deployment (coming soon): Easy to deploy anywhere.
+  - Visual Studio Code Dev Containers support: Seamless development environment — just open in Visual Studio Code and start coding.
 
 
 # Screenshots
