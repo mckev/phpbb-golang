@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	INVALID_POST = -1
+	INVALID_POST       = -1
+	MAX_POSTS_PER_PAGE = 25
 )
 
 type Post struct {
