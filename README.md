@@ -11,6 +11,9 @@ While the user interface is intentionally minimalistic, it is powered by a moder
 
 
 # Screenshots
+
+All text and content shown in the screenshots is for example purposes only.
+
 ![Main page](examples/myforum/screenshots/main.png?raw=true "Main page")
 ![Topics page](examples/myforum/screenshots/topics.png?raw=true "Topics page")
 ![Posts page](examples/myforum/screenshots/posts.png?raw=true "Posts page")
