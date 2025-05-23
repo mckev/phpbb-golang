@@ -75,7 +75,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	} else if urlPath == "/posts" {
 		// To try: http://localhost:9000/posts?t=2
 		// Parse query string. We use queryParams.Get("key") to retrieve the first value for a given query parameter.
-		topicId := helper.StrToInt(queryParams.Get("t"), -1)
+		topicId := helper.StrToInt(queryParams.Get("t"), model.INVALID_TOPIC)
 
 		// Template Functions
 		funcMap := template.FuncMap{

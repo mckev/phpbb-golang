@@ -76,7 +76,7 @@ func PopulateDb(ctx context.Context) error {
 
 	// Forums
 	{
-		forumAId, err := model.InsertForum(ctx, 0, "Your Money", "")
+		forumAId, err := model.InsertForum(ctx, model.ROOT_FORUM, "Your Money", "")
 		if err != nil {
 			return err
 		}
@@ -109,7 +109,7 @@ func PopulateDb(ctx context.Context) error {
 		}
 	}
 	{
-		forumBId, err := model.InsertForum(ctx, 0, "Your Life", "")
+		forumBId, err := model.InsertForum(ctx, model.ROOT_FORUM, "Your Life", "")
 		if err != nil {
 			return err
 		}

@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+const (
+	INVALID_TOPIC = -1
+)
+
 type Topic struct {
 	TopicId       int    `json:"topic_id"`
 	ForumId       int    `json:"forum_id"`
@@ -45,11 +49,11 @@ func InsertTopic(ctx context.Context, forumId int, topicTitle string) (int, erro
 	topicTime := now.Unix()
 	res, err := db.Exec(`INSERT INTO topics (forum_id, topic_title, topic_time) VALUES ($1, $2, $3)`, forumId, topicTitle, topicTime)
 	if err != nil {
-		return -1, fmt.Errorf("Error while inserting topic title '%s' with forum id %d into topics table: %s", topicTitle, forumId, err)
+		return INVALID_TOPIC, fmt.Errorf("Error while inserting topic title '%s' with forum id %d into topics table: %s", topicTitle, forumId, err)
 	}
 	topicId, err := res.LastInsertId()
 	if err != nil {
-		return -1, fmt.Errorf("Error while retrieving last insert id for topic title '%s': %s", topicTitle, err)
+		return INVALID_TOPIC, fmt.Errorf("Error while retrieving last insert id for topic title '%s': %s", topicTitle, err)
 	}
 	return int(topicId), nil
 }

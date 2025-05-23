@@ -6,6 +6,12 @@ import (
 	"fmt"
 )
 
+const (
+	ROOT_FORUM      = 0
+	INVALID_FORUM   = -1
+	MAX_FORUM_DEPTH = 7
+)
+
 type Forum struct {
 	ForumId   int    `json:"forum_id"`
 	ParentId  int    `json:"parent_id"`
@@ -29,7 +35,7 @@ func InitForums(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("Error while creating forums table: %s", err)
 	}
-	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc) VALUES ($1, $2, $3, $4)`, 0, 0, "Root Forum", "")
+	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc) VALUES ($1, $2, $3, $4)`, ROOT_FORUM, ROOT_FORUM, "Root Forum", "")
 	if err != nil {
 		return fmt.Errorf("Error while inserting root forum into forums table: %s", err)
 	}
@@ -41,11 +47,11 @@ func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc 
 	defer db.Close()
 	res, err := db.Exec(`INSERT INTO forums (parent_id, forum_name, forum_desc) VALUES ($1, $2, $3)`, parentId, forumName, forumDesc)
 	if err != nil {
-		return -1, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent forum %d into forums table: %s", forumName, forumDesc, parentId, err)
+		return INVALID_FORUM, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent forum %d into forums table: %s", forumName, forumDesc, parentId, err)
 	}
 	forumId, err := res.LastInsertId()
 	if err != nil {
-		return -1, fmt.Errorf("Error while retrieving last insert id for forum name '%s': %s", forumName, err)
+		return INVALID_FORUM, fmt.Errorf("Error while retrieving last insert id for forum name '%s': %s", forumName, err)
 	}
 	return int(forumId), nil
 }
@@ -101,16 +107,15 @@ func ComputeForumNavTrails(ctx context.Context, forumId int) ([]Forum, error) {
 	}
 	var forumNavTrails []Forum
 	depth := 0
-	MAX_DEPTH := 7
 	id := forumId
 	for true {
 		forum := forumsMap[id]
-		if forum.ForumId == 0 {
+		if forum.ForumId == ROOT_FORUM {
 			break
 		}
 		forumNavTrails = append([]Forum{forum}, forumNavTrails...)
 		depth++
-		if depth > MAX_DEPTH {
+		if depth > MAX_FORUM_DEPTH {
 			return []Forum{}, fmt.Errorf("Error while computing Forum Nav Trails for forum id %d: Path too deep", forumId)
 		}
 		id = forum.ParentId

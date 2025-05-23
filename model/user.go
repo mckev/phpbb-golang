@@ -8,6 +8,10 @@ import (
 	"phpbb-golang/internal/helper"
 )
 
+const (
+	INVALID_USER = -1
+)
+
 type User struct {
 	UserId             int      `json:"user_id"`
 	UserType           UserType `json:"user_type"`
@@ -57,11 +61,11 @@ func InsertUser(ctx context.Context, userName string, userPassword string, userS
 	userRegTime := now.Unix()
 	res, err := db.Exec(`INSERT INTO users (user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4)`, userName, hashedPasswordWithSaltAndHeader, userSig, userRegTime)
 	if err != nil {
-		return -1, fmt.Errorf("Error while inserting user name '%s' into users table: %s", userName, err)
+		return INVALID_USER, fmt.Errorf("Error while inserting user name '%s' into users table: %s", userName, err)
 	}
 	userId, err := res.LastInsertId()
 	if err != nil {
-		return -1, fmt.Errorf("Error while retrieving last insert id for user name '%s': %s", userName, err)
+		return INVALID_USER, fmt.Errorf("Error while retrieving last insert id for user name '%s': %s", userName, err)
 	}
 	return int(userId), nil
 }
