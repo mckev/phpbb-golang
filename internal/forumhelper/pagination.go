@@ -6,11 +6,11 @@ import (
 )
 
 // PaginationType has 5 types:
-//   - Arrow Previous: start item
-//   - Page: start item, page number
-//   - Current Page: page number
+//   - Arrow Previous: contains start item
+//   - Page: contains start item, page number
+//   - Current Page: contains page number
 //   - Separator
-//   - Arrow Next: start item
+//   - Arrow Next: contains start item
 const (
 	PAGINATION_TYPE_ARROW_PREVIOUS = "PaginationTypeArrowPrevious"
 	PAGINATION_TYPE_PAGE           = "PaginationTypePage"
@@ -27,15 +27,16 @@ type Pagination struct {
 
 func ComputePaginations(curItem int, totalItems int, maxItemsPerPage int) []Pagination {
 	// Notes:
-	//   - curItem starts at 0, and pages starts at 0
-	//   - curPage can be equal to maxPage
+	//   - curItem starts at 0
+	//   - 0 <= page < maxPage
+	//   - page starts at 0, however page number (i.e. human-readable page) starts at 1
 	curPage := curItem / maxItemsPerPage
-	maxPage := totalItems / maxItemsPerPage
+	maxPage := (totalItems + maxItemsPerPage - 1) / maxItemsPerPage // maxPage := ceil(totalItems / maxItemsPerPage)
 
 	// Process pages around curPage, which we call "midPages"
 	midPagesSet := map[int]bool{}
-	for page := 0; page <= maxPage; page++ { // Equivalent:	for page := range maxPage + 1 {
-		if curPage+page <= maxPage {
+	for page := 0; page < maxPage; page++ { // Modern version:  for page := range maxPage {
+		if curPage+page < maxPage {
 			midPagesSet[curPage+page] = true
 		}
 		if len(midPagesSet) >= 5 {
@@ -87,23 +88,34 @@ func ComputePaginations(curItem int, totalItems int, maxItemsPerPage int) []Pagi
 			})
 		}
 	}
-	if maxMidPages <= maxPage-2 {
+	if maxMidPages <= maxPage-3 {
 		paginations = append(paginations, Pagination{
 			PaginationType: PAGINATION_TYPE_SEPARATOR,
 		})
 	}
-	if maxMidPages <= maxPage-1 {
+	if maxMidPages <= maxPage-2 {
 		paginations = append(paginations, Pagination{
 			PaginationType: PAGINATION_TYPE_PAGE,
-			StartItem:      maxPage * maxItemsPerPage,
-			PageNumber:     maxPage + 1,
+			StartItem:      (maxPage - 1) * maxItemsPerPage,
+			PageNumber:     maxPage,
 		})
 	}
-	if curPage+1 <= maxPage {
+	if curPage+1 <= maxPage-1 {
 		paginations = append(paginations, Pagination{
 			PaginationType: PAGINATION_TYPE_ARROW_NEXT,
 			StartItem:      (curPage + 1) * maxItemsPerPage,
 		})
 	}
 	return paginations
+}
+
+func FixStartItem(startItem int, totalItems int, maxItemsPerPage int) int {
+	if startItem < 0 {
+		startItem = 0
+	}
+	if startItem > totalItems-1 {
+		startItem = totalItems - 1
+	}
+	startItem = (startItem / maxItemsPerPage) * maxItemsPerPage
+	return startItem
 }

@@ -49,7 +49,7 @@ func DebugMyforum(ctx context.Context) {
 
 	logger.Infof(ctx, "Posts of 'We're now powered by phpBB 3.3':")
 	TOPIC_ID := 2
-	posts, err := model.ListPosts(ctx, TOPIC_ID)
+	posts, err := model.ListPosts(ctx, TOPIC_ID, 0)
 	if err != nil {
 		logger.Errorf(ctx, "Error while listing posts: %s", err)
 	}

@@ -10,6 +10,7 @@ import (
 
 	"phpbb-golang/examples/myforum"
 	"phpbb-golang/internal/bbcode"
+	"phpbb-golang/internal/forumhelper"
 	"phpbb-golang/internal/helper"
 	"phpbb-golang/internal/logger"
 	"phpbb-golang/model"
@@ -76,6 +77,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		// To try: http://localhost:9000/posts?t=2
 		// Parse query string. We use queryParams.Get("key") to retrieve the first value for a given query parameter.
 		topicId := helper.StrToInt(queryParams.Get("t"), model.INVALID_TOPIC)
+		startItem := helper.StrToInt(queryParams.Get("start"), 0)
 
 		// Template Functions
 		funcMap := template.FuncMap{
@@ -108,7 +110,8 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			logger.Errorf(ctx, "Error while getting forum: %s", err)
 		}
-		posts, err := model.ListPosts(ctx, topicId)
+		startItem = forumhelper.FixStartItem(startItem, topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
+		posts, err := model.ListPosts(ctx, topicId, startItem)
 		if err != nil {
 			logger.Errorf(ctx, "Error while listing posts: %s", err)
 			return
@@ -122,12 +125,14 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forum.ForumId, err)
 		}
+		paginations := forumhelper.ComputePaginations(startItem, topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
 		type PostsPageData struct {
 			Forum          model.Forum
 			Topic          model.Topic
 			Posts          []model.Post
 			UsersMap       map[int]model.User
 			ForumNavTrails []model.Forum
+			Paginations    []forumhelper.Pagination
 		}
 		postsPageData := PostsPageData{
 			Forum:          forum,
@@ -135,6 +140,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			Posts:          posts,
 			UsersMap:       usersMap,
 			ForumNavTrails: forumNavTrails,
+			Paginations:    paginations,
 		}
 
 		// Go HTML Templates:

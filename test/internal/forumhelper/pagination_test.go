@@ -167,3 +167,97 @@ func TestComputePaginations_Page24of24(t *testing.T) {
 		return
 	}
 }
+
+func TestComputePaginations_Page8of8(t *testing.T) {
+	actual := forumhelper.ComputePaginations(180, 200, model.MAX_POSTS_PER_PAGE)
+	expected := []forumhelper.Pagination{
+		{PaginationType: "PaginationTypeArrowPrevious", StartItem: 150, PageNumber: 0},
+		{PaginationType: "PaginationTypePage", StartItem: 0, PageNumber: 1},
+		{PaginationType: "PaginationTypeSeparator", StartItem: 0, PageNumber: 0},
+		{PaginationType: "PaginationTypePage", StartItem: 75, PageNumber: 4},
+		{PaginationType: "PaginationTypePage", StartItem: 100, PageNumber: 5},
+		{PaginationType: "PaginationTypePage", StartItem: 125, PageNumber: 6},
+		{PaginationType: "PaginationTypePage", StartItem: 150, PageNumber: 7},
+		{PaginationType: "PaginationTypeCurrentPage", StartItem: 0, PageNumber: 8},
+		// We should not have an Arrow Next here
+	}
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Got %v, wanted %v", actual, expected)
+		return
+	}
+}
+
+func TestFixStartItem(t *testing.T) {
+	{
+		actual := forumhelper.FixStartItem(-1000, 250, 25)
+		expected := 0
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+	{
+		actual := forumhelper.FixStartItem(0, 250, 25)
+		expected := 0
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+	{
+		actual := forumhelper.FixStartItem(24, 250, 25)
+		expected := 0
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+	{
+		actual := forumhelper.FixStartItem(25, 250, 25)
+		expected := 25
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+	{
+		actual := forumhelper.FixStartItem(26, 250, 25)
+		expected := 25
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+	{
+		actual := forumhelper.FixStartItem(249, 250, 25)
+		expected := 225
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+	{
+		actual := forumhelper.FixStartItem(250, 250, 25)
+		expected := 225
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+	{
+		actual := forumhelper.FixStartItem(251, 250, 25)
+		expected := 225
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+	{
+		actual := forumhelper.FixStartItem(2000, 250, 25)
+		expected := 225
+		if actual != expected {
+			t.Errorf("Got %d, wanted %d", actual, expected)
+			return
+		}
+	}
+}

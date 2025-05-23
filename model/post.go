@@ -60,10 +60,10 @@ func InsertPost(ctx context.Context, topicId int, forumId int, postSubject strin
 	return int(postId), nil
 }
 
-func ListPosts(ctx context.Context, topicId int) ([]Post, error) {
+func ListPosts(ctx context.Context, topicId int, startItem int) ([]Post, error) {
 	db := OpenDb(ctx, "posts")
 	defer db.Close()
-	rows, err := db.Query("SELECT post_id, topic_id, forum_id, post_subject, post_text, post_time, user_id FROM posts WHERE topic_id = $1 ORDER BY post_id", topicId)
+	rows, err := db.Query("SELECT post_id, topic_id, forum_id, post_subject, post_text, post_time, user_id FROM posts WHERE topic_id = $1 ORDER BY post_id LIMIT $2 OFFSET $3", topicId, MAX_POSTS_PER_PAGE, startItem)
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying posts table for topic id %d: %s", topicId, err)
 	}
