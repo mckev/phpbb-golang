@@ -6,7 +6,7 @@ While the user interface is intentionally minimalistic, it is powered by a moder
   - JSON-based data model.
   - Go Templates: Secure and efficient server-side rendering.
   - BBCode Support: Simple markup for user-friendly content formatting.
-  - SQLite (default): Zero-config, file-based database for quick deployment setup. Easily upgradable to PostgreSQL for production-grade performance.
+  - SQLite (default): Zero-config, file-based database for quick deployment setup. Can be migrated to PostgreSQL for production-grade performance.
   - Dockerized deployment (coming soon): Easy to deploy anywhere.
 
 
