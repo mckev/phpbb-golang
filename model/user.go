@@ -20,6 +20,9 @@ type User struct {
 	UserSig            string   `json:"user_sig"`
 	UserRegTime        int64    `json:"user_reg_time"`
 	UserNumPosts       int      `json:"user_num_posts"`
+	// Derived properties
+	UserTypeName string
+	UserTypeImg  string
 }
 
 // https://www.phpbb.com/community/viewtopic.php?t=1760075: "phpBB has a couple of special user types, those types are stored in "user_type" field. The definitions of those values are set in the "includes/constants.php" file. define('USER_NORMAL', 0); define('USER_INACTIVE', 1); define('USER_IGNORE', 2); define('USER_FOUNDER', 3);"
@@ -110,6 +113,25 @@ func ListUsers(ctx context.Context, topicId int) ([]User, error) {
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("Error on rows on users table for topic id %d: %s", topicId, err)
+	}
+	// Derived properties
+	for i, _ := range users {
+		if users[i].UserType == USER_NORMAL {
+			users[i].UserTypeName = "Member"
+			users[i].UserTypeImg = "/images/ranks/modern-ranks/member.png"
+		} else if users[i].UserType == USER_INACTIVE {
+			users[i].UserTypeName = "Member (inactive)"
+			users[i].UserTypeImg = "/images/ranks/modern-ranks/member.png"
+		} else if users[i].UserType == USER_IGNORE {
+			users[i].UserTypeName = "Banned"
+			users[i].UserTypeImg = "/images/ranks/modern-ranks/banned.png"
+		} else if users[i].UserType == USER_FOUNDER {
+			users[i].UserTypeName = "Administrator"
+			users[i].UserTypeImg = "/images/ranks/modern-ranks/administrator.png"
+		} else {
+			users[i].UserTypeName = "Guest"
+			users[i].UserTypeImg = "/images/ranks/modern-ranks/guest.png"
+		}
 	}
 	return users, nil
 }

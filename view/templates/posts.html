@@ -46,27 +46,7 @@
                     </div>
                     <a href="./memberlist.php?mode=viewprofile&amp;u={{ $user.UserId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">{{ $user.UserName }}</a>
                 </dt>
-                <!-- See user.go -->
-                {{ $userType := $user.UserType }}
-                {{ $userTypeName := "N/A" }}
-                {{ $userTypeImg := "N/A" }}
-                {{ if eq $userType 0 }}
-                {{ $userTypeName = "Member" }}
-                {{ $userTypeImg = "/images/ranks/modern-ranks/member.png" }}
-                {{ else if eq $userType 1 }}
-                {{ $userTypeName = "Member (inactive)" }}
-                {{ $userTypeImg = "/images/ranks/modern-ranks/member.png" }}
-                {{ else if eq $userType 2 }}
-                {{ $userTypeName = "Banned" }}
-                {{ $userTypeImg = "/images/ranks/modern-ranks/banned.png" }}
-                {{ else if eq $userType 99 }}
-                {{ $userTypeName = "Administrator" }}
-                {{ $userTypeImg = "/images/ranks/modern-ranks/administrator.png" }}
-                {{ else }}
-                {{ $userTypeName = "Guest" }}
-                {{ $userTypeImg = "/images/ranks/modern-ranks/guest.png" }}
-                {{ end }}
-                <dd class="profile-rank">{{ $userTypeName }}<br /><img src="{{ $userTypeImg }}" alt="{{ $userTypeName }}" title="{{ $userTypeName }}" /></dd>
+                <dd class="profile-rank">{{ $user.UserTypeName }}<br /><img src="{{ $user.UserTypeImg }}" alt="{{ $user.UserTypeName }}" title="{{ $user.UserTypeName }}" /></dd>
                 <dd class="profile-posts"><strong>Posts:</strong> <a href="./search.php?author_id={{ $user.UserId }}&amp;sr=posts&amp;sid=16b0d49d7062ba91d398d249acdd580f">{{ $user.UserNumPosts }}</a></dd>
                 <dd class="profile-joined"><strong>Joined:</strong> {{ $user.UserRegTime | fnUnixTimeToStr }} </dd>
             </dl>
