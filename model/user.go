@@ -115,7 +115,7 @@ func ListUsers(ctx context.Context, topicId int) ([]User, error) {
 		return nil, fmt.Errorf("Error on rows on users table for topic id %d: %s", topicId, err)
 	}
 	// Derived properties
-	for i, _ := range users {
+	for i := range users {
 		if users[i].UserType == USER_NORMAL {
 			users[i].UserTypeName = "Member"
 			users[i].UserTypeImg = "/images/ranks/modern-ranks/member.png"

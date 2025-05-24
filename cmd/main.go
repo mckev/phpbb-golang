@@ -20,8 +20,23 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	httpMethod := r.Method
 	urlPath := filepath.Clean(r.URL.Path)
-	logger.Debugf(ctx, "%s %s", httpMethod, urlPath)
 	queryParams := r.URL.Query()
+	logger.Debugf(ctx, "%s %s", httpMethod, urlPath)
+
+	// Template Functions
+	funcMap := template.FuncMap{
+		"fnAdd": func(x, y int) int {
+			return x + y
+		},
+		"fnUnixTimeToStr": func(unixTime int64) string {
+			return helper.UnixTimeToStr(unixTime)
+		},
+		"fnBbcodeToHtml": func(bbcodeStr string) template.HTML {
+			// To print raw, unescaped HTML within a Go HTML template, the html/template package provides the template.HTML type. By converting a string containing HTML to template.HTML, you can instruct the template engine to render it as raw HTML instead of escaping it for safe output.
+			// Warning: Since this Go template function outputs raw HTML, make sure it is safe from attacks such as XSS.
+			return template.HTML(bbcode.ConvertBbcodeToHtml(bbcodeStr))
+		},
+	}
 
 	if urlPath == "/" {
 		io.WriteString(w, "Welcome to Golang BB!")
@@ -73,31 +88,70 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while executing template: %s", err)
 			return
 		}
+	} else if urlPath == "/topics" {
+		// To try: http://localhost:9000/topics?f=10
+		forumId := helper.StrToInt(queryParams.Get("f"), model.INVALID_FORUM)
+
+		// Prepare template files
+		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/topics.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing topics template files: %s", err)
+			return
+		}
+
+		// Prepare data
+		forum, err := model.GetForum(ctx, forumId)
+		if err != nil {
+			logger.Errorf(ctx, "Error while getting forum: %s", err)
+		}
+		topics, err := model.ListTopics(ctx, forumId)
+		if err != nil {
+			logger.Errorf(ctx, "Error while listing topics: %s", err)
+		}
+		type TopicWithInfo struct {
+			Topic       model.Topic
+			Paginations []forumhelper.Pagination
+		}
+		topicsWithInfo := []TopicWithInfo{}
+		for _, topic := range topics {
+			paginations := forumhelper.ComputePaginations(max(topic.TopicNumPosts-1, 0), topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
+			topicsWithInfo = append(topicsWithInfo, TopicWithInfo{
+				Topic:       topic,
+				Paginations: paginations,
+			})
+		}
+		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forumId)
+		if err != nil {
+			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forumId, err)
+		}
+		type TopicsPageData struct {
+			Forum          model.Forum
+			TopicsWithInfo []TopicWithInfo
+			ForumNavTrails []model.Forum
+		}
+		topicsPageData := TopicsPageData{
+			Forum:          forum,
+			TopicsWithInfo: topicsWithInfo,
+			ForumNavTrails: forumNavTrails,
+		}
+
+		// Execute template
+		err = templateOutput.ExecuteTemplate(w, "overall", topicsPageData)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing topics template: %s", err)
+			return
+		}
+
 	} else if urlPath == "/posts" {
 		// To try: http://localhost:9000/posts?t=2
 		// Parse query string. We use queryParams.Get("key") to retrieve the first value for a given query parameter.
 		topicId := helper.StrToInt(queryParams.Get("t"), model.INVALID_TOPIC)
 		startItem := helper.StrToInt(queryParams.Get("start"), 0)
 
-		// Template Functions
-		funcMap := template.FuncMap{
-			"fnAdd": func(x, y int) int {
-				return x + y
-			},
-			"fnUnixTimeToStr": func(unixTime int64) string {
-				return helper.UnixTimeToStr(unixTime)
-			},
-			"fnBbcodeToHtml": func(bbcodeStr string) template.HTML {
-				// To print raw, unescaped HTML within a Go HTML template, the html/template package provides the template.HTML type. By converting a string containing HTML to template.HTML, you can instruct the template engine to render it as raw HTML instead of escaping it for safe output.
-				// Warning: Since this Go template function outputs raw HTML, make sure it is safe from attacks such as XSS.
-				return template.HTML(bbcode.ConvertBbcodeToHtml(bbcodeStr))
-			},
-		}
-
 		// Prepare template files
 		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
 		if err != nil {
-			logger.Errorf(ctx, "Error while parsing template files: %s", err)
+			logger.Errorf(ctx, "Error while parsing posts template files: %s", err)
 			return
 		}
 
@@ -143,6 +197,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			Paginations:    paginations,
 		}
 
+		// Execute template
 		// Go HTML Templates:
 		//   - Go's html/template package automatically strips HTML comments (<!-- comment -->) during template execution.
 		//   - Go templates do not inherently support nested template definitions in the way one might expect from other templating engines. While you can define templates within other templates using {{define}}, they are all effectively "hoisted" to the top level and treated as independent templates within a single namespace. This means you can't directly access a nested template as a property of its parent.
@@ -152,7 +207,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		//     To access the outer struct's fields from within the inner loop, $ is used, which always refers to the root context (the original data passed to the template).
 		err = templateOutput.ExecuteTemplate(w, "overall", postsPageData)
 		if err != nil {
-			logger.Errorf(ctx, "Error while executing template: %s", err)
+			logger.Errorf(ctx, "Error while executing posts template: %s", err)
 			return
 		}
 	} else {

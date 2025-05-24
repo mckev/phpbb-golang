@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	INVALID_TOPIC = -1
+	INVALID_TOPIC       = -1
+	MAX_TOPICS_PER_PAGE = 25
 )
 
 type Topic struct {

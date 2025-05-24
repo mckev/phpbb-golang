@@ -32,7 +32,7 @@ func TestComputePaginations_Page2of24(t *testing.T) {
 	expected := []forumhelper.Pagination{
 		{PaginationType: "PaginationTypeArrowPrevious", StartItem: 0, PageNumber: 0},
 		{PaginationType: "PaginationTypePage", StartItem: 0, PageNumber: 1},
-		{PaginationType: "PaginationTypeCurrentPage", StartItem: 0, PageNumber: 2},
+		{PaginationType: "PaginationTypeCurrentPage", StartItem: 25, PageNumber: 2},
 		{PaginationType: "PaginationTypePage", StartItem: 50, PageNumber: 3},
 		{PaginationType: "PaginationTypePage", StartItem: 75, PageNumber: 4},
 		{PaginationType: "PaginationTypePage", StartItem: 100, PageNumber: 5},
@@ -54,7 +54,7 @@ func TestComputePaginations_Page4of24(t *testing.T) {
 		// We should not have a Separator here
 		{PaginationType: "PaginationTypePage", StartItem: 25, PageNumber: 2},
 		{PaginationType: "PaginationTypePage", StartItem: 50, PageNumber: 3},
-		{PaginationType: "PaginationTypeCurrentPage", StartItem: 0, PageNumber: 4},
+		{PaginationType: "PaginationTypeCurrentPage", StartItem: 75, PageNumber: 4},
 		{PaginationType: "PaginationTypePage", StartItem: 100, PageNumber: 5},
 		{PaginationType: "PaginationTypePage", StartItem: 125, PageNumber: 6},
 		{PaginationType: "PaginationTypeSeparator", StartItem: 0, PageNumber: 0},
@@ -75,7 +75,7 @@ func TestComputePaginations_Page5of24(t *testing.T) {
 		{PaginationType: "PaginationTypeSeparator", StartItem: 0, PageNumber: 0},
 		{PaginationType: "PaginationTypePage", StartItem: 50, PageNumber: 3},
 		{PaginationType: "PaginationTypePage", StartItem: 75, PageNumber: 4},
-		{PaginationType: "PaginationTypeCurrentPage", StartItem: 0, PageNumber: 5},
+		{PaginationType: "PaginationTypeCurrentPage", StartItem: 100, PageNumber: 5},
 		{PaginationType: "PaginationTypePage", StartItem: 125, PageNumber: 6},
 		{PaginationType: "PaginationTypePage", StartItem: 150, PageNumber: 7},
 		{PaginationType: "PaginationTypeSeparator", StartItem: 0, PageNumber: 0},
@@ -96,7 +96,7 @@ func TestComputePaginations_Page18of24(t *testing.T) {
 		{PaginationType: "PaginationTypeSeparator", StartItem: 0, PageNumber: 0},
 		{PaginationType: "PaginationTypePage", StartItem: 375, PageNumber: 16},
 		{PaginationType: "PaginationTypePage", StartItem: 400, PageNumber: 17},
-		{PaginationType: "PaginationTypeCurrentPage", StartItem: 0, PageNumber: 18},
+		{PaginationType: "PaginationTypeCurrentPage", StartItem: 425, PageNumber: 18},
 		{PaginationType: "PaginationTypePage", StartItem: 450, PageNumber: 19},
 		{PaginationType: "PaginationTypePage", StartItem: 475, PageNumber: 20},
 		{PaginationType: "PaginationTypeSeparator", StartItem: 0, PageNumber: 0},
@@ -117,7 +117,7 @@ func TestComputePaginations_Page21of24(t *testing.T) {
 		{PaginationType: "PaginationTypeSeparator", StartItem: 0, PageNumber: 0},
 		{PaginationType: "PaginationTypePage", StartItem: 450, PageNumber: 19},
 		{PaginationType: "PaginationTypePage", StartItem: 475, PageNumber: 20},
-		{PaginationType: "PaginationTypeCurrentPage", StartItem: 0, PageNumber: 21},
+		{PaginationType: "PaginationTypeCurrentPage", StartItem: 500, PageNumber: 21},
 		{PaginationType: "PaginationTypePage", StartItem: 525, PageNumber: 22},
 		{PaginationType: "PaginationTypePage", StartItem: 550, PageNumber: 23},
 		// We should not have a Separator here
@@ -139,7 +139,7 @@ func TestComputePaginations_Page23of24(t *testing.T) {
 		{PaginationType: "PaginationTypePage", StartItem: 475, PageNumber: 20},
 		{PaginationType: "PaginationTypePage", StartItem: 500, PageNumber: 21},
 		{PaginationType: "PaginationTypePage", StartItem: 525, PageNumber: 22},
-		{PaginationType: "PaginationTypeCurrentPage", StartItem: 0, PageNumber: 23},
+		{PaginationType: "PaginationTypeCurrentPage", StartItem: 550, PageNumber: 23},
 		{PaginationType: "PaginationTypePage", StartItem: 575, PageNumber: 24},
 		{PaginationType: "PaginationTypeArrowNext", StartItem: 575, PageNumber: 0},
 	}
@@ -159,7 +159,7 @@ func TestComputePaginations_Page24of24(t *testing.T) {
 		{PaginationType: "PaginationTypePage", StartItem: 500, PageNumber: 21},
 		{PaginationType: "PaginationTypePage", StartItem: 525, PageNumber: 22},
 		{PaginationType: "PaginationTypePage", StartItem: 550, PageNumber: 23},
-		{PaginationType: "PaginationTypeCurrentPage", StartItem: 0, PageNumber: 24},
+		{PaginationType: "PaginationTypeCurrentPage", StartItem: 575, PageNumber: 24},
 		// We should not have an Arrow Next here
 	}
 	if !reflect.DeepEqual(actual, expected) {
@@ -178,7 +178,7 @@ func TestComputePaginations_Page8of8(t *testing.T) {
 		{PaginationType: "PaginationTypePage", StartItem: 100, PageNumber: 5},
 		{PaginationType: "PaginationTypePage", StartItem: 125, PageNumber: 6},
 		{PaginationType: "PaginationTypePage", StartItem: 150, PageNumber: 7},
-		{PaginationType: "PaginationTypeCurrentPage", StartItem: 0, PageNumber: 8},
+		{PaginationType: "PaginationTypeCurrentPage", StartItem: 175, PageNumber: 8},
 		// We should not have an Arrow Next here
 	}
 	if !reflect.DeepEqual(actual, expected) {

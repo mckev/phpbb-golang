@@ -8,7 +8,7 @@ import (
 // PaginationType has 5 types:
 //   - Arrow Previous: contains start item
 //   - Page: contains start item, page number
-//   - Current Page: contains page number
+//   - Current Page: contains start item, page number
 //   - Separator
 //   - Arrow Next: contains start item
 const (
@@ -21,7 +21,7 @@ const (
 
 type Pagination struct {
 	PaginationType string `json:"pagination_type"`
-	StartItem      int    `json:"start_item"`  // StartItem strats at 0
+	StartItem      int    `json:"start_item"`  // StartItem starts at 0
 	PageNumber     int    `json:"page_number"` // PageNumber starts at 1
 }
 
@@ -78,6 +78,7 @@ func ComputePaginations(curItem int, totalItems int, maxItemsPerPage int) []Pagi
 		if page == curPage {
 			paginations = append(paginations, Pagination{
 				PaginationType: PAGINATION_TYPE_CURRENT_PAGE,
+				StartItem:      page * maxItemsPerPage,
 				PageNumber:     page + 1,
 			})
 		} else {
