@@ -40,6 +40,32 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 	if urlPath == "/" {
 		io.WriteString(w, "Welcome to Golang BB!")
+
+	} else if urlPath == "/redirect" {
+		// To try: http://localhost:9000/redirect?url=https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dhow%2Bto%2Bmake%2Ba%2Braspberry%2Bpi%2Bweb%2Bserver%26hl%3Den%26source%3Dhp%26ei%3Dabcdef
+		// How to encode:  encoded := url.QueryEscape(`https://www.google.com/search?q=how+to+make+a+raspberry+pi+web+server&hl=en&source=hp&ei=abcdef`)
+		// How encode works:  It replaces following characters  : %3A, / %2F, ? %3F, = %3D, & %26, + %2B
+		redirectUrl := queryParams.Get("url")
+		if redirectUrl == "" {
+			redirectUrl = "/"
+		}
+		type RedirectPageData struct {
+			RedirectUrl string
+		}
+		redirectPageData := RedirectPageData{
+			RedirectUrl: redirectUrl,
+		}
+		templateOutput, err := template.ParseFiles("./view/templates/redirect.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing redirect template file: %s", err)
+			return
+		}
+		err = templateOutput.Execute(w, redirectPageData)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing redirect template: %s", err)
+			return
+		}
+
 	} else if urlPath == "/myforum/main" {
 		// To try: http://localhost:9000/myforum/main
 		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/main.html")
@@ -88,6 +114,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while executing template: %s", err)
 			return
 		}
+
 	} else if urlPath == "/topics" {
 		// To try: http://localhost:9000/topics?f=10
 		forumId := helper.StrToInt(queryParams.Get("f"), model.INVALID_FORUM_ID)
@@ -211,7 +238,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		logger.Errorf(ctx, "URL Path not supported: %s", urlPath)
+		logger.Errorf(ctx, "URL Path not supported: %s %s", httpMethod, urlPath)
 		return
 	}
 }
