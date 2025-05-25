@@ -13,13 +13,20 @@ const (
 )
 
 type Topic struct {
-	TopicId       int    `json:"topic_id"`
-	ForumId       int    `json:"forum_id"`
-	TopicTitle    string `json:"topic_title"`
-	TopicUserId   int    `json:"topic_user_id"`
-	TopicTime     int    `json:"topic_time"`
-	TopicNumPosts int    `json:"topic_num_posts"`
-	TopicNumViews int    `json:"topic_num_views"`
+	TopicId     int    `json:"topic_id"`
+	ForumId     int    `json:"forum_id"`
+	TopicTitle  string `json:"topic_title"`
+	TopicUserId int    `json:"topic_user_id"`
+	TopicTime   int64  `json:"topic_time"`
+	// Derived properties to speed up
+	TopicNumPosts      int    `json:"topic_num_posts"`
+	TopicNumViews      int    `json:"topic_num_views"`
+	TopicFirstPostId   int    `json:"topic_first_post_id"`
+	TopicFirstUserName string `json:"topic_first_user_name"`
+	TopicLastPostId    int    `json:"topic_last_post_id"`
+	TopicLastPostTime  int64  `json:"topic_last_post_time"`
+	TopicLastUserId    int    `json:"topic_last_user_id"`
+	TopicLastUserName  string `json:"topic_last_user_name"`
 }
 
 func InitTopics(ctx context.Context) error {
@@ -56,7 +63,7 @@ func InsertTopic(ctx context.Context, forumId int, topicTitle string, topicUserI
 	defer db.Close()
 	now := time.Now().UTC()
 	topicTime := now.Unix()
-	res, err := db.Exec(`INSERT INTO topics (forum_id, topic_title, topic_time, topic_user_id, topic_first_user_name, topic_last_user_id, topic_last_user_name) VALUES ($1, $2, $3, $4, $5, $4, $5)`, forumId, topicTitle, topicTime, topicUserId, topicUserName)
+	res, err := db.Exec(`INSERT INTO topics (forum_id, topic_title, topic_time, topic_user_id, topic_first_user_name, topic_last_user_id, topic_last_user_name) VALUES ($1, $2, $3, $4, $5, $6, $7)`, forumId, topicTitle, topicTime, topicUserId, topicUserName, topicUserId, topicUserName)
 	if err != nil {
 		return INVALID_TOPIC_ID, fmt.Errorf("Error while inserting topic title '%s' with forum id %d into topics table: %s", topicTitle, forumId, err)
 	}
@@ -77,10 +84,46 @@ func IncreaseNumPostsForTopic(ctx context.Context, topicId int) error {
 	return nil
 }
 
+func UpdateFirstPostOfTopic(ctx context.Context, topicId int, topicFirstPostId int) error {
+	db := OpenDb(ctx, "topics")
+	defer db.Close()
+	result, err := db.Exec(`UPDATE topics SET topic_first_post_id = $1 WHERE topic_id = $2`, topicFirstPostId, topicId)
+	if err != nil {
+		return fmt.Errorf("Error while updating the first post for topic id %d: %s", topicId, err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("Error while retrieving rows affected while updating the first post for topic id %d: %s", topicId, err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("No rows were updated while updating the first post for topic id %d", topicId)
+	}
+	return nil
+}
+
+func UpdateLastPostOfTopic(ctx context.Context, topicId int, topicLastPostId int, topicLastUserId int, topicLastUserName string) error {
+	db := OpenDb(ctx, "topics")
+	defer db.Close()
+	now := time.Now().UTC()
+	topicLastPostTime := now.Unix()
+	result, err := db.Exec(`UPDATE topics SET topic_last_post_id = $1, topic_last_post_time = $2, topic_last_user_id = $3, topic_last_user_name = $4 WHERE topic_id = $5`, topicLastPostId, topicLastPostTime, topicLastUserId, topicLastUserName, topicId)
+	if err != nil {
+		return fmt.Errorf("Error while updating the last post for topic id %d: %s", topicId, err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("Error while retrieving rows affected while updating the last post for topic id %d: %s", topicId, err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("No rows were updated while updating the last post for topic id %d", topicId)
+	}
+	return nil
+}
+
 func ListTopics(ctx context.Context, forumId int) ([]Topic, error) {
 	db := OpenDb(ctx, "topics")
 	defer db.Close()
-	rows, err := db.Query("SELECT topic_id, forum_id, topic_title, topic_user_id, topic_time, topic_num_posts, topic_num_views FROM topics WHERE forum_id = $1 ORDER BY topic_id", forumId)
+	rows, err := db.Query("SELECT topic_id, forum_id, topic_title, topic_user_id, topic_time, topic_num_posts, topic_num_views, topic_first_post_id, topic_first_user_name, topic_last_post_id, topic_last_post_time, topic_last_user_id, topic_last_user_name FROM topics WHERE forum_id = $1 ORDER BY topic_id", forumId)
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying topics table for forum id %d: %s", forumId, err)
 	}
@@ -88,7 +131,7 @@ func ListTopics(ctx context.Context, forumId int) ([]Topic, error) {
 	var topics []Topic
 	for rows.Next() {
 		var topic Topic
-		if err := rows.Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicUserId, &topic.TopicTime, &topic.TopicNumPosts, &topic.TopicNumViews); err != nil {
+		if err := rows.Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicUserId, &topic.TopicTime, &topic.TopicNumPosts, &topic.TopicNumViews, &topic.TopicFirstPostId, &topic.TopicFirstUserName, &topic.TopicLastPostId, &topic.TopicLastPostTime, &topic.TopicLastUserId, &topic.TopicLastUserName); err != nil {
 			return nil, fmt.Errorf("Error while scanning rows on topics table for forum id %d: %s", forumId, err)
 		}
 		topics = append(topics, topic)
@@ -102,9 +145,9 @@ func ListTopics(ctx context.Context, forumId int) ([]Topic, error) {
 func GetTopic(ctx context.Context, topicId int) (Topic, error) {
 	db := OpenDb(ctx, "topics")
 	defer db.Close()
-	row := db.QueryRow("SELECT topic_id, forum_id, topic_title, topic_user_id, topic_time, topic_num_posts, topic_num_views FROM topics WHERE topic_id = $1", topicId)
+	row := db.QueryRow("SELECT topic_id, forum_id, topic_title, topic_user_id, topic_time, topic_num_posts, topic_num_views, topic_first_post_id, topic_first_user_name, topic_last_post_id, topic_last_post_time, topic_last_user_id, topic_last_user_name FROM topics WHERE topic_id = $1", topicId)
 	var topic Topic
-	if err := row.Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicUserId, &topic.TopicTime, &topic.TopicNumPosts, &topic.TopicNumViews); err != nil {
+	if err := row.Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicUserId, &topic.TopicTime, &topic.TopicNumPosts, &topic.TopicNumViews, &topic.TopicFirstPostId, &topic.TopicFirstUserName, &topic.TopicLastPostId, &topic.TopicLastPostTime, &topic.TopicLastUserId, &topic.TopicLastUserName); err != nil {
 		if err == sql.ErrNoRows {
 			// No result found
 			return Topic{}, nil

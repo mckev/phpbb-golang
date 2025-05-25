@@ -33,7 +33,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		},
 		"fnBbcodeToHtml": func(bbcodeStr string) template.HTML {
 			// To print raw, unescaped HTML within a Go HTML template, the html/template package provides the template.HTML type. By converting a string containing HTML to template.HTML, you can instruct the template engine to render it as raw HTML instead of escaping it for safe output.
-			// Warning: Since this Go template function outputs raw HTML, make sure it is safe from attacks such as XSS.
+			// WARNING: Since this Go template function outputs raw HTML, make sure it is safe from attacks such as XSS.
 			return template.HTML(bbcode.ConvertBbcodeToHtml(bbcodeStr))
 		},
 	}

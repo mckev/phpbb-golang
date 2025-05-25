@@ -23,7 +23,7 @@ func OpenDb(ctx context.Context, tableName string) *sql.DB {
 }
 
 func DropDb(ctx context.Context, tableName string) error {
-	// Warning: This is destructive!!
+	// WARNING: This is destructive!!
 	db := OpenDb(ctx, tableName)
 	defer db.Close()
 	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", SqlEscape(tableName)))

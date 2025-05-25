@@ -67,11 +67,13 @@ func PopulateDb(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	user3Id, err := model.InsertUser(ctx, "OnlyMyOpinion", "Password1", "")
+	user3Name := "OnlyMyOpinion"
+	user3Id, err := model.InsertUser(ctx, user3Name, "Password1", "")
 	if err != nil {
 		return err
 	}
-	user4Id, err := model.InsertUser(ctx, "DenisD", "Password4", "")
+	user4Name := "DenisD"
+	user4Id, err := model.InsertUser(ctx, user4Name, "Password4", "")
 	if err != nil {
 		return err
 	}
@@ -129,11 +131,19 @@ func PopulateDb(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
-			_, err = model.InsertPost(ctx, topicBB1Id, forumBBId, "Introduce Yourself", `Greetings. The purpose of this thread is to allow new posters to introduce themselves if they wish, giving as much - or as little - background as they want.
+			postBB1AId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Introduce Yourself", `Greetings. The purpose of this thread is to allow new posters to introduce themselves if they wish, giving as much - or as little - background as they want.
 
 Posting on this thread is entirely voluntary - but, if you do wish to post, thank you and welcome to the Financial Wisdom Forum (FWF)!
 
 -- The Management`, user1Id)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateFirstPostOfTopic(ctx, topicBB1Id, postBB1AId)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateLastPostOfTopic(ctx, topicBB1Id, postBB1AId, user1Id, user1Name)
 			if err != nil {
 				return err
 			}
@@ -151,7 +161,7 @@ Posting on this thread is entirely voluntary - but, if you do wish to post, than
 			if err != nil {
 				return err
 			}
-			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "We're now powered by phpBB 3.3", `We are pleased to announce that the board has been upgraded to the [url=https://www.phpbb.com/about/launch/]phpBB 3.3[/url] Feature Release.
+			postBB2AId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "We're now powered by phpBB 3.3", `We are pleased to announce that the board has been upgraded to the [url=https://www.phpbb.com/about/launch/]phpBB 3.3[/url] Feature Release.
 
 There have only been minor changes to the user interface and features that a keen eyed observer might see. We expect that many of you probably won't be able to notice any difference.
 
@@ -163,6 +173,14 @@ Please use this topic if you encounter any problems.`, user2Id)
 			if err != nil {
 				return err
 			}
+			err = model.UpdateFirstPostOfTopic(ctx, topicBB2Id, postBB2AId)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateLastPostOfTopic(ctx, topicBB2Id, postBB2AId, user2Id, user2Name)
+			if err != nil {
+				return err
+			}
 			err = model.IncreaseNumPostsForTopic(ctx, topicBB2Id)
 			if err != nil {
 				return err
@@ -175,9 +193,13 @@ Please use this topic if you encounter any problems.`, user2Id)
 			if err != nil {
 				return err
 			}
-			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar_Investor" user_id="636" post_id="659301" time="1586687280"]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
+			postBB2BId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar_Investor" user_id="636" post_id="659301" time="1586687280"]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
 I would't know anything had changed if not for your posts/updates.
 As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`, user3Id)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateLastPostOfTopic(ctx, topicBB2Id, postBB2BId, user3Id, user3Name)
 			if err != nil {
 				return err
 			}
@@ -189,7 +211,11 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
-			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `Haven't noticed any differences.`, user4Id)
+			postBB2CId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `Haven't noticed any differences.`, user4Id)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateLastPostOfTopic(ctx, topicBB2Id, postBB2CId, user4Id, user4Name)
 			if err != nil {
 				return err
 			}
@@ -202,7 +228,11 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 				return err
 			}
 			// for i := 4; i <= 250; i++ {
-			// 	_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", fmt.Sprintf("Spam Post %d", i), user4Id)
+			// 	postBB2DId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", fmt.Sprintf("Spam Post %d", i), user4Id)
+			// 	if err != nil {
+			// 		return err
+			// 	}
+			// 	err = model.UpdateLastPostOfTopic(ctx, topicBB2Id, postBB2DId, user4Id, user4Name)
 			// 	if err != nil {
 			// 		return err
 			// 	}

@@ -19,8 +19,8 @@ type User struct {
 	UserPasswordHashed string   `json:"user_password_hashed"`
 	UserSig            string   `json:"user_sig"`
 	UserRegTime        int64    `json:"user_reg_time"`
-	UserNumPosts       int      `json:"user_num_posts"`
 	// Derived properties
+	UserNumPosts int `json:"user_num_posts"`
 	UserTypeName string
 	UserTypeImg  string
 }
@@ -76,9 +76,17 @@ func InsertUser(ctx context.Context, userName string, userPassword string, userS
 func SetUserType(ctx context.Context, userId int, userType UserType) error {
 	db := OpenDb(ctx, "users")
 	defer db.Close()
-	_, err := db.Exec(`UPDATE users SET user_type = $1 WHERE user_id = $2`, userType, userId)
+	result, err := db.Exec(`UPDATE users SET user_type = $1 WHERE user_id = $2`, userType, userId)
 	if err != nil {
 		return fmt.Errorf("Error while setting user type %d for user id %d: %s", userType, userId, err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("Error while retrieving rows affected while setting user type %d for user id %d: %s", userType, userId, err)
+	}
+	// TODO: Behavior may not be correct if there is no change to user type
+	if rowsAffected == 0 {
+		return fmt.Errorf("No rows were updated while setting user type %d for user id %d", userType, userId)
 	}
 	return nil
 }
@@ -94,7 +102,7 @@ func IncreaseNumPostsForUser(ctx context.Context, userId int) error {
 }
 
 func ListUsers(ctx context.Context, topicId int) ([]User, error) {
-	// Warning: Issue on Golang Template may reveal sensitive information of users. So avoid reading sensitive information here.
+	// WARNING: Issue on Golang Template may reveal sensitive information of users. So avoid reading sensitive information here.
 	db := OpenDb(ctx, "users")
 	defer db.Close()
 	// ChatGPT: SQL Database with "users" and "posts" table. A user may post multiple things. Now generate SQL SELECT statement to list unique users given a post id.
