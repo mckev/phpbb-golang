@@ -17,7 +17,7 @@ type Post struct {
 	ForumId     int    `json:"forum_id"`
 	PostSubject string `json:"post_subject"`
 	PostText    string `json:"post_text"`
-	UserId      int    `json:"user_id"`
+	PostUserId  int    `json:"post_user_id"`
 	PostTime    int64  `json:"post_time"`
 }
 
@@ -31,11 +31,11 @@ func InitPosts(ctx context.Context) error {
 		forum_id MEDIUMINT(8) NOT NULL DEFAULT '0',
 		post_subject VARCHAR(255) NOT NULL DEFAULT '',
 		post_text MEDIUMTEXT NOT NULL DEFAULT '',
-		user_id INT(10) NOT NULL DEFAULT '0',
+		post_user_id INT(10) NOT NULL DEFAULT '0',
 		post_time INT(11) NOT NULL DEFAULT '0',
 		FOREIGN KEY (topic_id) REFERENCES topics(topic_id),
 		FOREIGN KEY (forum_id) REFERENCES forums(forum_id),
-		FOREIGN KEY (user_id) REFERENCES users(user_id)
+		FOREIGN KEY (post_user_id) REFERENCES users(user_id)
 	)`
 	_, err := db.Exec(sql)
 	if err != nil {
@@ -49,7 +49,7 @@ func InsertPost(ctx context.Context, topicId int, forumId int, postSubject strin
 	defer db.Close()
 	now := time.Now().UTC()
 	postTime := now.Unix()
-	res, err := db.Exec(`INSERT INTO posts (topic_id, forum_id, post_subject, post_text, post_time, user_id) VALUES ($1, $2, $3, $4, $5, $6)`, topicId, forumId, postSubject, postText, postTime, userId)
+	res, err := db.Exec(`INSERT INTO posts (topic_id, forum_id, post_subject, post_text, post_time, post_user_id) VALUES ($1, $2, $3, $4, $5, $6)`, topicId, forumId, postSubject, postText, postTime, userId)
 	if err != nil {
 		return INVALID_POST_ID, fmt.Errorf("Error while inserting post subject '%s' with topic id %d and forum id %d into posts table: %s", postSubject, topicId, forumId, err)
 	}
@@ -63,7 +63,7 @@ func InsertPost(ctx context.Context, topicId int, forumId int, postSubject strin
 func ListPosts(ctx context.Context, topicId int, startItem int) ([]Post, error) {
 	db := OpenDb(ctx, "posts")
 	defer db.Close()
-	rows, err := db.Query("SELECT post_id, topic_id, forum_id, post_subject, post_text, post_time, user_id FROM posts WHERE topic_id = $1 ORDER BY post_id LIMIT $2 OFFSET $3", topicId, MAX_POSTS_PER_PAGE, startItem)
+	rows, err := db.Query("SELECT post_id, topic_id, forum_id, post_subject, post_text, post_time, post_user_id FROM posts WHERE topic_id = $1 ORDER BY post_id LIMIT $2 OFFSET $3", topicId, MAX_POSTS_PER_PAGE, startItem)
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying posts table for topic id %d: %s", topicId, err)
 	}
@@ -71,7 +71,7 @@ func ListPosts(ctx context.Context, topicId int, startItem int) ([]Post, error) 
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		if err := rows.Scan(&post.PostId, &post.TopicId, &post.ForumId, &post.PostSubject, &post.PostText, &post.PostTime, &post.UserId); err != nil {
+		if err := rows.Scan(&post.PostId, &post.TopicId, &post.ForumId, &post.PostSubject, &post.PostText, &post.PostTime, &post.PostUserId); err != nil {
 			return nil, fmt.Errorf("Error while scanning rows on posts table for topic id %d: %s", topicId, err)
 		}
 		posts = append(posts, post)

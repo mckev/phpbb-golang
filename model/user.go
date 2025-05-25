@@ -98,7 +98,7 @@ func ListUsers(ctx context.Context, topicId int) ([]User, error) {
 	db := OpenDb(ctx, "users")
 	defer db.Close()
 	// ChatGPT: SQL Database with "users" and "posts" table. A user may post multiple things. Now generate SQL SELECT statement to list unique users given a post id.
-	rows, err := db.Query("SELECT DISTINCT users.user_id, users.user_type, users.user_name, users.user_sig, users.user_reg_time, user_num_posts FROM users JOIN posts ON posts.user_id = users.user_id WHERE posts.topic_id = $1 ORDER BY users.user_id", topicId)
+	rows, err := db.Query("SELECT DISTINCT users.user_id, users.user_type, users.user_name, users.user_sig, users.user_reg_time, user_num_posts FROM users JOIN posts ON posts.post_user_id = users.user_id WHERE posts.topic_id = $1 ORDER BY users.user_id", topicId)
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying users table for topic id %d: %s", topicId, err)
 	}

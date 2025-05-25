@@ -35,7 +35,7 @@
     </div>
 
     {{ range $post := $root.Posts }}
-    {{ $user := index $root.UsersMap $post.UserId }}
+    {{ $user := index $root.UsersMap $post.PostUserId }}
     <!-- Post {{ $post.PostId }} -->
     <div id="p{{ $post.PostId }}" class="post has-profile bg2">
         <div class="inner">
