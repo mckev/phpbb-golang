@@ -201,8 +201,8 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
-			// for i := 3; i < 250; i++ {
-			// 	_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", fmt.Sprintf("Spam %d", i+1), user4)
+			// for i := 4; i <= 250; i++ {
+			// 	_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", fmt.Sprintf("Spam Post %d", i), user4Id)
 			// 	if err != nil {
 			// 		return err
 			// 	}
@@ -210,7 +210,7 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			// 	if err != nil {
 			// 		return err
 			// 	}
-			// 	err = model.IncreaseNumPostsForUser(ctx, user4)
+			// 	err = model.IncreaseNumPostsForUser(ctx, user4Id)
 			// 	if err != nil {
 			// 		return err
 			// 	}

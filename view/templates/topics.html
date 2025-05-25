@@ -72,16 +72,16 @@
                                 <div class="topic-poster responsive-hide left-box">
                                     by <a href="./memberlist.php?mode=viewprofile&amp;u=462&amp;sid=c751fd3e575b0a5b4384fb4bb359f983" class="username">fundamental</a> &raquo; <time datetime="2012-01-19T17:48:07+00:00">19 Jan 2012 12:48</time>
                                 </div>
-                                {{ if gt (len $topicsWithInfo.Paginations) 1 }}
+                                {{ if gt (len $topicsWithInfo.TopicPaginations) 1 }}
                                 <div class="pagination">
                                     <span><i class="icon fa-clone fa-fw" aria-hidden="true"></i></span>
                                     <ul>
-                                        {{ range $pagination := $topicsWithInfo.Paginations }}
-                                        {{ if eq $pagination.PaginationType "PaginationTypePage" }}
-                                        <li><a class="button" href="./posts?t={{ $topic.TopicId }}&amp;start={{ $pagination.StartItem }}">{{ $pagination.PageNumber }}</a></li>
-                                        {{ else if eq $pagination.PaginationType "PaginationTypeCurrentPage" }}
-                                        <li><a class="button" href="./posts?t={{ $topic.TopicId }}&amp;start={{ $pagination.StartItem }}">{{ $pagination.PageNumber }}</a></li>
-                                        {{ else if eq $pagination.PaginationType "PaginationTypeSeparator" }}
+                                        {{ range $topicPagination := $topicsWithInfo.TopicPaginations }}
+                                        {{ if eq $topicPagination.PaginationType "PaginationTypePage" }}
+                                        <li><a class="button" href="./posts?t={{ $topic.TopicId }}&amp;start={{ $topicPagination.StartItem }}">{{ $topicPagination.PageNumber }}</a></li>
+                                        {{ else if eq $topicPagination.PaginationType "PaginationTypeCurrentPage" }}
+                                        <li><a class="button" href="./posts?t={{ $topic.TopicId }}&amp;start={{ $topicPagination.StartItem }}">{{ $topicPagination.PageNumber }}</a></li>
+                                        {{ else if eq $topicPagination.PaginationType "PaginationTypeSeparator" }}
                                         <li class="ellipsis"><span>…</span></li>
                                         {{ end }}
                                         {{ end }}

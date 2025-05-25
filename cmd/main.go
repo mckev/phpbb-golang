@@ -109,15 +109,15 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while listing topics: %s", err)
 		}
 		type TopicWithInfo struct {
-			Topic       model.Topic
-			Paginations []forumhelper.Pagination
+			Topic            model.Topic
+			TopicPaginations []forumhelper.Pagination
 		}
 		topicsWithInfo := []TopicWithInfo{}
 		for _, topic := range topics {
 			paginations := forumhelper.ComputePaginations(max(topic.TopicNumPosts-1, 0), topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
 			topicsWithInfo = append(topicsWithInfo, TopicWithInfo{
-				Topic:       topic,
-				Paginations: paginations,
+				Topic:            topic,
+				TopicPaginations: paginations,
 			})
 		}
 		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forumId)
