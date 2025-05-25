@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	INVALID_TOPIC       = -1
+	INVALID_TOPIC_ID    = -1
 	MAX_TOPICS_PER_PAGE = 25
 )
 
@@ -16,6 +16,7 @@ type Topic struct {
 	TopicId       int    `json:"topic_id"`
 	ForumId       int    `json:"forum_id"`
 	TopicTitle    string `json:"topic_title"`
+	TopicUserId   int    `json:"topic_user_id"`
 	TopicTime     int    `json:"topic_time"`
 	TopicNumPosts int    `json:"topic_num_posts"`
 	TopicNumViews int    `json:"topic_num_views"`
@@ -29,12 +30,19 @@ func InitTopics(ctx context.Context) error {
 		topic_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		forum_id MEDIUMINT(8) NOT NULL DEFAULT '0',
 		topic_title VARCHAR(255) NOT NULL DEFAULT '',
+		topic_user_id INT(10) NOT NULL DEFAULT '0',
 		topic_time INT(11) NOT NULL DEFAULT '0',
-		topic_first_post_id INT(10) NOT NULL DEFAULT '0',
-		topic_last_post_id INT(10) NOT NULL DEFAULT '0',
 		topic_num_posts MEDIUMINT(8) NOT NULL DEFAULT '0',
 		topic_num_views MEDIUMINT(8) NOT NULL DEFAULT '0',
-		FOREIGN KEY (forum_id) REFERENCES forums(forum_id)
+		topic_first_post_id INT(10) NOT NULL DEFAULT '0',
+		topic_first_user_name VARCHAR(255) NOT NULL DEFAULT '',
+		topic_last_post_id INT(10) NOT NULL DEFAULT '0',
+		topic_last_post_time INT(11) NOT NULL DEFAULT '0',
+		topic_last_user_id INT(10) NOT NULL DEFAULT '0',
+		topic_last_user_name VARCHAR(255) NOT NULL DEFAULT '',
+		FOREIGN KEY (forum_id) REFERENCES forums(forum_id),
+		FOREIGN KEY (topic_user_id) REFERENCES users(user_id),
+		FOREIGN KEY (topic_last_user_id) REFERENCES users(user_id)
 	)`
 	_, err := db.Exec(sql)
 	if err != nil {
@@ -43,18 +51,18 @@ func InitTopics(ctx context.Context) error {
 	return nil
 }
 
-func InsertTopic(ctx context.Context, forumId int, topicTitle string) (int, error) {
+func InsertTopic(ctx context.Context, forumId int, topicTitle string, topicUserId int, topicUserName string) (int, error) {
 	db := OpenDb(ctx, "topics")
 	defer db.Close()
 	now := time.Now().UTC()
 	topicTime := now.Unix()
-	res, err := db.Exec(`INSERT INTO topics (forum_id, topic_title, topic_time) VALUES ($1, $2, $3)`, forumId, topicTitle, topicTime)
+	res, err := db.Exec(`INSERT INTO topics (forum_id, topic_title, topic_time, topic_user_id, topic_first_user_name, topic_last_user_id, topic_last_user_name) VALUES ($1, $2, $3, $4, $5, $4, $5)`, forumId, topicTitle, topicTime, topicUserId, topicUserName)
 	if err != nil {
-		return INVALID_TOPIC, fmt.Errorf("Error while inserting topic title '%s' with forum id %d into topics table: %s", topicTitle, forumId, err)
+		return INVALID_TOPIC_ID, fmt.Errorf("Error while inserting topic title '%s' with forum id %d into topics table: %s", topicTitle, forumId, err)
 	}
 	topicId, err := res.LastInsertId()
 	if err != nil {
-		return INVALID_TOPIC, fmt.Errorf("Error while retrieving last insert id for topic title '%s': %s", topicTitle, err)
+		return INVALID_TOPIC_ID, fmt.Errorf("Error while retrieving last insert id for topic title '%s': %s", topicTitle, err)
 	}
 	return int(topicId), nil
 }
@@ -72,7 +80,7 @@ func IncreaseNumPostsForTopic(ctx context.Context, topicId int) error {
 func ListTopics(ctx context.Context, forumId int) ([]Topic, error) {
 	db := OpenDb(ctx, "topics")
 	defer db.Close()
-	rows, err := db.Query("SELECT topic_id, forum_id, topic_title, topic_time, topic_num_posts, topic_num_views FROM topics WHERE forum_id = $1 ORDER BY topic_id", forumId)
+	rows, err := db.Query("SELECT topic_id, forum_id, topic_title, topic_user_id, topic_time, topic_num_posts, topic_num_views FROM topics WHERE forum_id = $1 ORDER BY topic_id", forumId)
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying topics table for forum id %d: %s", forumId, err)
 	}
@@ -80,7 +88,7 @@ func ListTopics(ctx context.Context, forumId int) ([]Topic, error) {
 	var topics []Topic
 	for rows.Next() {
 		var topic Topic
-		if err := rows.Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicTime, &topic.TopicNumPosts, &topic.TopicNumViews); err != nil {
+		if err := rows.Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicUserId, &topic.TopicTime, &topic.TopicNumPosts, &topic.TopicNumViews); err != nil {
 			return nil, fmt.Errorf("Error while scanning rows on topics table for forum id %d: %s", forumId, err)
 		}
 		topics = append(topics, topic)
@@ -94,9 +102,9 @@ func ListTopics(ctx context.Context, forumId int) ([]Topic, error) {
 func GetTopic(ctx context.Context, topicId int) (Topic, error) {
 	db := OpenDb(ctx, "topics")
 	defer db.Close()
-	row := db.QueryRow("SELECT topic_id, forum_id, topic_title, topic_time, topic_num_posts, topic_num_views FROM topics WHERE topic_id = $1", topicId)
+	row := db.QueryRow("SELECT topic_id, forum_id, topic_title, topic_user_id, topic_time, topic_num_posts, topic_num_views FROM topics WHERE topic_id = $1", topicId)
 	var topic Topic
-	if err := row.Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicTime, &topic.TopicNumPosts, &topic.TopicNumViews); err != nil {
+	if err := row.Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicUserId, &topic.TopicTime, &topic.TopicNumPosts, &topic.TopicNumViews); err != nil {
 		if err == sql.ErrNoRows {
 			// No result found
 			return Topic{}, nil

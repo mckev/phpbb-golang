@@ -90,7 +90,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		}
 	} else if urlPath == "/topics" {
 		// To try: http://localhost:9000/topics?f=10
-		forumId := helper.StrToInt(queryParams.Get("f"), model.INVALID_FORUM)
+		forumId := helper.StrToInt(queryParams.Get("f"), model.INVALID_FORUM_ID)
 
 		// Prepare template files
 		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/topics.html")
@@ -145,7 +145,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	} else if urlPath == "/posts" {
 		// To try: http://localhost:9000/posts?t=2
 		// Parse query string. We use queryParams.Get("key") to retrieve the first value for a given query parameter.
-		topicId := helper.StrToInt(queryParams.Get("t"), model.INVALID_TOPIC)
+		topicId := helper.StrToInt(queryParams.Get("t"), model.INVALID_TOPIC_ID)
 		startItem := helper.StrToInt(queryParams.Get("start"), 0)
 
 		// Prepare template files

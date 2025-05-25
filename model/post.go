@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	INVALID_POST       = -1
+	INVALID_POST_ID    = -1
 	MAX_POSTS_PER_PAGE = 25
 )
 
@@ -51,11 +51,11 @@ func InsertPost(ctx context.Context, topicId int, forumId int, postSubject strin
 	postTime := now.Unix()
 	res, err := db.Exec(`INSERT INTO posts (topic_id, forum_id, post_subject, post_text, post_time, user_id) VALUES ($1, $2, $3, $4, $5, $6)`, topicId, forumId, postSubject, postText, postTime, userId)
 	if err != nil {
-		return INVALID_POST, fmt.Errorf("Error while inserting post subject '%s' with topic id %d and forum id %d into posts table: %s", postSubject, topicId, forumId, err)
+		return INVALID_POST_ID, fmt.Errorf("Error while inserting post subject '%s' with topic id %d and forum id %d into posts table: %s", postSubject, topicId, forumId, err)
 	}
 	postId, err := res.LastInsertId()
 	if err != nil {
-		return INVALID_POST, fmt.Errorf("Error while retrieving last insert id for post subject '%s': %s", postSubject, err)
+		return INVALID_POST_ID, fmt.Errorf("Error while retrieving last insert id for post subject '%s': %s", postSubject, err)
 	}
 	return int(postId), nil
 }

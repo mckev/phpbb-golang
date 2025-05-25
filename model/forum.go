@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	ROOT_FORUM      = 0
-	INVALID_FORUM   = -1
-	MAX_FORUM_DEPTH = 7
+	ROOT_FORUM_ID    = 0
+	INVALID_FORUM_ID = -1
+	MAX_FORUM_DEPTH  = 7
 )
 
 type Forum struct {
@@ -35,9 +35,9 @@ func InitForums(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("Error while creating forums table: %s", err)
 	}
-	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc) VALUES ($1, $2, $3, $4)`, ROOT_FORUM, ROOT_FORUM, "Root Forum", "")
+	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc) VALUES ($1, $2, $3, $4)`, ROOT_FORUM_ID, ROOT_FORUM_ID, "Root Forum", "")
 	if err != nil {
-		return fmt.Errorf("Error while inserting root forum into forums table: %s", err)
+		return fmt.Errorf("Error while inserting Root Forum into forums table: %s", err)
 	}
 	return nil
 }
@@ -47,11 +47,11 @@ func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc 
 	defer db.Close()
 	res, err := db.Exec(`INSERT INTO forums (parent_id, forum_name, forum_desc) VALUES ($1, $2, $3)`, parentId, forumName, forumDesc)
 	if err != nil {
-		return INVALID_FORUM, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent forum %d into forums table: %s", forumName, forumDesc, parentId, err)
+		return INVALID_FORUM_ID, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent forum %d into forums table: %s", forumName, forumDesc, parentId, err)
 	}
 	forumId, err := res.LastInsertId()
 	if err != nil {
-		return INVALID_FORUM, fmt.Errorf("Error while retrieving last insert id for forum name '%s': %s", forumName, err)
+		return INVALID_FORUM_ID, fmt.Errorf("Error while retrieving last insert id for forum name '%s': %s", forumName, err)
 	}
 	return int(forumId), nil
 }
@@ -110,7 +110,7 @@ func ComputeForumNavTrails(ctx context.Context, forumId int) ([]Forum, error) {
 	id := forumId
 	for true {
 		forum := forumsMap[id]
-		if forum.ForumId == ROOT_FORUM {
+		if forum.ForumId == ROOT_FORUM_ID {
 			break
 		}
 		forumNavTrails = append([]Forum{forum}, forumNavTrails...)

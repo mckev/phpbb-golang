@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	INVALID_USER = -1
+	INVALID_USER_ID = -1
 )
 
 type User struct {
@@ -29,10 +29,10 @@ type User struct {
 type UserType int
 
 const (
-	USER_NORMAL UserType = iota
-	USER_INACTIVE
-	USER_IGNORE
-	USER_FOUNDER = 99
+	USER_TYPE_NORMAL UserType = iota
+	USER_TYPE_INACTIVE
+	USER_TYPE_IGNORE
+	USER_TYPE_FOUNDER = 99
 )
 
 func InitUsers(ctx context.Context) error {
@@ -64,11 +64,11 @@ func InsertUser(ctx context.Context, userName string, userPassword string, userS
 	userRegTime := now.Unix()
 	res, err := db.Exec(`INSERT INTO users (user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4)`, userName, hashedPasswordWithSaltAndHeader, userSig, userRegTime)
 	if err != nil {
-		return INVALID_USER, fmt.Errorf("Error while inserting user name '%s' into users table: %s", userName, err)
+		return INVALID_USER_ID, fmt.Errorf("Error while inserting user name '%s' into users table: %s", userName, err)
 	}
 	userId, err := res.LastInsertId()
 	if err != nil {
-		return INVALID_USER, fmt.Errorf("Error while retrieving last insert id for user name '%s': %s", userName, err)
+		return INVALID_USER_ID, fmt.Errorf("Error while retrieving last insert id for user name '%s': %s", userName, err)
 	}
 	return int(userId), nil
 }
@@ -116,16 +116,16 @@ func ListUsers(ctx context.Context, topicId int) ([]User, error) {
 	}
 	// Derived properties
 	for i := range users {
-		if users[i].UserType == USER_NORMAL {
+		if users[i].UserType == USER_TYPE_NORMAL {
 			users[i].UserTypeName = "Member"
 			users[i].UserTypeImg = "/images/ranks/modern-ranks/member.png"
-		} else if users[i].UserType == USER_INACTIVE {
+		} else if users[i].UserType == USER_TYPE_INACTIVE {
 			users[i].UserTypeName = "Member (inactive)"
 			users[i].UserTypeImg = "/images/ranks/modern-ranks/member.png"
-		} else if users[i].UserType == USER_IGNORE {
+		} else if users[i].UserType == USER_TYPE_IGNORE {
 			users[i].UserTypeName = "Banned"
 			users[i].UserTypeImg = "/images/ranks/modern-ranks/banned.png"
-		} else if users[i].UserType == USER_FOUNDER {
+		} else if users[i].UserType == USER_TYPE_FOUNDER {
 			users[i].UserTypeName = "Administrator"
 			users[i].UserTypeImg = "/images/ranks/modern-ranks/administrator.png"
 		} else {

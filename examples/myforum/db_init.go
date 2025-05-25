@@ -47,36 +47,38 @@ func PopulateDb(ctx context.Context) error {
 	}
 
 	// Users
-	user1, err := model.InsertUser(ctx, "The Management", "Password1", "Sic transit gloria mundi. Tuesday is usually worse. - Robert A. Heinlein, Starman Jones")
+	user1Name := "The Management"
+	user1Id, err := model.InsertUser(ctx, user1Name, "Password1", "Sic transit gloria mundi. Tuesday is usually worse. - Robert A. Heinlein, Starman Jones")
 	if err != nil {
 		return err
 	}
-	err = model.SetUserType(ctx, user1, model.USER_FOUNDER)
+	err = model.SetUserType(ctx, user1Id, model.USER_TYPE_FOUNDER)
 	if err != nil {
 		return err
 	}
-	user2, err := model.InsertUser(ctx, "PeculiarInvestor", "Password1", `[url=https://www.finiki.org/wiki/Main_Page][img]https://www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg[/img]finiki, the Canadian financial wiki[/url] New editors wanted and welcomed, please help collaborate and improve the wiki.
+	user2Name := "PeculiarInvestor"
+	user2Id, err := model.InsertUser(ctx, user2Name, "Password1", `[url=https://www.finiki.org/wiki/Main_Page][img]https://www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg[/img]finiki, the Canadian financial wiki[/url] New editors wanted and welcomed, please help collaborate and improve the wiki.
 
 "Normal people... believe that if it ain't broke, don't fix it. Engineers believe that if it ain't broke, it doesn't have enough features yet." - Scott Adams`)
 	if err != nil {
 		return err
 	}
-	err = model.SetUserType(ctx, user2, model.USER_FOUNDER)
+	err = model.SetUserType(ctx, user2Id, model.USER_TYPE_FOUNDER)
 	if err != nil {
 		return err
 	}
-	user3, err := model.InsertUser(ctx, "OnlyMyOpinion", "Password1", "")
+	user3Id, err := model.InsertUser(ctx, "OnlyMyOpinion", "Password1", "")
 	if err != nil {
 		return err
 	}
-	user4, err := model.InsertUser(ctx, "DenisD", "Password4", "")
+	user4Id, err := model.InsertUser(ctx, "DenisD", "Password4", "")
 	if err != nil {
 		return err
 	}
 
 	// Forums
 	{
-		forumAId, err := model.InsertForum(ctx, model.ROOT_FORUM, "Your Money", "")
+		forumAId, err := model.InsertForum(ctx, model.ROOT_FORUM_ID, "Your Money", "")
 		if err != nil {
 			return err
 		}
@@ -109,7 +111,7 @@ func PopulateDb(ctx context.Context) error {
 		}
 	}
 	{
-		forumBId, err := model.InsertForum(ctx, model.ROOT_FORUM, "Your Life", "")
+		forumBId, err := model.InsertForum(ctx, model.ROOT_FORUM_ID, "Your Life", "")
 		if err != nil {
 			return err
 		}
@@ -123,7 +125,7 @@ func PopulateDb(ctx context.Context) error {
 		}
 		{
 			// Topic of "Now Hear This!" forum : Introduce Yourself
-			topicBB1Id, err := model.InsertTopic(ctx, forumBBId, "Introduce Yourself")
+			topicBB1Id, err := model.InsertTopic(ctx, forumBBId, "Introduce Yourself", user1Id, user1Name)
 			if err != nil {
 				return err
 			}
@@ -131,7 +133,7 @@ func PopulateDb(ctx context.Context) error {
 
 Posting on this thread is entirely voluntary - but, if you do wish to post, thank you and welcome to the Financial Wisdom Forum (FWF)!
 
--- The Management`, user1)
+-- The Management`, user1Id)
 			if err != nil {
 				return err
 			}
@@ -139,13 +141,13 @@ Posting on this thread is entirely voluntary - but, if you do wish to post, than
 			if err != nil {
 				return err
 			}
-			err = model.IncreaseNumPostsForUser(ctx, user1)
+			err = model.IncreaseNumPostsForUser(ctx, user1Id)
 			if err != nil {
 				return err
 			}
 
 			// Topic of "Now Hear This!" forum : We're now powered by phpBB 3.3
-			topicBB2Id, err := model.InsertTopic(ctx, forumBBId, "We're now powered by phpBB 3.3")
+			topicBB2Id, err := model.InsertTopic(ctx, forumBBId, "We're now powered by phpBB 3.3", user2Id, user2Name)
 			if err != nil {
 				return err
 			}
@@ -157,7 +159,7 @@ For the most part this upgrade was about getting the underlying components and f
 
 For those keeping track, the fix for [url=https://www.financialwisdomforum.org/forum/viewtopic.php?p=650049#p650049]this bug[/url] hasn't been included in this phpBB feature release. It is due in the next, currently unscheduled, bugfix release. A reminder that the workaround is to delete the PM when reading it, not from the list of PMs.
 
-Please use this topic if you encounter any problems.`, user2)
+Please use this topic if you encounter any problems.`, user2Id)
 			if err != nil {
 				return err
 			}
@@ -165,17 +167,17 @@ Please use this topic if you encounter any problems.`, user2)
 			if err != nil {
 				return err
 			}
-			err = model.IncreaseNumPostsForUser(ctx, user2)
+			err = model.IncreaseNumPostsForUser(ctx, user2Id)
 			if err != nil {
 				return err
 			}
-			err = model.IncreaseNumPostsForUser(ctx, user2)
+			err = model.IncreaseNumPostsForUser(ctx, user2Id)
 			if err != nil {
 				return err
 			}
 			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar_Investor" user_id="636" post_id="659301" time="1586687280"]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
 I would't know anything had changed if not for your posts/updates.
-As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`, user3)
+As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`, user3Id)
 			if err != nil {
 				return err
 			}
@@ -183,11 +185,11 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
-			err = model.IncreaseNumPostsForUser(ctx, user3)
+			err = model.IncreaseNumPostsForUser(ctx, user3Id)
 			if err != nil {
 				return err
 			}
-			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `Haven't noticed any differences.`, user4)
+			_, err = model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `Haven't noticed any differences.`, user4Id)
 			if err != nil {
 				return err
 			}
@@ -195,7 +197,7 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
-			err = model.IncreaseNumPostsForUser(ctx, user4)
+			err = model.IncreaseNumPostsForUser(ctx, user4Id)
 			if err != nil {
 				return err
 			}
