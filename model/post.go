@@ -44,12 +44,12 @@ func InitPosts(ctx context.Context) error {
 	return nil
 }
 
-func InsertPost(ctx context.Context, topicId int, forumId int, postSubject string, postText string, userId int) (int, error) {
+func InsertPost(ctx context.Context, topicId int, forumId int, postSubject string, postText string, postUserId int) (int, error) {
 	db := OpenDb(ctx, "posts")
 	defer db.Close()
 	now := time.Now().UTC()
 	postTime := now.Unix()
-	res, err := db.Exec(`INSERT INTO posts (topic_id, forum_id, post_subject, post_text, post_time, post_user_id) VALUES ($1, $2, $3, $4, $5, $6)`, topicId, forumId, postSubject, postText, postTime, userId)
+	res, err := db.Exec(`INSERT INTO posts (topic_id, forum_id, post_subject, post_text, post_user_id, post_time) VALUES ($1, $2, $3, $4, $5, $6)`, topicId, forumId, postSubject, postText, postUserId, postTime)
 	if err != nil {
 		return INVALID_POST_ID, fmt.Errorf("Error while inserting post subject '%s' with topic id %d and forum id %d into posts table: %s", postSubject, topicId, forumId, err)
 	}
@@ -63,7 +63,7 @@ func InsertPost(ctx context.Context, topicId int, forumId int, postSubject strin
 func ListPosts(ctx context.Context, topicId int, startItem int) ([]Post, error) {
 	db := OpenDb(ctx, "posts")
 	defer db.Close()
-	rows, err := db.Query("SELECT post_id, topic_id, forum_id, post_subject, post_text, post_time, post_user_id FROM posts WHERE topic_id = $1 ORDER BY post_id LIMIT $2 OFFSET $3", topicId, MAX_POSTS_PER_PAGE, startItem)
+	rows, err := db.Query("SELECT post_id, topic_id, forum_id, post_subject, post_text, post_user_id, post_time FROM posts WHERE topic_id = $1 ORDER BY post_id LIMIT $2 OFFSET $3", topicId, MAX_POSTS_PER_PAGE, startItem)
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying posts table for topic id %d: %s", topicId, err)
 	}
@@ -71,7 +71,7 @@ func ListPosts(ctx context.Context, topicId int, startItem int) ([]Post, error) 
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		if err := rows.Scan(&post.PostId, &post.TopicId, &post.ForumId, &post.PostSubject, &post.PostText, &post.PostTime, &post.PostUserId); err != nil {
+		if err := rows.Scan(&post.PostId, &post.TopicId, &post.ForumId, &post.PostSubject, &post.PostText, &post.PostUserId, &post.PostTime); err != nil {
 			return nil, fmt.Errorf("Error while scanning rows on posts table for topic id %d: %s", topicId, err)
 		}
 		posts = append(posts, post)
