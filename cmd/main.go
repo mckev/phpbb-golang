@@ -118,6 +118,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	} else if urlPath == "/topics" {
 		// To try: http://localhost:9000/topics?f=10
 		forumId := helper.StrToInt(queryParams.Get("f"), model.INVALID_FORUM_ID)
+		startItem := helper.StrToInt(queryParams.Get("start"), 0)
 
 		// Prepare template files
 		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/topics.html")
@@ -131,7 +132,8 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			logger.Errorf(ctx, "Error while getting forum: %s", err)
 		}
-		topics, err := model.ListTopics(ctx, forumId)
+		startItem = forumhelper.FixStartItem(startItem, forum.ForumNumTopics, model.MAX_TOPICS_PER_PAGE)
+		topics, err := model.ListTopics(ctx, forumId, startItem)
 		if err != nil {
 			logger.Errorf(ctx, "Error while listing topics: %s", err)
 		}
@@ -141,25 +143,28 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		}
 		topicsWithInfo := []TopicWithInfo{}
 		for _, topic := range topics {
-			paginations := forumhelper.ComputePaginations(max(topic.TopicNumPosts-1, 0), topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
+			postPaginations := forumhelper.ComputePaginations(max(topic.TopicNumPosts-1, 0), topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
 			topicsWithInfo = append(topicsWithInfo, TopicWithInfo{
 				Topic:           topic,
-				PostPaginations: paginations,
+				PostPaginations: postPaginations,
 			})
 		}
 		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forumId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forumId, err)
 		}
+		topicPaginations := forumhelper.ComputePaginations(startItem, forum.ForumNumTopics, model.MAX_TOPICS_PER_PAGE)
 		type TopicsPageData struct {
-			Forum          model.Forum
-			TopicsWithInfo []TopicWithInfo
-			ForumNavTrails []model.Forum
+			Forum            model.Forum
+			TopicsWithInfo   []TopicWithInfo
+			ForumNavTrails   []model.Forum
+			TopicPaginations []forumhelper.Pagination
 		}
 		topicsPageData := TopicsPageData{
-			Forum:          forum,
-			TopicsWithInfo: topicsWithInfo,
-			ForumNavTrails: forumNavTrails,
+			Forum:            forum,
+			TopicsWithInfo:   topicsWithInfo,
+			ForumNavTrails:   forumNavTrails,
+			TopicPaginations: topicPaginations,
 		}
 
 		// Execute template

@@ -131,6 +131,10 @@ func PopulateDb(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
+			err = model.IncreaseNumTopicsForForum(ctx, forumBBId)
+			if err != nil {
+				return err
+			}
 			postBB1AId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Introduce Yourself", `Greetings. The purpose of this thread is to allow new posters to introduce themselves if they wish, giving as much - or as little - background as they want.
 
 Posting on this thread is entirely voluntary - but, if you do wish to post, thank you and welcome to the Financial Wisdom Forum (FWF)!
@@ -147,6 +151,10 @@ Posting on this thread is entirely voluntary - but, if you do wish to post, than
 			if err != nil {
 				return err
 			}
+			err = model.IncreaseNumPostsForForum(ctx, forumBBId)
+			if err != nil {
+				return err
+			}
 			err = model.IncreaseNumPostsForTopic(ctx, topicBB1Id)
 			if err != nil {
 				return err
@@ -158,6 +166,10 @@ Posting on this thread is entirely voluntary - but, if you do wish to post, than
 
 			// Topic of "Now Hear This!" forum : We're now powered by phpBB 3.3
 			topicBB2Id, err := model.InsertTopic(ctx, forumBBId, "We're now powered by phpBB 3.3", user2Id, user2Name)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumTopicsForForum(ctx, forumBBId)
 			if err != nil {
 				return err
 			}
@@ -178,6 +190,10 @@ Please use this topic if you encounter any problems.`, user2Id)
 				return err
 			}
 			err = model.UpdateLastPostOfTopic(ctx, topicBB2Id, postBB2AId, user2Id, user2Name)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForForum(ctx, forumBBId)
 			if err != nil {
 				return err
 			}
@@ -203,6 +219,10 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
+			err = model.IncreaseNumPostsForForum(ctx, forumBBId)
+			if err != nil {
+				return err
+			}
 			err = model.IncreaseNumPostsForTopic(ctx, topicBB2Id)
 			if err != nil {
 				return err
@@ -219,6 +239,10 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
+			err = model.IncreaseNumPostsForForum(ctx, forumBBId)
+			if err != nil {
+				return err
+			}
 			err = model.IncreaseNumPostsForTopic(ctx, topicBB2Id)
 			if err != nil {
 				return err
@@ -227,6 +251,8 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
+
+			// Spam posts of "Now Hear This!" forum : We're now powered by phpBB 3.3
 			// for i := 4; i <= 250; i++ {
 			// 	postBB2DId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", fmt.Sprintf("Spam Post %d", i), user4Id)
 			// 	if err != nil {
@@ -236,11 +262,27 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			// 	if err != nil {
 			// 		return err
 			// 	}
+			// 	err = model.IncreaseNumPostsForForum(ctx, forumBBId)
+			// 	if err != nil {
+			// 		return err
+			// 	}
 			// 	err = model.IncreaseNumPostsForTopic(ctx, topicBB2Id)
 			// 	if err != nil {
 			// 		return err
 			// 	}
 			// 	err = model.IncreaseNumPostsForUser(ctx, user4Id)
+			// 	if err != nil {
+			// 		return err
+			// 	}
+			// }
+
+			// Spam topic of "Now Hear This!" forum
+			// for i := 3; i <= 250; i++ {
+			// 	_, err := model.InsertTopic(ctx, forumBBId, fmt.Sprintf("Spam Topic %d", i), user2Id, user2Name)
+			// 	if err != nil {
+			// 		return err
+			// 	}
+			// 	err = model.IncreaseNumTopicsForForum(ctx, forumBBId)
 			// 	if err != nil {
 			// 		return err
 			// 	}

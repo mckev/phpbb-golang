@@ -49,7 +49,7 @@ func DebugMyforum(ctx context.Context) {
 	logger.Infof(ctx, "")
 
 	logger.Infof(ctx, "Topics of 'Now Hear This!':")
-	topics, err := model.ListTopics(ctx, FORUM_ID)
+	topics, err := model.ListTopics(ctx, FORUM_ID, 0)
 	if err != nil {
 		logger.Errorf(ctx, "Error while listing topics: %s", err)
 	}

@@ -120,10 +120,10 @@ func UpdateLastPostOfTopic(ctx context.Context, topicId int, topicLastPostId int
 	return nil
 }
 
-func ListTopics(ctx context.Context, forumId int) ([]Topic, error) {
+func ListTopics(ctx context.Context, forumId int, startItem int) ([]Topic, error) {
 	db := OpenDb(ctx, "topics")
 	defer db.Close()
-	rows, err := db.Query("SELECT topic_id, forum_id, topic_title, topic_user_id, topic_time, topic_num_posts, topic_num_views, topic_first_post_id, topic_first_user_name, topic_last_post_id, topic_last_post_time, topic_last_user_id, topic_last_user_name FROM topics WHERE forum_id = $1 ORDER BY topic_id", forumId)
+	rows, err := db.Query("SELECT topic_id, forum_id, topic_title, topic_user_id, topic_time, topic_num_posts, topic_num_views, topic_first_post_id, topic_first_user_name, topic_last_post_id, topic_last_post_time, topic_last_user_id, topic_last_user_name FROM topics WHERE forum_id = $1 ORDER BY topic_id LIMIT $2 OFFSET $3", forumId, MAX_TOPICS_PER_PAGE, startItem)
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying topics table for forum id %d: %s", forumId, err)
 	}
