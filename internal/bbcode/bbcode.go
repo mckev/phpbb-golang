@@ -11,6 +11,7 @@ func ConvertBbcodeToHtml(bbcodeStr string) string {
 
 	// Custom BB tags
 	compiler.SetTag("blockquote", blockquoteBBTagHandler)
+	compiler.SetTag("url", urlBBTagHandler)
 
 	html := compiler.Compile(bbcodeStr)
 	return html
