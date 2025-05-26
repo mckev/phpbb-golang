@@ -6,20 +6,6 @@ import (
 	"phpbb-golang/internal/helper"
 )
 
-func ConvertBbcodeToHtml(bbcodeStr string) string {
-	// Ref: https://github.com/frustra/bbcode
-	compiler := bbcode.NewCompiler(false, false)
-
-	// Make HTML attributes deterministic for unit test
-	compiler.SortOutputAttributes = true
-
-	// Custom BB tags
-	compiler.SetTag("blockquote", blockquoteBBTagHandler)
-
-	html := compiler.Compile(bbcodeStr)
-	return html
-}
-
 func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	// Custom tag [blockquote]
 	// Ref: https://www.phpbb.com/community/viewtopic.php?t=2649439: Quotes are formatted like this in the database:  [quote="User" post_id="???" time="???" userid="???"]
