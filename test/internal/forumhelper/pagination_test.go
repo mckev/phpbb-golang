@@ -17,6 +17,17 @@ func TestComputePaginations_NoElement(t *testing.T) {
 	}
 }
 
+func TestComputePaginations_SingleElement(t *testing.T) {
+	actual := forumhelper.ComputePaginations(0, 1, model.MAX_POSTS_PER_PAGE)
+	expected := []forumhelper.Pagination{
+		{PaginationType: "PaginationTypeCurrentPage", StartItem: 0, PageNumber: 1},
+	}
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Got %v, wanted %v", actual, expected)
+		return
+	}
+}
+
 func TestComputePaginations_Page1of24(t *testing.T) {
 	actual := forumhelper.ComputePaginations(5, 580, model.MAX_POSTS_PER_PAGE)
 	expected := []forumhelper.Pagination{
