@@ -30,6 +30,9 @@ func ComputePaginations(curItem int, totalItems int, maxItemsPerPage int) []Pagi
 	//   - curItem starts at 0
 	//   - 0 <= page < maxPage
 	//   - page starts at 0, however page number (i.e. human-readable page) starts at 1
+	if totalItems == 0 {
+		return []Pagination{}
+	}
 	curPage := curItem / maxItemsPerPage
 	maxPage := (totalItems + maxItemsPerPage - 1) / maxItemsPerPage // maxPage := ceil(totalItems / maxItemsPerPage)
 
