@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"slices"
 )
 
 const (
@@ -119,31 +120,43 @@ func GetForum(ctx context.Context, forumId int) (Forum, error) {
 	return forum, nil
 }
 
-func ComputeForumNavTrails(ctx context.Context, forumId int) ([]Forum, error) {
+type ForumNavTrail struct {
+	Forum  Forum
+	IsLast bool
+}
+
+func ComputeForumNavTrails(ctx context.Context, forumId int) ([]ForumNavTrail, error) {
 	// Given a Forum Id, find its parents until Root Forum
 	forums, err := ListForums(ctx)
 	if err != nil {
-		return []Forum{}, fmt.Errorf("Error while listing forums upon computing Forum Nav Trails: %s", err)
+		return []ForumNavTrail{}, fmt.Errorf("Error while listing forums upon computing Forum Nav Trails: %s", err)
 	}
 	// Convert users from a list into a map
 	forumsMap := map[int]Forum{}
 	for _, forum := range forums {
 		forumsMap[forum.ForumId] = forum
 	}
-	var forumNavTrails []Forum
+	forumNavTrails := []ForumNavTrail{}
 	depth := 0
 	id := forumId
 	for true {
-		forum := forumsMap[id]
-		if forum.ForumId == ROOT_FORUM_ID {
+		if id == ROOT_FORUM_ID {
 			break
 		}
-		forumNavTrails = append([]Forum{forum}, forumNavTrails...)
+		forum := forumsMap[id]
+		forumNavTrails = append(forumNavTrails, ForumNavTrail{
+			Forum:  forum,
+			IsLast: false,
+		})
 		depth++
 		if depth > MAX_FORUM_DEPTH {
-			return []Forum{}, fmt.Errorf("Error while computing Forum Nav Trails for forum id %d: Path too deep", forumId)
+			return []ForumNavTrail{}, fmt.Errorf("Error while computing Forum Nav Trails for forum id %d: Path too deep", forumId)
 		}
 		id = forum.ParentId
+	}
+	if len(forumNavTrails) > 0 {
+		slices.Reverse(forumNavTrails)
+		forumNavTrails[len(forumNavTrails)-1].IsLast = true
 	}
 	return forumNavTrails, nil
 }

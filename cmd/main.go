@@ -157,7 +157,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		type TopicsPageData struct {
 			Forum            model.Forum
 			TopicsWithInfo   []TopicWithInfo
-			ForumNavTrails   []model.Forum
+			ForumNavTrails   []model.ForumNavTrail
 			TopicPaginations []forumhelper.Pagination
 		}
 		topicsPageData := TopicsPageData{
@@ -217,7 +217,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			Topic          model.Topic
 			Posts          []model.Post
 			UsersMap       map[int]model.User
-			ForumNavTrails []model.Forum
+			ForumNavTrails []model.ForumNavTrail
 			Paginations    []forumhelper.Pagination
 		}
 		postsPageData := PostsPageData{
