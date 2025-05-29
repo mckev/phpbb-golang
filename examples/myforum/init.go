@@ -27,14 +27,14 @@ func DebugMyforum(ctx context.Context) {
 	logger.Infof(ctx, "")
 
 	logger.Infof(ctx, "Hierarchy of Root Forum:")
-	forumNodes := model.ComputeForumNodes(ctx, forums, model.ROOT_FORUM_ID, 0)
-	for _, forumNode := range forumNodes {
+	forumChildNodes := model.ComputeForumChildNodes(ctx, forums, model.ROOT_FORUM_ID, 0)
+	for _, forumNode := range forumChildNodes {
 		logger.Infof(ctx, "  - %t %s", forumNode.IsLeaf, helper.JsonDumps(forumNode.Forum))
-		if len(forumNode.ForumNodes) > 0 {
-			for _, forumNode := range forumNode.ForumNodes {
+		if len(forumNode.ForumChildNodes) > 0 {
+			for _, forumNode := range forumNode.ForumChildNodes {
 				logger.Infof(ctx, "      - %t %s", forumNode.IsLeaf, helper.JsonDumps(forumNode.Forum))
-				if len(forumNode.ForumNodes) > 0 {
-					for _, forumNode := range forumNode.ForumNodes {
+				if len(forumNode.ForumChildNodes) > 0 {
+					for _, forumNode := range forumNode.ForumChildNodes {
 						logger.Infof(ctx, "          - %t %s", forumNode.IsLeaf, helper.JsonDumps(forumNode.Forum))
 					}
 				}

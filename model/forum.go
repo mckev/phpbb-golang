@@ -163,33 +163,33 @@ func ComputeForumNavTrails(ctx context.Context, forumId int) ([]ForumNavTrail, e
 }
 
 type ForumNode struct {
-	Forum      Forum
-	IsLeaf     bool
-	ForumNodes []ForumNode
+	Forum           Forum
+	IsLeaf          bool
+	ForumChildNodes []ForumNode
 }
 
-func ComputeForumNodes(ctx context.Context, forums []Forum, forumId int, depth int) []ForumNode {
+func ComputeForumChildNodes(ctx context.Context, forums []Forum, forumId int, depth int) []ForumNode {
 	// Construct child nodes whose parent is Forum Id
 	if depth >= MAX_FORUM_NODES_DEPTH {
 		return []ForumNode{}
 	}
-	forumNodes := []ForumNode{}
+	forumChildNodes := []ForumNode{}
 	for _, forum := range forums {
 		if forum.ForumId == ROOT_FORUM_ID {
 			continue
 		}
 		if forum.ParentId == forumId {
-			forumChildrens := ComputeForumNodes(ctx, forums, forum.ForumId, depth+1)
+			forumGrandchildNodes := ComputeForumChildNodes(ctx, forums, forum.ForumId, depth+1)
 			isLeaf := false
-			if len(forumChildrens) == 0 {
+			if len(forumGrandchildNodes) == 0 {
 				isLeaf = true
 			}
-			forumNodes = append(forumNodes, ForumNode{
-				Forum:      forum,
-				IsLeaf:     isLeaf,
-				ForumNodes: forumChildrens,
+			forumChildNodes = append(forumChildNodes, ForumNode{
+				Forum:           forum,
+				IsLeaf:          isLeaf,
+				ForumChildNodes: forumGrandchildNodes,
 			})
 		}
 	}
-	return forumNodes
+	return forumChildNodes
 }
