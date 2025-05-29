@@ -26,6 +26,23 @@ func DebugMyforum(ctx context.Context) {
 	}
 	logger.Infof(ctx, "")
 
+	logger.Infof(ctx, "Hierarchy of Root Forum:")
+	forumNodes := model.ComputeForumNodes(ctx, forums, model.ROOT_FORUM_ID, 0)
+	for _, forumNode := range forumNodes {
+		logger.Infof(ctx, "  - %t %s", forumNode.IsLeaf, helper.JsonDumps(forumNode.Forum))
+		if len(forumNode.ForumNodes) > 0 {
+			for _, forumNode := range forumNode.ForumNodes {
+				logger.Infof(ctx, "      - %t %s", forumNode.IsLeaf, helper.JsonDumps(forumNode.Forum))
+				if len(forumNode.ForumNodes) > 0 {
+					for _, forumNode := range forumNode.ForumNodes {
+						logger.Infof(ctx, "          - %t %s", forumNode.IsLeaf, helper.JsonDumps(forumNode.Forum))
+					}
+				}
+			}
+		}
+	}
+	logger.Infof(ctx, "")
+
 	FORUM_ID := 10
 	logger.Infof(ctx, "Navigation trails of 'Now Hear This!' forum:")
 	forumNavTrails, err := model.ComputeForumNavTrails(ctx, FORUM_ID)

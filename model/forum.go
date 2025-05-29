@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	ROOT_FORUM_ID    = 0
-	INVALID_FORUM_ID = -1
-	MAX_FORUM_DEPTH  = 7
+	ROOT_FORUM_ID              = 0
+	INVALID_FORUM_ID           = -1
+	MAX_FORUM_NAV_TRAILS_DEPTH = 7
+	MAX_FORUM_NODES_DEPTH      = 3
 )
 
 type Forum struct {
@@ -122,7 +123,7 @@ func GetForum(ctx context.Context, forumId int) (Forum, error) {
 
 type ForumNavTrail struct {
 	Forum  Forum
-	IsLast bool
+	IsLeaf bool
 }
 
 func ComputeForumNavTrails(ctx context.Context, forumId int) ([]ForumNavTrail, error) {
@@ -146,17 +147,49 @@ func ComputeForumNavTrails(ctx context.Context, forumId int) ([]ForumNavTrail, e
 		forum := forumsMap[id]
 		forumNavTrails = append(forumNavTrails, ForumNavTrail{
 			Forum:  forum,
-			IsLast: false,
+			IsLeaf: false,
 		})
 		depth++
-		if depth > MAX_FORUM_DEPTH {
+		if depth > MAX_FORUM_NAV_TRAILS_DEPTH {
 			return []ForumNavTrail{}, fmt.Errorf("Error while computing Forum Nav Trails for forum id %d: Path too deep", forumId)
 		}
 		id = forum.ParentId
 	}
 	if len(forumNavTrails) > 0 {
 		slices.Reverse(forumNavTrails)
-		forumNavTrails[len(forumNavTrails)-1].IsLast = true
+		forumNavTrails[len(forumNavTrails)-1].IsLeaf = true
 	}
 	return forumNavTrails, nil
+}
+
+type ForumNode struct {
+	Forum      Forum
+	IsLeaf     bool
+	ForumNodes []ForumNode
+}
+
+func ComputeForumNodes(ctx context.Context, forums []Forum, forumId int, depth int) []ForumNode {
+	// Construct child nodes whose parent is Forum Id
+	if depth >= MAX_FORUM_NODES_DEPTH {
+		return []ForumNode{}
+	}
+	forumNodes := []ForumNode{}
+	for _, forum := range forums {
+		if forum.ForumId == ROOT_FORUM_ID {
+			continue
+		}
+		if forum.ParentId == forumId {
+			forumChildrens := ComputeForumNodes(ctx, forums, forum.ForumId, depth+1)
+			isLeaf := false
+			if len(forumChildrens) == 0 {
+				isLeaf = true
+			}
+			forumNodes = append(forumNodes, ForumNode{
+				Forum:      forum,
+				IsLeaf:     isLeaf,
+				ForumNodes: forumChildrens,
+			})
+		}
+	}
+	return forumNodes
 }

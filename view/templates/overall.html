@@ -102,7 +102,7 @@
                             {{ $forumNavCounter := 2 }}
                             {{ range $forumNavTrail := $root.ForumNavTrails }}
                             <span class="crumb" itemtype="https://schema.org/ListItem" itemprop="itemListElement" itemscope data-forum-id="{{ $forumNavTrail.Forum.ForumId }}">
-                                {{ if $forumNavTrail.IsLast }}
+                                {{ if $forumNavTrail.IsLeaf }}
                                 <a itemprop="item" href="./topics?f={{ $forumNavTrail.Forum.ForumId }}"><span itemprop="name">{{ $forumNavTrail.Forum.ForumName }} </span></a>
                                 {{ else }}
                                 <a itemprop="item" href="./forums?f={{ $forumNavTrail.Forum.ForumId }}"><span itemprop="name">{{ $forumNavTrail.Forum.ForumName }} </span></a>
