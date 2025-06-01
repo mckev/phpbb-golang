@@ -115,6 +115,49 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+	} else if urlPath == "/forums" {
+		// To try: http://localhost:9000/forums?f=1
+		forumId := helper.StrToInt(queryParams.Get("f"), model.INVALID_FORUM_ID)
+
+		// Prepare template files
+		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/forums.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing forums template files: %s", err)
+			return
+		}
+
+		// Prepare data
+		forum, err := model.GetForum(ctx, forumId)
+		if err != nil {
+			logger.Errorf(ctx, "Error while getting forum id %d: %s", forumId, err)
+		}
+		forums, err := model.ListForums(ctx)
+		if err != nil {
+			logger.Errorf(ctx, "Error while listing forums: %s", err)
+		}
+		forumChildNodes := model.ComputeForumChildNodes(ctx, forums, forumId, 0)
+		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forumId)
+		if err != nil {
+			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forumId, err)
+		}
+		type ForumsPageData struct {
+			Forum           model.Forum
+			ForumChildNodes []model.ForumNode
+			ForumNavTrails  []model.ForumNavTrail
+		}
+		forumsPageData := ForumsPageData{
+			Forum:           forum,
+			ForumChildNodes: forumChildNodes,
+			ForumNavTrails:  forumNavTrails,
+		}
+
+		// Execute template
+		err = templateOutput.ExecuteTemplate(w, "overall", forumsPageData)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing forums template: %s", err)
+			return
+		}
+
 	} else if urlPath == "/topics" {
 		// To try: http://localhost:9000/topics?f=10
 		forumId := helper.StrToInt(queryParams.Get("f"), model.INVALID_FORUM_ID)
@@ -130,7 +173,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		// Prepare data
 		forum, err := model.GetForum(ctx, forumId)
 		if err != nil {
-			logger.Errorf(ctx, "Error while getting forum: %s", err)
+			logger.Errorf(ctx, "Error while getting forum id %d: %s", forumId, err)
 		}
 		startItem = forumhelper.FixStartItem(startItem, forum.ForumNumTopics, model.MAX_TOPICS_PER_PAGE)
 		topics, err := model.ListTopics(ctx, forumId, startItem)
@@ -194,7 +237,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		}
 		forum, err := model.GetForum(ctx, topic.ForumId)
 		if err != nil {
-			logger.Errorf(ctx, "Error while getting forum: %s", err)
+			logger.Errorf(ctx, "Error while getting forum id %d: %s", topic.ForumId, err)
 		}
 		startItem = forumhelper.FixStartItem(startItem, topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
 		posts, err := model.ListPosts(ctx, topicId, startItem)

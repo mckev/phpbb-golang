@@ -1,0 +1,82 @@
+{{ define "body" }}
+{{ $root := . }}
+<div id="page-body" class="page-body" role="main">
+    <!-- Forum title -->
+    <h2 class="forum-title"><a href="./forums?f={{ $root.Forum.ForumId }}">{{ $root.Forum.ForumName }}</a></h2>
+
+    <a class="category" id="category29" style="display: none; height: 0"></a>
+    <div class="forabg">
+        <div class="inner">
+            <ul class="topiclist">
+                <li class="header">
+                    <dl class="row-item">
+                        <dt>
+                            <div class="list-inner">Forum</div>
+                        </dt>
+                        <dd class="topics">Topics</dd>
+                        <dd class="posts">Posts</dd>
+                        <dd class="lastpost"><span>Last post</span></dd>
+                    </dl>
+                </li>
+            </ul>
+            <ul class="topiclist forums">
+
+                {{ range $forumNode := $root.ForumChildNodes }}
+                <!-- Sub forum {{ $forumNode.Forum.ForumId }} -->
+                <li class="row">
+                    <dl class="row-item forum_read">
+                        <dt title="No unread posts">
+                            <div class="list-inner">
+                                {{ if $forumNode.IsLeaf }}
+                                <a href="./topics?f={{ $forumNode.Forum.ForumId }}" class="forumtitle">{{ $forumNode.Forum.ForumName }}</a>
+                                {{ else }}
+                                <a href="./forums?f={{ $forumNode.Forum.ForumId }}" class="forumtitle">{{ $forumNode.Forum.ForumName }}</a>
+                                {{ end }}
+                                <br />{{ $forumNode.Forum.ForumDesc }}
+
+                                {{ if gt (len $forumNode.ForumChildNodes) 0 }}
+                                <br /><strong>Subforums:</strong>
+                                {{ range $counter, $forumNode := $forumNode.ForumChildNodes }}
+                                {{ if $forumNode.IsLeaf }}
+                                <a href="./topics?f={{ $forumNode.Forum.ForumId }}" class="subforum read" title="No unread posts"><i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>{{ $forumNode.Forum.ForumName }}</a>{{ if lt (fnAdd $counter 1) (len $forumNode.ForumChildNodes) }},{{ end }}
+                                {{ else }}
+                                <a href="./forums?f={{ $forumNode.Forum.ForumId }}" class="subforum read" title="No unread posts"><i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>{{ $forumNode.Forum.ForumName }}</a>{{ if lt (fnAdd $counter 1) (len $forumNode.ForumChildNodes) }},{{ end }}
+                                {{ end }}
+                                {{ end }}
+
+                                {{ end }}
+                                <div class="responsive-show" style="display: none;">
+                                    Topics: <strong>3964</strong>
+                                </div>
+                            </div>
+                        </dt>
+                        <dd class="topics">{{ $forumNode.Forum.ForumNumTopics }} <dfn>Topics</dfn></dd>
+                        <dd class="posts">{{ $forumNode.Forum.ForumNumPosts }} <dfn>Posts</dfn></dd>
+                        <dd class="lastpost">
+                            <span>
+                                <dfn>Last post</dfn>
+                                <a href="./viewtopic.php?p=791956&amp;sid=929a524515b952cd9cf2ca670ce2d162#p791956" title="Re: VGRO but wanting a little something extra in dividends" class="lastsubject">Re: VGRO but wanting a little…</a> <br />
+                                by <a href="./memberlist.php?mode=viewprofile&amp;u=1032&amp;sid=929a524515b952cd9cf2ca670ce2d162" class="username">ockham</a> <a href="./viewtopic.php?p=791956&amp;sid=929a524515b952cd9cf2ca670ce2d162#p791956" title="View the latest post">
+                                    <i class="icon fa-external-link-square fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">View the latest post</span>
+                                </a>
+                                <br /><time datetime="2025-05-05T17:18:41+00:00">05 May 2025 13:18</time>
+                            </span>
+                        </dd>
+                    </dl>
+                </li>
+                {{ end }}
+
+            </ul>
+        </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="action-bar actions-jump">
+        <p class="jumpbox-return">
+            <a href="./index.php?sid=929a524515b952cd9cf2ca670ce2d162" class="left-box arrow-left" accesskey="r">
+                <i class="icon fa-angle-left fa-fw icon-black" aria-hidden="true"></i><span>Return to Board Index</span>
+            </a>
+        </p>
+    </div>
+</div>
+{{ end }}
