@@ -55,7 +55,7 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	postLinkTag := bbcode.NewHTMLTag("")
 	postLinkTag.Name = "a"
 	postLinkTag.Attrs = map[string]string{
-		"href":       bbcode.ValidURL("/topics?p=" + postid),
+		"href":       bbcode.ValidURL("/posts?p=" + postid + "#p" + postid),
 		"aria-label": "View quoted post",
 	}
 	postIconTag := bbcode.NewHTMLTag("")
