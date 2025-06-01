@@ -130,15 +130,18 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		forum, err := model.GetForum(ctx, forumId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while getting forum id %d: %s", forumId, err)
+			return
 		}
 		forums, err := model.ListForums(ctx)
 		if err != nil {
 			logger.Errorf(ctx, "Error while listing forums: %s", err)
+			return
 		}
 		forumChildNodes := model.ComputeForumChildNodes(ctx, forums, forumId, 0)
 		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forumId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forumId, err)
+			return
 		}
 		type ForumsPageData struct {
 			Forum           model.Forum
@@ -174,11 +177,13 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		forum, err := model.GetForum(ctx, forumId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while getting forum id %d: %s", forumId, err)
+			return
 		}
-		startItem = forumhelper.FixStartItem(startItem, forum.ForumNumTopics, model.MAX_TOPICS_PER_PAGE)
+		startItem = forumhelper.ComputeStartItem(startItem, forum.ForumNumTopics, model.MAX_TOPICS_PER_PAGE)
 		topics, err := model.ListTopics(ctx, forumId, startItem)
 		if err != nil {
 			logger.Errorf(ctx, "Error while listing topics: %s", err)
+			return
 		}
 		type TopicWithInfo struct {
 			Topic           model.Topic
@@ -195,6 +200,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forumId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forumId, err)
+			return
 		}
 		topicPaginations := forumhelper.ComputePaginations(startItem, forum.ForumNumTopics, model.MAX_TOPICS_PER_PAGE)
 		type TopicsPageData struct {
@@ -223,6 +229,22 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		topicId := helper.StrToInt(queryParams.Get("t"), model.INVALID_TOPIC_ID)
 		startItem := helper.StrToInt(queryParams.Get("start"), 0)
 
+		// Case specify post id
+		postId := helper.StrToInt(queryParams.Get("p"), model.INVALID_POST_ID)
+		if postId > 0 {
+			post, err := model.GetPost(ctx, postId)
+			if err != nil {
+				logger.Errorf(ctx, "Error while getting post id %d: %s", postId, err)
+				return
+			}
+			topicId = post.TopicId
+			startItem, err = model.CountCurItem(ctx, topicId, postId)
+			if err != nil {
+				logger.Errorf(ctx, "Error while counting current item: %s", err)
+				return
+			}
+		}
+
 		// Prepare template files
 		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
 		if err != nil {
@@ -233,13 +255,15 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		// Prepare data
 		topic, err := model.GetTopic(ctx, topicId)
 		if err != nil {
-			logger.Errorf(ctx, "Error while getting topic: %s", err)
+			logger.Errorf(ctx, "Error while getting topic id %d: %s", topicId, err)
+			return
 		}
 		forum, err := model.GetForum(ctx, topic.ForumId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while getting forum id %d: %s", topic.ForumId, err)
+			return
 		}
-		startItem = forumhelper.FixStartItem(startItem, topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
+		startItem = forumhelper.ComputeStartItem(startItem, topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
 		posts, err := model.ListPosts(ctx, topicId, startItem)
 		if err != nil {
 			logger.Errorf(ctx, "Error while listing posts: %s", err)
@@ -253,6 +277,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forum.ForumId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forum.ForumId, err)
+			return
 		}
 		paginations := forumhelper.ComputePaginations(startItem, topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
 		type PostsPageData struct {

@@ -15,10 +15,10 @@ func urlBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	if value == "" {
 		text := bbcode.CompileText(node)
 		if len(text) > 0 {
-			out.Attrs["href"] = bbcode.ValidURL("/redirect?url=" + url.QueryEscape(text))
+			out.Attrs["href"] = bbcode.ValidURL("./redirect?url=" + url.QueryEscape(text))
 		}
 	} else {
-		out.Attrs["href"] = bbcode.ValidURL("/redirect?url=" + url.QueryEscape(value))
+		out.Attrs["href"] = bbcode.ValidURL("./redirect?url=" + url.QueryEscape(value))
 	}
 	out.Attrs["target"] = "_blank"
 	return out, true

@@ -207,9 +207,9 @@ func TestComputePaginations_Page8of8(t *testing.T) {
 	}
 }
 
-func TestFixStartItem(t *testing.T) {
+func TestComputeStartItem(t *testing.T) {
 	{
-		actual := forumhelper.FixStartItem(-1000, 250, 25)
+		actual := forumhelper.ComputeStartItem(-1000, 250, 25)
 		expected := 0
 		if actual != expected {
 			t.Errorf("Got %d, wanted %d", actual, expected)
@@ -217,7 +217,7 @@ func TestFixStartItem(t *testing.T) {
 		}
 	}
 	{
-		actual := forumhelper.FixStartItem(0, 250, 25)
+		actual := forumhelper.ComputeStartItem(0, 250, 25)
 		expected := 0
 		if actual != expected {
 			t.Errorf("Got %d, wanted %d", actual, expected)
@@ -225,7 +225,7 @@ func TestFixStartItem(t *testing.T) {
 		}
 	}
 	{
-		actual := forumhelper.FixStartItem(24, 250, 25)
+		actual := forumhelper.ComputeStartItem(24, 250, 25)
 		expected := 0
 		if actual != expected {
 			t.Errorf("Got %d, wanted %d", actual, expected)
@@ -233,7 +233,7 @@ func TestFixStartItem(t *testing.T) {
 		}
 	}
 	{
-		actual := forumhelper.FixStartItem(25, 250, 25)
+		actual := forumhelper.ComputeStartItem(25, 250, 25)
 		expected := 25
 		if actual != expected {
 			t.Errorf("Got %d, wanted %d", actual, expected)
@@ -241,7 +241,7 @@ func TestFixStartItem(t *testing.T) {
 		}
 	}
 	{
-		actual := forumhelper.FixStartItem(26, 250, 25)
+		actual := forumhelper.ComputeStartItem(26, 250, 25)
 		expected := 25
 		if actual != expected {
 			t.Errorf("Got %d, wanted %d", actual, expected)
@@ -249,7 +249,7 @@ func TestFixStartItem(t *testing.T) {
 		}
 	}
 	{
-		actual := forumhelper.FixStartItem(249, 250, 25)
+		actual := forumhelper.ComputeStartItem(249, 250, 25)
 		expected := 225
 		if actual != expected {
 			t.Errorf("Got %d, wanted %d", actual, expected)
@@ -257,7 +257,7 @@ func TestFixStartItem(t *testing.T) {
 		}
 	}
 	{
-		actual := forumhelper.FixStartItem(250, 250, 25)
+		actual := forumhelper.ComputeStartItem(250, 250, 25)
 		expected := 225
 		if actual != expected {
 			t.Errorf("Got %d, wanted %d", actual, expected)
@@ -265,7 +265,7 @@ func TestFixStartItem(t *testing.T) {
 		}
 	}
 	{
-		actual := forumhelper.FixStartItem(251, 250, 25)
+		actual := forumhelper.ComputeStartItem(251, 250, 25)
 		expected := 225
 		if actual != expected {
 			t.Errorf("Got %d, wanted %d", actual, expected)
@@ -273,7 +273,7 @@ func TestFixStartItem(t *testing.T) {
 		}
 	}
 	{
-		actual := forumhelper.FixStartItem(2000, 250, 25)
+		actual := forumhelper.ComputeStartItem(2000, 250, 25)
 		expected := 225
 		if actual != expected {
 			t.Errorf("Got %d, wanted %d", actual, expected)

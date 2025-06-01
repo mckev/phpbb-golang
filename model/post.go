@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 )
@@ -80,4 +81,30 @@ func ListPosts(ctx context.Context, topicId int, startItem int) ([]Post, error) 
 		return nil, fmt.Errorf("Error on rows on posts table for topic id %d: %s", topicId, err)
 	}
 	return posts, nil
+}
+
+func GetPost(ctx context.Context, postId int) (Post, error) {
+	db := OpenDb(ctx, "posts")
+	defer db.Close()
+	row := db.QueryRow("SELECT post_id, topic_id, forum_id, post_subject, post_text, post_user_id, post_time FROM posts WHERE post_id = $1", postId)
+	var post Post
+	if err := row.Scan(&post.PostId, &post.TopicId, &post.ForumId, &post.PostSubject, &post.PostText, &post.PostUserId, &post.PostTime); err != nil {
+		if err == sql.ErrNoRows {
+			// No result found
+			return Post{}, nil
+		}
+		return Post{}, fmt.Errorf("Error while scanning row on posts table for post id %d: %s", postId, err)
+	}
+	return post, nil
+}
+
+func CountCurItem(ctx context.Context, topicId int, postId int) (int, error) {
+	db := OpenDb(ctx, "posts")
+	defer db.Close()
+	row := db.QueryRow("SELECT COUNT(*) AS cur_item FROM posts WHERE topic_id = $1 AND post_id < $2", topicId, postId)
+	var curItem int
+	if err := row.Scan(&curItem); err != nil {
+		return 0, fmt.Errorf("Error while counting current item on topic id %d for post id %d: %s", topicId, postId, err)
+	}
+	return curItem, nil
 }

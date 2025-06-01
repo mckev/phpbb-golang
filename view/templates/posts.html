@@ -53,7 +53,7 @@
             <div class="postbody">
                 <div id="post_content{{ $post.PostId }}">
                     <h3 class="first">
-                        <a href="./viewtopic.php?p={{ $post.PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f#p{{ $post.PostId }}">{{ $post.PostSubject }}</a>
+                        <a href="./posts?p={{ $post.PostId }}#p{{ $post.PostId }}">{{ $post.PostSubject }}</a>
                     </h3>
                     <ul class="post-buttons">
                         <li>
@@ -68,7 +68,7 @@
                         </li>
                     </ul>
                     <p class="author">
-                        <a class="unread" href="./viewtopic.php?p={{ $post.PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f#p{{ $post.PostId }}" title="Post">
+                        <a class="unread" href="./posts?p={{ $post.PostId }}#p{{ $post.PostId }}" title="Post">
                             <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">Post</span>
                         </a>
                         <span class="responsive-hide">by <strong><a href="./memberlist.php?mode=viewprofile&amp;u={{ $user.UserId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">{{ $user.UserName }}</a></strong> &raquo; </span><time>{{ $post.PostTime | fnUnixTimeToStr }}</time>

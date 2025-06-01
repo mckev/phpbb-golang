@@ -56,8 +56,8 @@
                             {{ if ne $forumNode.Forum.ForumLastPostId 0 }}
                             <span>
                                 <dfn>Last post</dfn>
-                                <a href="./viewtopic.php?p={{ $forumNode.Forum.ForumLastPostId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162#p{{ $forumNode.Forum.ForumLastPostId }}" title="{{ $forumNode.Forum.ForumLastPostSubject }}" class="lastsubject">{{ $forumNode.Forum.ForumLastPostSubject }}</a> <br />
-                                by <a href="./memberlist.php?mode=viewprofile&amp;u={{ $forumNode.Forum.ForumLastPostUserId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162" class="username">{{ $forumNode.Forum.ForumLastPostUserName }}</a> <a href="./viewtopic.php?p={{ $forumNode.Forum.ForumLastPostId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162#p{{ $forumNode.Forum.ForumLastPostId }}" title="View the latest post">
+                                <a href="./posts?p={{ $forumNode.Forum.ForumLastPostId }}#p{{ $forumNode.Forum.ForumLastPostId }}" title="{{ $forumNode.Forum.ForumLastPostSubject }}" class="lastsubject">{{ $forumNode.Forum.ForumLastPostSubject }}</a> <br />
+                                by <a href="./memberlist.php?mode=viewprofile&amp;u={{ $forumNode.Forum.ForumLastPostUserId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162" class="username">{{ $forumNode.Forum.ForumLastPostUserName }}</a> <a href="./posts?p={{ $forumNode.Forum.ForumLastPostId }}#p{{ $forumNode.Forum.ForumLastPostId }}" title="View the latest post">
                                     <i class="icon fa-external-link-square fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">View the latest post</span>
                                 </a>
                                 <br /><time datetime="{{ $forumNode.Forum.ForumLastPostTime }}">{{ $forumNode.Forum.ForumLastPostTime | fnUnixTimeToStr }}</time>

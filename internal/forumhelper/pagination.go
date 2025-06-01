@@ -113,13 +113,13 @@ func ComputePaginations(curItem int, totalItems int, maxItemsPerPage int) []Pagi
 	return paginations
 }
 
-func FixStartItem(startItem int, totalItems int, maxItemsPerPage int) int {
-	if startItem < 0 {
-		startItem = 0
+func ComputeStartItem(curItem int, totalItems int, maxItemsPerPage int) int {
+	if curItem < 0 {
+		curItem = 0
 	}
-	if startItem > totalItems-1 {
-		startItem = totalItems - 1
+	if curItem > totalItems-1 {
+		curItem = totalItems - 1
 	}
-	startItem = (startItem / maxItemsPerPage) * maxItemsPerPage
+	startItem := (curItem / maxItemsPerPage) * maxItemsPerPage
 	return startItem
 }
