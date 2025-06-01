@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"slices"
+	"time"
 )
 
 const (
@@ -15,13 +16,20 @@ const (
 )
 
 type Forum struct {
-	ForumId   int    `json:"forum_id"`
-	ParentId  int    `json:"parent_id"`
-	ForumName string `json:"forum_name"`
-	ForumDesc string `json:"forum_desc"`
+	ForumId     int    `json:"forum_id"`
+	ParentId    int    `json:"parent_id"`
+	ForumName   string `json:"forum_name"`
+	ForumDesc   string `json:"forum_desc"`
+	ForumUserId string `json:"forum_user_id"`
+	ForumTime   int64  `json:"forum_time"`
 	// Derived properties to speed up
-	ForumNumTopics int `json:"forum_num_topics"`
-	ForumNumPosts  int `json:"forum_num_posts"`
+	ForumNumTopics        int    `json:"forum_num_topics"`
+	ForumNumPosts         int    `json:"forum_num_posts"`
+	ForumLastPostId       int    `json:"forum_last_post_id"`
+	ForumLastPostSubject  string `json:"forum_last_post_subject"`
+	ForumLastPostTime     int64  `json:"forum_last_post_time"`
+	ForumLastPostUserId   int    `json:"forum_last_post_user_id"`
+	ForumLastPostUserName string `json:"forum_last_post_user_name"`
 }
 
 func InitForums(ctx context.Context) error {
@@ -34,25 +42,36 @@ func InitForums(ctx context.Context) error {
 		parent_id MEDIUMINT(8) NOT NULL DEFAULT '0',
 		forum_name VARCHAR(255) NOT NULL DEFAULT '',
 		forum_desc TEXT NOT NULL DEFAULT '',
+		forum_user_id INT(10) NOT NULL DEFAULT '0',
+		forum_time INT(11) NOT NULL DEFAULT '0',
 		forum_num_topics MEDIUMINT(8) NOT NULL DEFAULT '0',
 		forum_num_posts MEDIUMINT(8) NOT NULL DEFAULT '0',
-		FOREIGN KEY (parent_id) REFERENCES forums(forum_id)
+		forum_last_post_id INT(10) NOT NULL DEFAULT '0',
+		forum_last_post_subject VARCHAR(255) NOT NULL DEFAULT '',
+		forum_last_post_user_id INT(10) NOT NULL DEFAULT '0',
+		forum_last_post_user_name VARCHAR(255) NOT NULL DEFAULT '',
+		forum_last_post_time INT(11) NOT NULL DEFAULT '0',
+		FOREIGN KEY (parent_id) REFERENCES forums(forum_id),
+		FOREIGN KEY (forum_user_id) REFERENCES users(user_id),
+		FOREIGN KEY (forum_last_post_user_id) REFERENCES users(user_id)
 	)`
 	_, err := db.Exec(sql)
 	if err != nil {
 		return fmt.Errorf("Error while creating forums table: %s", err)
 	}
-	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc) VALUES ($1, $2, $3, $4)`, ROOT_FORUM_ID, ROOT_FORUM_ID, "Root Forum", "")
+	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc, forum_user_id, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)`, ROOT_FORUM_ID, ROOT_FORUM_ID, "Root Forum", "", FIRST_ADMIN_USER_ID, FIRST_ADMIN_USER_ID)
 	if err != nil {
 		return fmt.Errorf("Error while inserting Root Forum into forums table: %s", err)
 	}
 	return nil
 }
 
-func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc string) (int, error) {
+func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc string, forumUserId int) (int, error) {
 	db := OpenDb(ctx, "forums")
 	defer db.Close()
-	res, err := db.Exec(`INSERT INTO forums (parent_id, forum_name, forum_desc) VALUES ($1, $2, $3)`, parentId, forumName, forumDesc)
+	now := time.Now().UTC()
+	forumTime := now.Unix()
+	res, err := db.Exec(`INSERT INTO forums (parent_id, forum_name, forum_desc, forum_user_id, forum_time, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)`, parentId, forumName, forumDesc, forumUserId, forumTime, forumUserId)
 	if err != nil {
 		return INVALID_FORUM_ID, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent forum %d into forums table: %s", forumName, forumDesc, parentId, err)
 	}
@@ -83,11 +102,30 @@ func IncreaseNumPostsForForum(ctx context.Context, forumId int) error {
 	return nil
 }
 
+func UpdateLastPostOfForum(ctx context.Context, forumId int, forumLastPostId int, forumLastPostSubject string, forumLastPostUserId int, forumLastPostUserName string) error {
+	db := OpenDb(ctx, "forums")
+	defer db.Close()
+	now := time.Now().UTC()
+	topicLastPostTime := now.Unix()
+	result, err := db.Exec(`UPDATE forums SET forum_last_post_id = $1, forum_last_post_subject = $2, forum_last_post_user_id = $3, forum_last_post_user_name = $4, forum_last_post_time = $5 WHERE forum_id = $6`, forumLastPostId, forumLastPostSubject, forumLastPostUserId, forumLastPostUserName, topicLastPostTime, forumId)
+	if err != nil {
+		return fmt.Errorf("Error while updating the last post for forum id %d: %s", forumId, err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("Error while retrieving rows affected while updating the last post for forum id %d: %s", forumId, err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("No rows were updated while updating the last post for forum id %d", forumId)
+	}
+	return nil
+}
+
 func ListForums(ctx context.Context) ([]Forum, error) {
 	// Ref: https://go.dev/doc/tutorial/database-access
 	db := OpenDb(ctx, "forums")
 	defer db.Close()
-	rows, err := db.Query("SELECT forum_id, parent_id, forum_name, forum_desc, forum_num_topics, forum_num_posts FROM forums ORDER BY forum_id")
+	rows, err := db.Query("SELECT forum_id, parent_id, forum_name, forum_desc, forum_user_id, forum_time, forum_num_topics, forum_num_posts, forum_last_post_id, forum_last_post_subject, forum_last_post_user_id, forum_last_post_user_name, forum_last_post_time FROM forums ORDER BY forum_id")
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying forums table: %s", err)
 	}
@@ -95,7 +133,7 @@ func ListForums(ctx context.Context) ([]Forum, error) {
 	var forums []Forum
 	for rows.Next() {
 		var forum Forum
-		if err := rows.Scan(&forum.ForumId, &forum.ParentId, &forum.ForumName, &forum.ForumDesc, &forum.ForumNumTopics, &forum.ForumNumPosts); err != nil {
+		if err := rows.Scan(&forum.ForumId, &forum.ParentId, &forum.ForumName, &forum.ForumDesc, &forum.ForumUserId, &forum.ForumTime, &forum.ForumNumTopics, &forum.ForumNumPosts, &forum.ForumLastPostId, &forum.ForumLastPostSubject, &forum.ForumLastPostUserId, &forum.ForumLastPostUserName, &forum.ForumLastPostTime); err != nil {
 			return nil, fmt.Errorf("Error while scanning rows on forums table: %s", err)
 		}
 		forums = append(forums, forum)
@@ -109,9 +147,9 @@ func ListForums(ctx context.Context) ([]Forum, error) {
 func GetForum(ctx context.Context, forumId int) (Forum, error) {
 	db := OpenDb(ctx, "forums")
 	defer db.Close()
-	row := db.QueryRow("SELECT forum_id, parent_id, forum_name, forum_desc, forum_num_topics, forum_num_posts FROM forums WHERE forum_id = $1", forumId)
+	row := db.QueryRow("SELECT forum_id, parent_id, forum_name, forum_desc, forum_user_id, forum_time, forum_num_topics, forum_num_posts, forum_last_post_id, forum_last_post_subject, forum_last_post_user_id, forum_last_post_user_name, forum_last_post_time FROM forums WHERE forum_id = $1", forumId)
 	var forum Forum
-	if err := row.Scan(&forum.ForumId, &forum.ParentId, &forum.ForumName, &forum.ForumDesc, &forum.ForumNumTopics, &forum.ForumNumPosts); err != nil {
+	if err := row.Scan(&forum.ForumId, &forum.ParentId, &forum.ForumName, &forum.ForumDesc, &forum.ForumUserId, &forum.ForumTime, &forum.ForumNumTopics, &forum.ForumNumPosts, &forum.ForumLastPostId, &forum.ForumLastPostSubject, &forum.ForumLastPostUserId, &forum.ForumLastPostUserName, &forum.ForumLastPostTime); err != nil {
 		if err == sql.ErrNoRows {
 			// No result found
 			return Forum{}, nil

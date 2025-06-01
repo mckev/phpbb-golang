@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	INVALID_USER_ID = -1
+	INVALID_USER_ID     = -1
+	FIRST_ADMIN_USER_ID = 1
 )
 
 type User struct {
@@ -51,6 +52,16 @@ func InitUsers(ctx context.Context) error {
 	_, err := db.Exec(sql)
 	if err != nil {
 		return fmt.Errorf("Error while creating users table: %s", err)
+	}
+	// First Admin user
+	salt := helper.GenerateRandomSalt(4)
+	userPassword := helper.GenerateRandomSalt(16)
+	hashedPasswordWithSaltAndHeader := helper.HashPassword(userPassword, salt)
+	now := time.Now().UTC()
+	userRegTime := now.Unix()
+	_, err = db.Exec(`INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4, $5, $6)`, FIRST_ADMIN_USER_ID, USER_TYPE_FOUNDER, "The Admin", hashedPasswordWithSaltAndHeader, "", userRegTime)
+	if err != nil {
+		return fmt.Errorf("Error while inserting First Admin user into users table: %s", err)
 	}
 	return nil
 }

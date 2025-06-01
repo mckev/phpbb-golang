@@ -53,14 +53,16 @@
                         <dd class="topics">{{ $forumNode.Forum.ForumNumTopics }} <dfn>Topics</dfn></dd>
                         <dd class="posts">{{ $forumNode.Forum.ForumNumPosts }} <dfn>Posts</dfn></dd>
                         <dd class="lastpost">
+                            {{ if ne $forumNode.Forum.ForumLastPostId 0 }}
                             <span>
                                 <dfn>Last post</dfn>
-                                <a href="./viewtopic.php?p=791956&amp;sid=929a524515b952cd9cf2ca670ce2d162#p791956" title="Re: VGRO but wanting a little something extra in dividends" class="lastsubject">Re: VGRO but wanting a little…</a> <br />
-                                by <a href="./memberlist.php?mode=viewprofile&amp;u=1032&amp;sid=929a524515b952cd9cf2ca670ce2d162" class="username">ockham</a> <a href="./viewtopic.php?p=791956&amp;sid=929a524515b952cd9cf2ca670ce2d162#p791956" title="View the latest post">
+                                <a href="./viewtopic.php?p={{ $forumNode.Forum.ForumLastPostId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162#p{{ $forumNode.Forum.ForumLastPostId }}" title="{{ $forumNode.Forum.ForumLastPostSubject }}" class="lastsubject">{{ $forumNode.Forum.ForumLastPostSubject }}</a> <br />
+                                by <a href="./memberlist.php?mode=viewprofile&amp;u={{ $forumNode.Forum.ForumLastPostUserId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162" class="username">{{ $forumNode.Forum.ForumLastPostUserName }}</a> <a href="./viewtopic.php?p={{ $forumNode.Forum.ForumLastPostId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162#p{{ $forumNode.Forum.ForumLastPostId }}" title="View the latest post">
                                     <i class="icon fa-external-link-square fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">View the latest post</span>
                                 </a>
-                                <br /><time datetime="2025-05-05T17:18:41+00:00">05 May 2025 13:18</time>
+                                <br /><time datetime="{{ $forumNode.Forum.ForumLastPostTime }}">{{ $forumNode.Forum.ForumLastPostTime | fnUnixTimeToStr }}</time>
                             </span>
+                            {{ end }}
                         </dd>
                     </dl>
                 </li>
