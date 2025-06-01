@@ -27,7 +27,7 @@ type Pagination struct {
 
 func ComputePaginations(curItem int, totalItems int, maxItemsPerPage int) []Pagination {
 	// Notes:
-	//   - curItem starts at 0
+	//   - 0 <= curItem < totalItems
 	//   - 0 <= page < maxPage
 	//   - page starts at 0, however page number (i.e. human-readable page) starts at 1
 	if totalItems == 0 {

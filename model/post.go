@@ -98,7 +98,9 @@ func GetPost(ctx context.Context, postId int) (Post, error) {
 	return post, nil
 }
 
-func CountCurItem(ctx context.Context, topicId int, postId int) (int, error) {
+func CountPostCurItem(ctx context.Context, topicId int, postId int) (int, error) {
+	// Given a post id, return how many items are there before it
+	// 0 <= curItem < totalItems
 	db := OpenDb(ctx, "posts")
 	defer db.Close()
 	row := db.QueryRow("SELECT COUNT(*) AS cur_item FROM posts WHERE topic_id = $1 AND post_id < $2", topicId, postId)

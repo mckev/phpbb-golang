@@ -238,7 +238,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			topicId = post.TopicId
-			startItem, err = model.CountCurItem(ctx, topicId, postId)
+			startItem, err = model.CountPostCurItem(ctx, topicId, postId)
 			if err != nil {
 				logger.Errorf(ctx, "Error while counting current item: %s", err)
 				return
