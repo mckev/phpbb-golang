@@ -12,14 +12,29 @@ func Sha256(s string) string {
 	return sha256Hash
 }
 
-func GenerateRandomSalt(length int) string {
-	salt := make([]byte, length)
-	_, err := rand.Read(salt)
+func GenerateRandomBytes(length int) (string, error) {
+	buffer := make([]byte, length)
+	_, err := rand.Read(buffer)
 	if err != nil {
-		return ""
+		return "", fmt.Errorf("Error while generating random bytes: %s", err)
 	}
-	saltString := fmt.Sprintf("%x", salt)
-	return saltString
+	randomBytesInHex := fmt.Sprintf("%x", buffer)
+	return randomBytesInHex, nil
+}
+
+func GenerateRandomAlphanumeric(length int) (string, error) {
+	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	randomString := ""
+	for len(randomString) < length {
+		b := make([]byte, 1)
+		if _, err := rand.Read(b); err != nil {
+			return "", fmt.Errorf("Error while generate a random byte: %s", err)
+		}
+		if b[0] < 248 { // 248 is 256 - (256 % 62) to avoid bias
+			randomString += string(chars[b[0]%62])
+		}
+	}
+	return randomString, nil
 }
 
 func HashPassword(password string, salt string) string {

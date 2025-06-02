@@ -80,7 +80,7 @@ func PopulateDb(ctx context.Context) error {
 
 	// Forums
 	{
-		forumAId, err := model.InsertForum(ctx, model.ROOT_FORUM_ID, "Your Money", "", model.FIRST_ADMIN_USER_ID)
+		forumAId, err := model.InsertForum(ctx, model.ROOT_FORUM_ID, "Your Money", "", model.ADMIN_USER_ID)
 		if err != nil {
 			return err
 		}
@@ -107,13 +107,13 @@ func PopulateDb(ctx context.Context) error {
 				return err
 			}
 		}
-		_, err = model.InsertForum(ctx, forumAId, "Financial News, Policy and Economics", "Recommended reading, economic debates, predictions and opinions.", model.FIRST_ADMIN_USER_ID)
+		_, err = model.InsertForum(ctx, forumAId, "Financial News, Policy and Economics", "Recommended reading, economic debates, predictions and opinions.", model.ADMIN_USER_ID)
 		if err != nil {
 			return err
 		}
 	}
 	{
-		forumBId, err := model.InsertForum(ctx, model.ROOT_FORUM_ID, "Your Life", "", model.FIRST_ADMIN_USER_ID)
+		forumBId, err := model.InsertForum(ctx, model.ROOT_FORUM_ID, "Your Life", "", model.ADMIN_USER_ID)
 		if err != nil {
 			return err
 		}

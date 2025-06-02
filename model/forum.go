@@ -59,7 +59,7 @@ func InitForums(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("Error while creating forums table: %s", err)
 	}
-	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc, forum_user_id, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)`, ROOT_FORUM_ID, ROOT_FORUM_ID, "Root Forum", "", FIRST_ADMIN_USER_ID, FIRST_ADMIN_USER_ID)
+	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc, forum_user_id, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)`, ROOT_FORUM_ID, ROOT_FORUM_ID, "Root Forum", "", ADMIN_USER_ID, ADMIN_USER_ID)
 	if err != nil {
 		return fmt.Errorf("Error while inserting Root Forum into forums table: %s", err)
 	}

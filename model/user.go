@@ -6,11 +6,13 @@ import (
 	"time"
 
 	"phpbb-golang/internal/helper"
+	"phpbb-golang/internal/logger"
 )
 
 const (
-	INVALID_USER_ID     = -1
-	FIRST_ADMIN_USER_ID = 1
+	INVALID_USER_ID = -1
+	ADMIN_USER_NAME = "admin"
+	ADMIN_USER_ID   = 1000
 )
 
 type User struct {
@@ -53,15 +55,24 @@ func InitUsers(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("Error while creating users table: %s", err)
 	}
-	// First Admin user
-	salt := helper.GenerateRandomSalt(4)
-	userPassword := helper.GenerateRandomSalt(16)
-	hashedPasswordWithSaltAndHeader := helper.HashPassword(userPassword, salt)
+
+	// Admin user
+	adminPassword, err := helper.GenerateRandomAlphanumeric(16)
+	if err != nil {
+		return fmt.Errorf("Error while generating password for Admin user: %s", err)
+	}
+	logger.Infof(ctx, "Username for Admin user: %s", ADMIN_USER_NAME)
+	logger.Infof(ctx, "Password for Admin user: %s", adminPassword)
+	salt, err := helper.GenerateRandomBytes(8)
+	if err != nil {
+		return fmt.Errorf("Error while generating random salt for Admin user: %s", err)
+	}
+	hashedPasswordWithSaltAndHeader := helper.HashPassword(adminPassword, salt)
 	now := time.Now().UTC()
 	userRegTime := now.Unix()
-	_, err = db.Exec(`INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4, $5, $6)`, FIRST_ADMIN_USER_ID, USER_TYPE_FOUNDER, "The Admin", hashedPasswordWithSaltAndHeader, "", userRegTime)
+	_, err = db.Exec(`INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4, $5, $6)`, ADMIN_USER_ID, USER_TYPE_FOUNDER, ADMIN_USER_NAME, hashedPasswordWithSaltAndHeader, "", userRegTime)
 	if err != nil {
-		return fmt.Errorf("Error while inserting First Admin user into users table: %s", err)
+		return fmt.Errorf("Error while inserting Admin user into users table: %s", err)
 	}
 	return nil
 }
@@ -69,7 +80,10 @@ func InitUsers(ctx context.Context) error {
 func InsertUser(ctx context.Context, userName string, userPassword string, userSig string) (int, error) {
 	db := OpenDb(ctx, "users")
 	defer db.Close()
-	salt := helper.GenerateRandomSalt(4)
+	salt, err := helper.GenerateRandomBytes(8)
+	if err != nil {
+		return INVALID_USER_ID, fmt.Errorf("Error while generating random salt for user %s: %s", userName, err)
+	}
 	hashedPasswordWithSaltAndHeader := helper.HashPassword(userPassword, salt)
 	now := time.Now().UTC()
 	userRegTime := now.Unix()
