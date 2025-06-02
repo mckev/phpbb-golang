@@ -107,7 +107,15 @@ func PopulateDb(ctx context.Context) error {
 				return err
 			}
 		}
-		_, err = model.InsertForum(ctx, forumAId, "Financial News, Policy and Economics", "Recommended reading, economic debates, predictions and opinions.", model.ADMIN_USER_ID)
+		forumACId, err := model.InsertForum(ctx, forumAId, "Financial News, Policy and Economics", "Recommended reading, economic debates, predictions and opinions.", model.ADMIN_USER_ID)
+		if err != nil {
+			return err
+		}
+		_, err = model.InsertTopic(ctx, forumACId, "A finanical news", user2Id, user2Name)
+		if err != nil {
+			return err
+		}
+		err = model.IncreaseNumTopicsForForum(ctx, forumACId)
 		if err != nil {
 			return err
 		}
