@@ -23,9 +23,9 @@ type User struct {
 	UserSig            string   `json:"user_sig"`
 	UserRegTime        int64    `json:"user_reg_time"`
 	// Derived properties
-	UserNumPosts int `json:"user_num_posts"`
-	UserTypeName string
-	UserTypeImg  string
+	UserNumPosts int    `json:"user_num_posts"`
+	UserTypeName string `json:"user_type_name"`
+	UserTypeImg  string `json:"user_type_img"`
 }
 
 // https://www.phpbb.com/community/viewtopic.php?t=1760075: "phpBB has a couple of special user types, those types are stored in "user_type" field. The definitions of those values are set in the "includes/constants.php" file. define('USER_NORMAL', 0); define('USER_INACTIVE', 1); define('USER_IGNORE', 2); define('USER_FOUNDER', 3);"

@@ -3,6 +3,7 @@ package myforum
 import (
 	"context"
 
+	"phpbb-golang/internal/forumhelper"
 	"phpbb-golang/internal/helper"
 	"phpbb-golang/internal/logger"
 	"phpbb-golang/model"
@@ -27,7 +28,7 @@ func DebugMyforum(ctx context.Context) {
 	logger.Infof(ctx, "")
 
 	logger.Infof(ctx, "Hierarchy of Root Forum:")
-	forumChildNodes := model.ComputeForumChildNodes(ctx, forums, model.ROOT_FORUM_ID, 0)
+	forumChildNodes := forumhelper.ComputeForumChildNodes(ctx, forums, model.ROOT_FORUM_ID, 0)
 	for _, forumNode := range forumChildNodes {
 		logger.Infof(ctx, "  - %t %s", forumNode.IsLeaf, helper.JsonDumps(forumNode.Forum))
 		if len(forumNode.ForumChildNodes) > 0 {
@@ -45,7 +46,7 @@ func DebugMyforum(ctx context.Context) {
 
 	FORUM_ID := 10
 	logger.Infof(ctx, "Navigation trails of 'Now Hear This!' forum:")
-	forumNavTrails, err := model.ComputeForumNavTrails(ctx, FORUM_ID)
+	forumNavTrails, err := forumhelper.ComputeForumNavTrails(ctx, forums, FORUM_ID)
 	if err != nil {
 		logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", FORUM_ID, err)
 	}

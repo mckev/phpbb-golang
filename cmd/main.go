@@ -137,16 +137,16 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while listing forums: %s", err)
 			return
 		}
-		forumChildNodes := model.ComputeForumChildNodes(ctx, forums, forumId, 0)
-		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forumId)
+		forumChildNodes := forumhelper.ComputeForumChildNodes(ctx, forums, forumId, 0)
+		forumNavTrails, err := forumhelper.ComputeForumNavTrails(ctx, forums, forumId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forumId, err)
 			return
 		}
 		type ForumsPageData struct {
 			Forum           model.Forum
-			ForumChildNodes []model.ForumNode
-			ForumNavTrails  []model.ForumNavTrail
+			ForumChildNodes []forumhelper.ForumNode
+			ForumNavTrails  []forumhelper.ForumNavTrail
 		}
 		forumsPageData := ForumsPageData{
 			Forum:           forum,
@@ -197,7 +197,12 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 				PostPaginations: postPaginations,
 			})
 		}
-		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forumId)
+		forums, err := model.ListForums(ctx)
+		if err != nil {
+			logger.Errorf(ctx, "Error while listing forums: %s", err)
+			return
+		}
+		forumNavTrails, err := forumhelper.ComputeForumNavTrails(ctx, forums, forumId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forumId, err)
 			return
@@ -206,7 +211,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		type TopicsPageData struct {
 			Forum            model.Forum
 			TopicsWithInfo   []TopicWithInfo
-			ForumNavTrails   []model.ForumNavTrail
+			ForumNavTrails   []forumhelper.ForumNavTrail
 			TopicPaginations []forumhelper.Pagination
 		}
 		topicsPageData := TopicsPageData{
@@ -274,7 +279,12 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		for _, user := range users {
 			usersMap[user.UserId] = user
 		}
-		forumNavTrails, err := model.ComputeForumNavTrails(ctx, forum.ForumId)
+		forums, err := model.ListForums(ctx)
+		if err != nil {
+			logger.Errorf(ctx, "Error while listing forums: %s", err)
+			return
+		}
+		forumNavTrails, err := forumhelper.ComputeForumNavTrails(ctx, forums, forum.ForumId)
 		if err != nil {
 			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forum.ForumId, err)
 			return
@@ -285,7 +295,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			Topic          model.Topic
 			Posts          []model.Post
 			UsersMap       map[int]model.User
-			ForumNavTrails []model.ForumNavTrail
+			ForumNavTrails []forumhelper.ForumNavTrail
 			Paginations    []forumhelper.Pagination
 		}
 		postsPageData := PostsPageData{

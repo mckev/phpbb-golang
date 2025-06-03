@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"slices"
 	"time"
 )
 
@@ -157,77 +156,4 @@ func GetForum(ctx context.Context, forumId int) (Forum, error) {
 		return Forum{}, fmt.Errorf("Error while scanning row on forums table for forum id %d: %s", forumId, err)
 	}
 	return forum, nil
-}
-
-type ForumNavTrail struct {
-	Forum  Forum
-	IsLeaf bool
-}
-
-func ComputeForumNavTrails(ctx context.Context, forumId int) ([]ForumNavTrail, error) {
-	// Given a Forum Id, find its parents until Root Forum
-	forums, err := ListForums(ctx)
-	if err != nil {
-		return []ForumNavTrail{}, fmt.Errorf("Error while listing forums upon computing Forum Nav Trails: %s", err)
-	}
-	// Convert users from a list into a map
-	forumsMap := map[int]Forum{}
-	for _, forum := range forums {
-		forumsMap[forum.ForumId] = forum
-	}
-	forumNavTrails := []ForumNavTrail{}
-	depth := 0
-	id := forumId
-	for true {
-		if id == ROOT_FORUM_ID {
-			break
-		}
-		forum := forumsMap[id]
-		forumNavTrails = append(forumNavTrails, ForumNavTrail{
-			Forum:  forum,
-			IsLeaf: false,
-		})
-		depth++
-		if depth > MAX_FORUM_NAV_TRAILS_DEPTH {
-			return []ForumNavTrail{}, fmt.Errorf("Error while computing Forum Nav Trails for forum id %d: Path too deep", forumId)
-		}
-		id = forum.ParentId
-	}
-	if len(forumNavTrails) > 0 {
-		slices.Reverse(forumNavTrails)
-		forumNavTrails[len(forumNavTrails)-1].IsLeaf = true
-	}
-	return forumNavTrails, nil
-}
-
-type ForumNode struct {
-	Forum           Forum
-	IsLeaf          bool
-	ForumChildNodes []ForumNode
-}
-
-func ComputeForumChildNodes(ctx context.Context, forums []Forum, forumId int, depth int) []ForumNode {
-	// Construct child nodes whose parent is Forum Id
-	if depth >= MAX_FORUM_NODES_DEPTH {
-		return []ForumNode{}
-	}
-	forumChildNodes := []ForumNode{}
-	for _, forum := range forums {
-		if forum.ForumId == ROOT_FORUM_ID {
-			continue
-		}
-		if forum.ParentId == forumId {
-			forumGrandchildNodes := ComputeForumChildNodes(ctx, forums, forum.ForumId, depth+1)
-			isLeaf := false
-			if len(forumGrandchildNodes) == 0 {
-				isLeaf = true
-			}
-			forumChildNodes = append(forumChildNodes, ForumNode{
-				Forum:           forum,
-				IsLeaf:          isLeaf,
-				ForumChildNodes: forumGrandchildNodes,
-			})
-		}
-	}
-	return forumChildNodes
 }
