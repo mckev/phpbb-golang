@@ -2,7 +2,7 @@ package helper
 
 import "net/url"
 
-func EmbedSessionId(rawUrl string, sessionId string) string {
+func UrlWithSID(rawUrl string, sessionId string) string {
 	u, _ := url.Parse(rawUrl)
 	q := u.Query()
 	q.Set("sid", sessionId)
