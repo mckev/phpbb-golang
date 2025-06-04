@@ -138,11 +138,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		forumChildNodes := forumhelper.ComputeForumChildNodes(ctx, forums, forumId, 0)
-		forumNavTrails, err := forumhelper.ComputeForumNavTrails(ctx, forums, forumId)
-		if err != nil {
-			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forumId, err)
-			return
-		}
+		forumNavTrails := forumhelper.ComputeForumNavTrails(ctx, forums, forumId)
 		type ForumsPageData struct {
 			Forum           model.Forum
 			ForumChildNodes []forumhelper.ForumNode
@@ -202,11 +198,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while listing forums: %s", err)
 			return
 		}
-		forumNavTrails, err := forumhelper.ComputeForumNavTrails(ctx, forums, forumId)
-		if err != nil {
-			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forumId, err)
-			return
-		}
+		forumNavTrails := forumhelper.ComputeForumNavTrails(ctx, forums, forumId)
 		topicPaginations := forumhelper.ComputePaginations(startItem, forum.ForumNumTopics, model.MAX_TOPICS_PER_PAGE)
 		type TopicsPageData struct {
 			Forum            model.Forum
@@ -284,11 +276,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while listing forums: %s", err)
 			return
 		}
-		forumNavTrails, err := forumhelper.ComputeForumNavTrails(ctx, forums, forum.ForumId)
-		if err != nil {
-			logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", forum.ForumId, err)
-			return
-		}
+		forumNavTrails := forumhelper.ComputeForumNavTrails(ctx, forums, forum.ForumId)
 		paginations := forumhelper.ComputePaginations(startItem, topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
 		type PostsPageData struct {
 			Forum          model.Forum

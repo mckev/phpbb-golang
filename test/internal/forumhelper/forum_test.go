@@ -12,11 +12,7 @@ import (
 func TestComputeForumNavTrails(t *testing.T) {
 	ctx := context.Background()
 	{
-		actual, err := forumhelper.ComputeForumNavTrails(ctx, forums, model.ROOT_FORUM_ID)
-		if err != nil {
-			t.Errorf("Unexpected error: %s", err)
-			return
-		}
+		actual := forumhelper.ComputeForumNavTrails(ctx, forums, model.ROOT_FORUM_ID)
 		expected := []forumhelper.ForumNavTrail{}
 		if !reflect.DeepEqual(actual, expected) {
 			t.Errorf("Got %v, wanted %v", actual, expected)
@@ -24,11 +20,7 @@ func TestComputeForumNavTrails(t *testing.T) {
 		}
 	}
 	{
-		actual, err := forumhelper.ComputeForumNavTrails(ctx, forums, 1)
-		if err != nil {
-			t.Errorf("Unexpected error: %s", err)
-			return
-		}
+		actual := forumhelper.ComputeForumNavTrails(ctx, forums, 1)
 		expected := []forumhelper.ForumNavTrail{
 			{Forum: model.Forum{ForumId: 1, ParentId: 0, ForumName: "Forum A"}, IsLeaf: true},
 		}
@@ -38,11 +30,7 @@ func TestComputeForumNavTrails(t *testing.T) {
 		}
 	}
 	{
-		actual, err := forumhelper.ComputeForumNavTrails(ctx, forums, 6)
-		if err != nil {
-			t.Errorf("Unexpected error: %s", err)
-			return
-		}
+		actual := forumhelper.ComputeForumNavTrails(ctx, forums, 6)
 		expected := []forumhelper.ForumNavTrail{
 			{Forum: model.Forum{ForumId: 2, ParentId: 0, ForumName: "Forum B"}, IsLeaf: false},
 			{Forum: model.Forum{ForumId: 4, ParentId: 2, ForumName: "Forum B1"}, IsLeaf: false},
@@ -58,11 +46,7 @@ func TestComputeForumNavTrails(t *testing.T) {
 func TestComputeForumNavTrails_Invalid(t *testing.T) {
 	ctx := context.Background()
 	{
-		actual, err := forumhelper.ComputeForumNavTrails(ctx, forums, model.INVALID_FORUM_ID)
-		if err == nil {
-			t.Errorf("Expected error")
-			return
-		}
+		actual := forumhelper.ComputeForumNavTrails(ctx, forums, model.INVALID_FORUM_ID)
 		expected := []forumhelper.ForumNavTrail{}
 		if !reflect.DeepEqual(actual, expected) {
 			t.Errorf("Got %v, wanted %v", actual, expected)

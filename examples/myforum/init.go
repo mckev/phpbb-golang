@@ -46,10 +46,7 @@ func DebugMyforum(ctx context.Context) {
 
 	FORUM_ID := 10
 	logger.Infof(ctx, "Navigation trails of 'Now Hear This!' forum:")
-	forumNavTrails, err := forumhelper.ComputeForumNavTrails(ctx, forums, FORUM_ID)
-	if err != nil {
-		logger.Errorf(ctx, "Error while computing Forum Nav Trails for forum id %d: %s", FORUM_ID, err)
-	}
+	forumNavTrails := forumhelper.ComputeForumNavTrails(ctx, forums, FORUM_ID)
 	for _, forum := range forumNavTrails {
 		logger.Infof(ctx, "  - %s", helper.JsonDumps(forum))
 	}

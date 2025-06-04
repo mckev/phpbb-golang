@@ -2,9 +2,9 @@ package forumhelper
 
 import (
 	"context"
-	"fmt"
 	"slices"
 
+	"phpbb-golang/internal/logger"
 	"phpbb-golang/model"
 )
 
@@ -13,7 +13,7 @@ type ForumNavTrail struct {
 	IsLeaf bool
 }
 
-func ComputeForumNavTrails(ctx context.Context, forums []model.Forum, forumId int) ([]ForumNavTrail, error) {
+func ComputeForumNavTrails(ctx context.Context, forums []model.Forum, forumId int) []ForumNavTrail {
 	// Given a Forum Id, find its parents until Root Forum
 	// Convert forums from a list into a map
 	forumsMap := map[int]model.Forum{}
@@ -29,7 +29,8 @@ func ComputeForumNavTrails(ctx context.Context, forums []model.Forum, forumId in
 		}
 		forum, ok := forumsMap[id]
 		if !ok {
-			return []ForumNavTrail{}, fmt.Errorf("Error while computing Forum Nav Trails for forum id %d: Unknown forum id %d", forumId, id)
+			logger.Warnf(ctx, "Error while computing Forum Nav Trails for forum id %d: Unknown forum id %d", forumId, id)
+			return []ForumNavTrail{}
 		}
 		forumNavTrails = append(forumNavTrails, ForumNavTrail{
 			Forum:  forum,
@@ -37,7 +38,8 @@ func ComputeForumNavTrails(ctx context.Context, forums []model.Forum, forumId in
 		})
 		depth++
 		if depth > model.MAX_FORUM_NAV_TRAILS_DEPTH {
-			return []ForumNavTrail{}, fmt.Errorf("Error while computing Forum Nav Trails for forum id %d: Path too deep", forumId)
+			logger.Warnf(ctx, "Error while computing Forum Nav Trails for forum id %d: Path too deep", forumId)
+			return []ForumNavTrail{}
 		}
 		id = forum.ParentId
 	}
@@ -45,7 +47,7 @@ func ComputeForumNavTrails(ctx context.Context, forums []model.Forum, forumId in
 		slices.Reverse(forumNavTrails)
 		forumNavTrails[len(forumNavTrails)-1].IsLeaf = true
 	}
-	return forumNavTrails, nil
+	return forumNavTrails
 }
 
 type ForumNode struct {
