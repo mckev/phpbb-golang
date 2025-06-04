@@ -1,28 +1,30 @@
 {{ define "body" }}
 {{ $root := . }}
+<!-- Page body: Current time, Forums / Posts -->
 <div id="page-body" class="page-body" role="main">
-    <!-- Forum title -->
-    <h2 class="forum-title"><a href="./forums?f={{ $root.Forum.ForumId }}">{{ $root.Forum.ForumName }}</a></h2>
+    <p class="right responsive-center time">It is currently {{ $root.CurrentTime | fnUnixTimeToStr }}</p>
 
-    <a class="category" id="category29" style="display: none; height: 0"></a>
+    {{ range $forumNode := $root.ForumChildNodes }}
+    <a class="category" id="category22" style="display: none; height: 0"></a>
     <div class="forabg">
         <div class="inner">
             <ul class="topiclist">
                 <li class="header">
                     <dl class="row-item">
                         <dt>
-                            <div class="list-inner">Forum</div>
+                            <div class="list-inner"><a href="./forums?f={{ $forumNode.Forum.ForumId }}">{{ $forumNode.Forum.ForumName }}</a></div>
                         </dt>
                         <dd class="topics">Topics</dd>
                         <dd class="posts">Posts</dd>
                         <dd class="lastpost"><span>Last post</span></dd>
                     </dl>
+                    <a href="/forum/collapse/fid_22?hash=93798400&amp;sid=737e81ca3b461a841614ced308b629c6" class="collapse-btn" data-hidden="" data-ajax="phpbb_collapse" data-overlay="true" data-title-alt="Show this forum category" title="Hide this forum category" style="display: none; line-height: 0;">
+                        <i class="fa fa-minus-square"></i>
+                    </a>
                 </li>
             </ul>
             <ul class="topiclist forums">
-
-                {{ range $forumNode := $root.ForumChildNodes }}
-                <!-- Sub forum {{ $forumNode.Forum.ForumId }} -->
+                {{ range $counter, $forumNode := $forumNode.ForumChildNodes }}
                 <li class="row">
                     <dl class="row-item forum_read">
                         <dt title="No unread posts">
@@ -67,18 +69,34 @@
                     </dl>
                 </li>
                 {{ end }}
-
             </ul>
         </div>
     </div>
+    {{ end }}
 
-    <!-- Bottom bar -->
-    <div class="action-bar actions-jump">
-        <p class="jumpbox-return">
-            <a href="./index.php?sid=929a524515b952cd9cf2ca670ce2d162" class="left-box arrow-left" accesskey="r">
-                <i class="icon fa-angle-left fa-fw icon-black" aria-hidden="true"></i><span>Return to Board Index</span>
-            </a>
-        </p>
+    <!-- Login, Register, Who is online, Statistics -->
+    <form method="post" action="./ucp.php?mode=login&amp;sid=737e81ca3b461a841614ced308b629c6" class="headerspace">
+        <h3>
+            <a href="./ucp.php?mode=login&amp;redirect=index.php&amp;sid=737e81ca3b461a841614ced308b629c6">Login</a>&nbsp; &bull; &nbsp;<a href="./ucp.php?mode=register&amp;sid=737e81ca3b461a841614ced308b629c6">Register</a>
+        </h3>
+        <fieldset class="quick-login">
+            <label for="username"><span>Username:</span> <input type="text" tabindex="1" name="username" id="username" size="10" class="inputbox" title="Username" autocomplete="username" /></label>
+            <label for="password"><span>Password:</span> <input type="password" tabindex="2" name="password" id="password" size="10" class="inputbox" title="Password" autocomplete="current-password" /></label>
+            <a href="/forum/user/forgot_password?sid=737e81ca3b461a841614ced308b629c6">I forgot my password</a>
+            <span class="responsive-hide">|</span> <label for="autologin">Remember me <input type="checkbox" tabindex="4" name="autologin" id="autologin" /></label>
+            <input type="submit" tabindex="5" name="login" value="Login" class="button2" />
+            <input type="hidden" name="redirect" value="./index.php?sid=737e81ca3b461a841614ced308b629c6" />
+            <input type="hidden" name="creation_time" value="1746169723" />
+            <input type="hidden" name="form_token" value="a3d9a8471f9010931c7ee103c1cb67b5bb38e3e0" />
+        </fieldset>
+    </form>
+    <div class="stat-block online-list">
+        <h3>Who is online</h3>
+        <p>In total there are <strong>236</strong> users online :: 1 registered, 7 hidden and 228 guests (based on users active over the past 10 minutes)<br />Most users ever online was <strong>4642</strong> on 16 Jul 2024 05:36<br /></p>
+    </div>
+    <div class="stat-block statistics">
+        <h3>Statistics</h3>
+        <p>Total posts <strong>672360</strong> &bull; Total topics <strong>21220</strong> &bull; Total members <strong>13543</strong> &bull; Our newest member <strong><a href="./memberlist.php?mode=viewprofile&amp;u=17715&amp;sid=737e81ca3b461a841614ced308b629c6" class="username">donnacargo111</a></strong></p>
     </div>
 </div>
 {{ end }}

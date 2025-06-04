@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"io"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"phpbb-golang/examples/myforum"
 	"phpbb-golang/internal/bbcode"
@@ -39,7 +39,41 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if urlPath == "/" {
-		io.WriteString(w, "Welcome to Golang BB!")
+		// To try: http://localhost:9000/
+
+		// Prepare template files
+		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/main.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing forums template files: %s", err)
+			return
+		}
+
+		// Prepare data
+		now := time.Now().UTC()
+		currentTime := now.Unix()
+		forums, err := model.ListForums(ctx)
+		if err != nil {
+			logger.Errorf(ctx, "Error while listing forums: %s", err)
+			return
+		}
+		forumChildNodes := forumhelper.ComputeForumChildNodes(ctx, forums, model.ROOT_FORUM_ID, 0)
+		type MainPageData struct {
+			CurrentTime     int64
+			ForumChildNodes []forumhelper.ForumNode
+			ForumNavTrails  []forumhelper.ForumNavTrail
+		}
+		forumsPageData := MainPageData{
+			CurrentTime:     currentTime,
+			ForumChildNodes: forumChildNodes,
+			ForumNavTrails:  []forumhelper.ForumNavTrail{},
+		}
+
+		// Execute template
+		err = templateOutput.ExecuteTemplate(w, "overall", forumsPageData)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing forums template: %s", err)
+			return
+		}
 
 	} else if urlPath == "/redirect" {
 		// To try: http://localhost:9000/redirect?url=https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dhow%2Bto%2Bmake%2Ba%2Braspberry%2Bpi%2Bweb%2Bserver%26hl%3Den%26source%3Dhp%26ei%3Dabcdef
