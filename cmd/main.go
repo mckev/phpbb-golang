@@ -152,6 +152,10 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	} else if urlPath == "/forums" {
 		// To try: http://localhost:9000/forums?f=1
 		forumId := helper.StrToInt(queryParams.Get("f"), model.INVALID_FORUM_ID)
+		if forumId == model.INVALID_FORUM_ID {
+			http.Redirect(w, r, "./", http.StatusFound)
+			return
+		}
 
 		// Prepare template files
 		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/forums.html")
