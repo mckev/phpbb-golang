@@ -58,7 +58,7 @@ func InitForums(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("Error while creating forums table: %s", err)
 	}
-	_, err = db.Exec(`INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc, forum_user_id, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)`, ROOT_FORUM_ID, ROOT_FORUM_ID, "Root Forum", "", ADMIN_USER_ID, ADMIN_USER_ID)
+	_, err = db.Exec("INSERT INTO forums (forum_id, parent_id, forum_name, forum_desc, forum_user_id, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)", ROOT_FORUM_ID, ROOT_FORUM_ID, "Root Forum", "", ADMIN_USER_ID, ADMIN_USER_ID)
 	if err != nil {
 		return fmt.Errorf("Error while inserting Root Forum into forums table: %s", err)
 	}
@@ -70,7 +70,7 @@ func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc 
 	defer db.Close()
 	now := time.Now().UTC()
 	forumTime := now.Unix()
-	res, err := db.Exec(`INSERT INTO forums (parent_id, forum_name, forum_desc, forum_user_id, forum_time, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)`, parentId, forumName, forumDesc, forumUserId, forumTime, forumUserId)
+	res, err := db.Exec("INSERT INTO forums (parent_id, forum_name, forum_desc, forum_user_id, forum_time, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)", parentId, forumName, forumDesc, forumUserId, forumTime, forumUserId)
 	if err != nil {
 		return INVALID_FORUM_ID, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent forum %d into forums table: %s", forumName, forumDesc, parentId, err)
 	}
@@ -84,7 +84,7 @@ func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc 
 func IncreaseNumTopicsForForum(ctx context.Context, forumId int) error {
 	db := OpenDb(ctx, "forums")
 	defer db.Close()
-	_, err := db.Exec(`UPDATE forums SET forum_num_topics = forum_num_topics + 1 WHERE forum_id = $1`, forumId)
+	_, err := db.Exec("UPDATE forums SET forum_num_topics = forum_num_topics + 1 WHERE forum_id = $1", forumId)
 	if err != nil {
 		return fmt.Errorf("Error while increasing num topics for forum id %d: %s", forumId, err)
 	}
@@ -94,7 +94,7 @@ func IncreaseNumTopicsForForum(ctx context.Context, forumId int) error {
 func IncreaseNumPostsForForum(ctx context.Context, forumId int) error {
 	db := OpenDb(ctx, "forums")
 	defer db.Close()
-	_, err := db.Exec(`UPDATE forums SET forum_num_posts = forum_num_posts + 1 WHERE forum_id = $1`, forumId)
+	_, err := db.Exec("UPDATE forums SET forum_num_posts = forum_num_posts + 1 WHERE forum_id = $1", forumId)
 	if err != nil {
 		return fmt.Errorf("Error while increasing num posts for forum id %d: %s", forumId, err)
 	}
@@ -106,7 +106,7 @@ func UpdateLastPostOfForum(ctx context.Context, forumId int, forumLastPostId int
 	defer db.Close()
 	now := time.Now().UTC()
 	topicLastPostTime := now.Unix()
-	result, err := db.Exec(`UPDATE forums SET forum_last_post_id = $1, forum_last_post_subject = $2, forum_last_post_user_id = $3, forum_last_post_user_name = $4, forum_last_post_time = $5 WHERE forum_id = $6`, forumLastPostId, forumLastPostSubject, forumLastPostUserId, forumLastPostUserName, topicLastPostTime, forumId)
+	result, err := db.Exec("UPDATE forums SET forum_last_post_id = $1, forum_last_post_subject = $2, forum_last_post_user_id = $3, forum_last_post_user_name = $4, forum_last_post_time = $5 WHERE forum_id = $6", forumLastPostId, forumLastPostSubject, forumLastPostUserId, forumLastPostUserName, topicLastPostTime, forumId)
 	if err != nil {
 		return fmt.Errorf("Error while updating the last post for forum id %d: %s", forumId, err)
 	}

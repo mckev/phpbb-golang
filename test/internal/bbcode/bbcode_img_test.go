@@ -9,7 +9,7 @@ import (
 func TestConvertBbcodeToHtml_ImgBasic(t *testing.T) {
 	{
 		// https://en.wikipedia.org/wiki/BBCode
-		bbcodeStr := `[img]https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png[/img]`
+		bbcodeStr := "[img]https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png[/img]"
 		actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
 		expected := `<img referrerpolicy="no-referrer" src="https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png">`
 		if actual != expected {
@@ -18,7 +18,7 @@ func TestConvertBbcodeToHtml_ImgBasic(t *testing.T) {
 		}
 	}
 	{
-		bbcodeStr := `[img=https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png]This is just an example[/img]`
+		bbcodeStr := "[img=https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png]This is just an example[/img]"
 		actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
 		expected := `<img alt="This is just an example" referrerpolicy="no-referrer" src="https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png" title="This is just an example">`
 		if actual != expected {
@@ -31,7 +31,7 @@ func TestConvertBbcodeToHtml_ImgBasic(t *testing.T) {
 func TestConvertBbcodeToHtml_ImgXss(t *testing.T) {
 	{
 		// https://en.wikipedia.org/wiki/BBCode
-		bbcodeStr := `[img]https://upload.wikimedia.org/<script>wikipedia/commons/7/70/Example.png[/img]`
+		bbcodeStr := "[img]https://upload.wikimedia.org/<script>wikipedia/commons/7/70/Example.png[/img]"
 		actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
 		expected := `<img referrerpolicy="no-referrer" src="https://upload.wikimedia.org/%3Cscript%3Ewikipedia/commons/7/70/Example.png">`
 		if actual != expected {
@@ -40,7 +40,7 @@ func TestConvertBbcodeToHtml_ImgXss(t *testing.T) {
 		}
 	}
 	{
-		bbcodeStr := `[img=https://upload.wikimedia.org/<script>wikipedia/commons/7/70/Example.png]This is just a <script> example[/img]`
+		bbcodeStr := "[img=https://upload.wikimedia.org/<script>wikipedia/commons/7/70/Example.png]This is just a <script> example[/img]"
 		actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
 		expected := `<img alt="This is just a &lt;script&gt; example" referrerpolicy="no-referrer" src="https://upload.wikimedia.org/%3Cscript%3Ewikipedia/commons/7/70/Example.png" title="This is just a &lt;script&gt; example">`
 		if actual != expected {

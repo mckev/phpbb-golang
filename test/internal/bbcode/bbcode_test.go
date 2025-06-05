@@ -41,7 +41,7 @@ func TestConvertBbcodeToHtml_Ambiguous(t *testing.T) {
 	{
 		bbcodeStr := "[quote=[b]text[/b][/quote]"
 		actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
-		expected := `[quote=<b>text</b>[/quote]`
+		expected := "[quote=<b>text</b>[/quote]"
 		if actual != expected {
 			t.Errorf("Got %s, wanted %s", actual, expected)
 			return
@@ -50,7 +50,7 @@ func TestConvertBbcodeToHtml_Ambiguous(t *testing.T) {
 	{
 		bbcodeStr := "[quote=text[/quote]"
 		actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
-		expected := `[quote=text[/quote]`
+		expected := "[quote=text[/quote]"
 		if actual != expected {
 			t.Errorf("Got %s, wanted %s", actual, expected)
 			return

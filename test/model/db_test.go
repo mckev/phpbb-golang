@@ -33,7 +33,7 @@ func TestPathEscape(t *testing.T) {
 	{
 		tableName := "../../evil.txt"
 		actual := fmt.Sprintf("file:./model/db/%s.db", path.Base(tableName))
-		expected := `file:./model/db/evil.txt.db`
+		expected := "file:./model/db/evil.txt.db"
 		if actual != expected {
 			t.Errorf("Got %s, wanted %s", actual, expected)
 			return
@@ -42,7 +42,7 @@ func TestPathEscape(t *testing.T) {
 	{
 		tableName := "/../../"
 		actual := fmt.Sprintf("file:./model/db/%s.db", path.Base(tableName))
-		expected := `file:./model/db/...db`
+		expected := "file:./model/db/...db"
 		if actual != expected {
 			t.Errorf("Got %s, wanted %s", actual, expected)
 			return

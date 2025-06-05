@@ -70,7 +70,7 @@ func InitUsers(ctx context.Context) error {
 	hashedPasswordWithSaltAndHeader := helper.HashPassword(adminPassword, salt)
 	now := time.Now().UTC()
 	userRegTime := now.Unix()
-	_, err = db.Exec(`INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4, $5, $6)`, ADMIN_USER_ID, USER_TYPE_FOUNDER, ADMIN_USER_NAME, hashedPasswordWithSaltAndHeader, "", userRegTime)
+	_, err = db.Exec("INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4, $5, $6)", ADMIN_USER_ID, USER_TYPE_FOUNDER, ADMIN_USER_NAME, hashedPasswordWithSaltAndHeader, "", userRegTime)
 	if err != nil {
 		return fmt.Errorf("Error while inserting Admin user into users table: %s", err)
 	}
@@ -87,7 +87,7 @@ func InsertUser(ctx context.Context, userName string, userPassword string, userS
 	hashedPasswordWithSaltAndHeader := helper.HashPassword(userPassword, salt)
 	now := time.Now().UTC()
 	userRegTime := now.Unix()
-	res, err := db.Exec(`INSERT INTO users (user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4)`, userName, hashedPasswordWithSaltAndHeader, userSig, userRegTime)
+	res, err := db.Exec("INSERT INTO users (user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4)", userName, hashedPasswordWithSaltAndHeader, userSig, userRegTime)
 	if err != nil {
 		return INVALID_USER_ID, fmt.Errorf("Error while inserting user name '%s' into users table: %s", userName, err)
 	}
@@ -101,7 +101,7 @@ func InsertUser(ctx context.Context, userName string, userPassword string, userS
 func SetUserType(ctx context.Context, userId int, userType UserType) error {
 	db := OpenDb(ctx, "users")
 	defer db.Close()
-	result, err := db.Exec(`UPDATE users SET user_type = $1 WHERE user_id = $2`, userType, userId)
+	result, err := db.Exec("UPDATE users SET user_type = $1 WHERE user_id = $2", userType, userId)
 	if err != nil {
 		return fmt.Errorf("Error while setting user type %d for user id %d: %s", userType, userId, err)
 	}
@@ -119,7 +119,7 @@ func SetUserType(ctx context.Context, userId int, userType UserType) error {
 func IncreaseNumPostsForUser(ctx context.Context, userId int) error {
 	db := OpenDb(ctx, "users")
 	defer db.Close()
-	_, err := db.Exec(`UPDATE users SET user_num_posts = user_num_posts + 1 WHERE user_id = $1`, userId)
+	_, err := db.Exec("UPDATE users SET user_num_posts = user_num_posts + 1 WHERE user_id = $1", userId)
 	if err != nil {
 		return fmt.Errorf("Error while increasing num posts for user id %d: %s", userId, err)
 	}

@@ -77,7 +77,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 	} else if urlPath == "/redirect" {
 		// To try: http://localhost:9000/redirect?url=https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dhow%2Bto%2Bmake%2Ba%2Braspberry%2Bpi%2Bweb%2Bserver%26hl%3Den%26source%3Dhp%26ei%3Dabcdef
-		// How to encode:  encoded := url.QueryEscape(`https://www.google.com/search?q=how+to+make+a+raspberry+pi+web+server&hl=en&source=hp&ei=abcdef`)
+		// How to encode:  encoded := url.QueryEscape("https://www.google.com/search?q=how+to+make+a+raspberry+pi+web+server&hl=en&source=hp&ei=abcdef")
 		// How encode works:  It replaces following characters  : %3A, / %2F, ? %3F, = %3D, & %26, + %2B
 		redirectUrl := queryParams.Get("url")
 		if redirectUrl == "" {

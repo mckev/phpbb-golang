@@ -251,7 +251,7 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
-			postBB2CId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `Haven't noticed any differences.`, user5Id)
+			postBB2CId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", "Haven't noticed any differences.", user5Id)
 			if err != nil {
 				return err
 			}
