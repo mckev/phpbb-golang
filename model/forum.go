@@ -72,7 +72,7 @@ func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc 
 	forumTime := now.Unix()
 	res, err := db.Exec("INSERT INTO forums (parent_id, forum_name, forum_desc, forum_user_id, forum_time, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)", parentId, forumName, forumDesc, forumUserId, forumTime, forumUserId)
 	if err != nil {
-		return INVALID_FORUM_ID, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent forum %d into forums table: %s", forumName, forumDesc, parentId, err)
+		return INVALID_FORUM_ID, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent id %d into forums table: %s", forumName, forumDesc, parentId, err)
 	}
 	forumId, err := res.LastInsertId()
 	if err != nil {

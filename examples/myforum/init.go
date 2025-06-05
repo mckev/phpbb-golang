@@ -52,17 +52,6 @@ func DebugMyforum(ctx context.Context) {
 	}
 	logger.Infof(ctx, "")
 
-	TOPIC_ID := 2
-	logger.Infof(ctx, "Users of 'We're now powered by phpBB 3.3':")
-	users, err := model.ListUsers(ctx, TOPIC_ID)
-	if err != nil {
-		logger.Errorf(ctx, "Error while listing users: %s", err)
-	}
-	for _, user := range users {
-		logger.Infof(ctx, "%s", helper.JsonDumps(user))
-	}
-	logger.Infof(ctx, "")
-
 	logger.Infof(ctx, "Topics of 'Now Hear This!':")
 	topics, err := model.ListTopics(ctx, FORUM_ID, 0)
 	if err != nil {
@@ -70,6 +59,17 @@ func DebugMyforum(ctx context.Context) {
 	}
 	for _, topic := range topics {
 		logger.Infof(ctx, "%s", helper.JsonDumps(topic))
+	}
+	logger.Infof(ctx, "")
+
+	TOPIC_ID := 3
+	logger.Infof(ctx, "Users of 'We're now powered by phpBB 3.3':")
+	users, err := model.ListUsers(ctx, TOPIC_ID)
+	if err != nil {
+		logger.Errorf(ctx, "Error while listing users: %s", err)
+	}
+	for _, user := range users {
+		logger.Infof(ctx, "%s", helper.JsonDumps(user))
 	}
 	logger.Infof(ctx, "")
 

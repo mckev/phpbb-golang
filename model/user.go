@@ -11,8 +11,10 @@ import (
 
 const (
 	INVALID_USER_ID = -1
+	ADMIN_USER_ID   = 1
 	ADMIN_USER_NAME = "admin"
-	ADMIN_USER_ID   = 1000
+	GUEST_USER_ID   = 1000
+	GUEST_USER_NAME = "guest"
 )
 
 type User struct {
@@ -32,10 +34,10 @@ type User struct {
 type UserType int
 
 const (
-	USER_TYPE_NORMAL UserType = iota
-	USER_TYPE_INACTIVE
-	USER_TYPE_IGNORE
-	USER_TYPE_FOUNDER = 99
+	USER_TYPE_NORMAL   UserType = iota
+	USER_TYPE_INACTIVE          // May be pending activation
+	USER_TYPE_GUEST             // Guest users (Anonymous)
+	USER_TYPE_FOUNDER  = 99     // Board founders (Super admins)
 )
 
 func InitUsers(ctx context.Context) error {
@@ -55,6 +57,8 @@ func InitUsers(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("Error while creating users table: %s", err)
 	}
+	now := time.Now().UTC()
+	userRegTime := now.Unix()
 
 	// Admin user
 	adminPassword, err := helper.GenerateRandomAlphanumeric(16)
@@ -63,17 +67,32 @@ func InitUsers(ctx context.Context) error {
 	}
 	logger.Infof(ctx, "Username for Admin user: %s", ADMIN_USER_NAME)
 	logger.Infof(ctx, "Password for Admin user: %s", adminPassword)
-	salt, err := helper.GenerateRandomBytes(8)
+	adminSalt, err := helper.GenerateRandomBytes(8)
 	if err != nil {
 		return fmt.Errorf("Error while generating random salt for Admin user: %s", err)
 	}
-	hashedPasswordWithSaltAndHeader := helper.HashPassword(adminPassword, salt)
-	now := time.Now().UTC()
-	userRegTime := now.Unix()
-	_, err = db.Exec("INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4, $5, $6)", ADMIN_USER_ID, USER_TYPE_FOUNDER, ADMIN_USER_NAME, hashedPasswordWithSaltAndHeader, "", userRegTime)
+	adminHashedPasswordWithSaltAndHeader := helper.HashPassword(adminPassword, adminSalt)
+	_, err = db.Exec("INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4, $5, $6)", ADMIN_USER_ID, USER_TYPE_FOUNDER, ADMIN_USER_NAME, adminHashedPasswordWithSaltAndHeader, "", userRegTime)
 	if err != nil {
 		return fmt.Errorf("Error while inserting Admin user into users table: %s", err)
 	}
+	logger.Infof(ctx, "")
+
+	// Guest user
+	guestPassword, err := helper.GenerateRandomAlphanumeric(16)
+	if err != nil {
+		return fmt.Errorf("Error while generating password for Guest user: %s", err)
+	}
+	guestSalt, err := helper.GenerateRandomBytes(8)
+	if err != nil {
+		return fmt.Errorf("Error while generating random salt for Guest user: %s", err)
+	}
+	guestHashedPasswordWithSaltAndHeader := helper.HashPassword(guestPassword, guestSalt)
+	_, err = db.Exec("INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4, $5, $6)", GUEST_USER_ID, USER_TYPE_GUEST, GUEST_USER_NAME, guestHashedPasswordWithSaltAndHeader, "", userRegTime)
+	if err != nil {
+		return fmt.Errorf("Error while inserting Guest user into users table: %s", err)
+	}
+
 	return nil
 }
 
@@ -82,7 +101,7 @@ func InsertUser(ctx context.Context, userName string, userPassword string, userS
 	defer db.Close()
 	salt, err := helper.GenerateRandomBytes(8)
 	if err != nil {
-		return INVALID_USER_ID, fmt.Errorf("Error while generating random salt for user %s: %s", userName, err)
+		return INVALID_USER_ID, fmt.Errorf("Error while generating random salt for user name '%s': %s", userName, err)
 	}
 	hashedPasswordWithSaltAndHeader := helper.HashPassword(userPassword, salt)
 	now := time.Now().UTC()
@@ -155,14 +174,14 @@ func ListUsers(ctx context.Context, topicId int) ([]User, error) {
 		} else if users[i].UserType == USER_TYPE_INACTIVE {
 			users[i].UserTypeName = "Member (inactive)"
 			users[i].UserTypeImg = "/images/ranks/modern-ranks/member.png"
-		} else if users[i].UserType == USER_TYPE_IGNORE {
-			users[i].UserTypeName = "Banned"
-			users[i].UserTypeImg = "/images/ranks/modern-ranks/banned.png"
+		} else if users[i].UserType == USER_TYPE_GUEST {
+			users[i].UserTypeName = "Guest"
+			users[i].UserTypeImg = "/images/ranks/modern-ranks/guest.png"
 		} else if users[i].UserType == USER_TYPE_FOUNDER {
 			users[i].UserTypeName = "Administrator"
 			users[i].UserTypeImg = "/images/ranks/modern-ranks/administrator.png"
 		} else {
-			users[i].UserTypeName = "Guest"
+			users[i].UserTypeName = "Unknown"
 			users[i].UserTypeImg = "/images/ranks/modern-ranks/guest.png"
 		}
 	}
