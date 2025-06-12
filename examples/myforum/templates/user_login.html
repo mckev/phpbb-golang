@@ -1,0 +1,55 @@
+{{ define "body" }}
+<div id="page-body" class="page-body" role="main">
+
+    <form action="./ucp.php?mode=login" method="post" id="login" data-focus="username">
+        <div class="panel">
+            <div class="inner">
+                <div class="content">
+                    <h2 class="login-title">Login</h2>
+                    <fieldset class="fields1">
+                        <div class="error">You cannot login without a password.</div>
+                        <dl>
+                            <dt><label for="username">Username:</label></dt>
+                            <dd><input type="text" tabindex="1" name="username" id="username" size="25" value="" class="inputbox autowidth" autocomplete="username" /></dd>
+                        </dl>
+                        <dl>
+                            <dt><label for="password">Password:</label></dt>
+                            <dd><input type="password" tabindex="2" id="password" name="password" size="25" class="inputbox autowidth" autocomplete="current-password" /></dd>
+                            <dd><a href="/forum/user/forgot_password">I forgot my password</a></dd>
+                            <dd><a href="./ucp.php?mode=resend_act">Resend activation email</a></dd>
+                        </dl>
+                        <dl>
+                            <dt>&nbsp;</dt>
+                            <dd><label for="autologin"><input type="checkbox" name="autologin" id="autologin" tabindex="4" /> Remember me</label></dd>
+                            <dd><label for="viewonline"><input type="checkbox" name="viewonline" id="viewonline" tabindex="5" /> Hide my online status this session</label></dd>
+                        </dl>
+                        <input type="hidden" name="redirect" value="./ucp.php?mode=login&amp;redirect=ucp.php%3Fmode%3Dregister" />
+                        <input type="hidden" name="creation_time" value="1749709102" />
+                        <input type="hidden" name="form_token" value="5bcf72afc010210b02b3286b3c8013d151635082" />
+                        <dl>
+                            <dt>&nbsp;</dt>
+                            <dd><input type="hidden" name="sid" value="db5c2714bd5d96f46bc4bffd66600dae" />
+                                <input type="hidden" name="redirect" value="ucp.php?mode=register" />
+                                <input type="submit" name="login" tabindex="6" value="Login" class="button1" />
+                            </dd>
+                        </dl>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="inner">
+                <div class="content">
+                    <h3>Register</h3>
+                    <p>In order to login you must be registered. Registering takes only a few moments but gives you increased capabilities. The board administrator may also grant additional permissions to registered users. Before you register please ensure you are familiar with our terms of use and related policies. Please ensure you read any forum rules as you navigate around the board.</p>
+                    <p><strong><a href="./ucp.php?mode=terms">Terms of use</a> | <a href="./ucp.php?mode=privacy">Privacy policy</a></strong></p>
+                    <hr class="dashed" />
+                    <p><a href="./ucp.php?mode=register" class="button2">Register</a></p>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+{{ end }}
