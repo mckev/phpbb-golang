@@ -160,6 +160,30 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while executing template: %s", err)
 			return
 		}
+	} else if urlPath == "/myforum/user_register_created" {
+		// To try: http://localhost:9000/myforum/user_register_created
+		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/user_register_created.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing template files: %s", err)
+			return
+		}
+		err = templateOutput.ExecuteTemplate(w, "overall", nil)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing template: %s", err)
+			return
+		}
+	} else if urlPath == "/myforum/user_register_activated" {
+		// To try: http://localhost:9000/myforum/user_register_activated
+		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/user_register_activated.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing template files: %s", err)
+			return
+		}
+		err = templateOutput.ExecuteTemplate(w, "overall", nil)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing template: %s", err)
+			return
+		}
 	} else if urlPath == "/myforum/user_login" {
 		// To try: http://localhost:9000/myforum/user_login
 		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/user_login.html")
