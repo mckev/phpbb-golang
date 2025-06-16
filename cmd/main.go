@@ -148,6 +148,18 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while executing template: %s", err)
 			return
 		}
+	} else if urlPath == "/myforum/user_login" {
+		// To try: http://localhost:9000/myforum/user_login
+		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/user_login.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing template files: %s", err)
+			return
+		}
+		err = templateOutput.ExecuteTemplate(w, "overall", nil)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing template: %s", err)
+			return
+		}
 	} else if urlPath == "/myforum/user_register" {
 		// To try: http://localhost:9000/myforum/user_register
 		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/user_register.html")
@@ -175,18 +187,6 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	} else if urlPath == "/myforum/user_register_activated" {
 		// To try: http://localhost:9000/myforum/user_register_activated
 		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/user_register_activated.html")
-		if err != nil {
-			logger.Errorf(ctx, "Error while parsing template files: %s", err)
-			return
-		}
-		err = templateOutput.ExecuteTemplate(w, "overall", nil)
-		if err != nil {
-			logger.Errorf(ctx, "Error while executing template: %s", err)
-			return
-		}
-	} else if urlPath == "/myforum/user_login" {
-		// To try: http://localhost:9000/myforum/user_login
-		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/user_login.html")
 		if err != nil {
 			logger.Errorf(ctx, "Error while parsing template files: %s", err)
 			return
@@ -394,6 +394,76 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while executing posts template: %s", err)
 			return
 		}
+
+	} else if urlPath == "/user_register" {
+		// To try: http://localhost:9000/user_register
+		formErrors := []string{}
+		if httpMethod == "POST" {
+			err := r.ParseForm()
+			if err != nil {
+				logger.Errorf(ctx, "Error while parsing form upon user registration: %s", err)
+				return
+			}
+			username := r.Form.Get("username")
+			if len(username) < 4 {
+				formErrors = append(formErrors, "The username you entered is too short.")
+			}
+			if len(username) > 20 {
+				formErrors = append(formErrors, "The username you entered is too long.")
+			}
+			new_password := r.Form.Get("new_password")
+			if len(new_password) < 8 {
+				formErrors = append(formErrors, "The password you entered is too short.")
+			}
+			if !helper.IsPasswordValid(new_password) {
+				formErrors = append(formErrors, "Password must be at least 8 characters long, must contain letters in mixed case and must contain numbers.")
+			}
+			password_confirm := r.Form.Get("password_confirm")
+			if password_confirm != new_password {
+				formErrors = append(formErrors, "Password and confirmation do not match.")
+			}
+			email := r.Form.Get("email")
+			if !helper.IsEmailValid(email) {
+				formErrors = append(formErrors, "The email address format is invalid.")
+			}
+			if len(formErrors) == 0 {
+				// Validation successful
+				fmt.Fprintf(w, "Forum submitted successfully!\n")
+				fmt.Fprintf(w, "Username: %s\n", username)
+				fmt.Fprintf(w, "Password: %s\n", new_password)
+				fmt.Fprintf(w, "Confirm password: %s\n", password_confirm)
+				fmt.Fprintf(w, "Email address: %s\n", email)
+				// TODO: Handle CSRF token validation
+				return
+			} else {
+				// Fall through
+			}
+		}
+
+		// Prepare template files
+		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/user_register.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing user registration template files: %s", err)
+			return
+		}
+
+		// Prepare data
+		type UserRegisterPageData struct {
+			FormErrors     []string
+			ForumNavTrails []forumhelper.ForumNavTrail
+		}
+		userRegisterPageData := UserRegisterPageData{
+			FormErrors:     formErrors,
+			ForumNavTrails: []forumhelper.ForumNavTrail{},
+		}
+
+		// Execute template
+		err = templateOutput.ExecuteTemplate(w, "overall", userRegisterPageData)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing user registration template: %s", err)
+			return
+		}
+
 	} else {
 		logger.Errorf(ctx, "URL Path not supported: %s %s", httpMethod, urlPath)
 		return
