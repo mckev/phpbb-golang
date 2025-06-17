@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"net"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -397,6 +398,23 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 	} else if urlPath == "/user_register" {
 		// To try: http://localhost:9000/user_register
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			ip = r.RemoteAddr
+		}
+		browser := r.Header.Get("User-Agent")
+		forwardedFor := r.Header.Get("X-Forwarded-For")
+		session, err := model.CreateSession(ctx, model.GUEST_USER_ID, ip, browser, forwardedFor)
+		if err != nil {
+			logger.Errorf(ctx, "Unable to create session: %s", err)
+			return
+		}
+		session, err = model.ResumeSession(ctx, session.SessionId, ip, browser, forwardedFor)
+		if err != nil {
+			logger.Errorf(ctx, "Unable to create session: %s", err)
+			return
+		}
+		logger.Infof(ctx, "Session Id: %s", session.SessionId)
 		formErrors := []string{}
 		if httpMethod == "POST" {
 			err := r.ParseForm()

@@ -22,6 +22,10 @@ func PopulateDb(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("Error while dropping forums table: %s", err)
 		}
+		err = model.DropDb(ctx, "sessions")
+		if err != nil {
+			return fmt.Errorf("Error while dropping sessions table: %s", err)
+		}
 		err = model.DropDb(ctx, "users")
 		if err != nil {
 			return fmt.Errorf("Error while dropping users table: %s", err)
@@ -31,6 +35,10 @@ func PopulateDb(ctx context.Context) error {
 		err := model.InitUsers(ctx)
 		if err != nil {
 			return fmt.Errorf("Error while initializing users table: %s", err)
+		}
+		err = model.InitSessions(ctx)
+		if err != nil {
+			return fmt.Errorf("Error while initializing sessions table: %s", err)
 		}
 		err = model.InitForums(ctx)
 		if err != nil {

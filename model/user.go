@@ -67,7 +67,7 @@ func InitUsers(ctx context.Context) error {
 	}
 	logger.Infof(ctx, "Username for Admin user: %s", ADMIN_USER_NAME)
 	logger.Infof(ctx, "Password for Admin user: %s", adminPassword)
-	adminSalt, err := helper.GenerateRandomBytes(8)
+	adminSalt, err := helper.GenerateRandomBytesInHex(8)
 	if err != nil {
 		return fmt.Errorf("Error while generating random salt for Admin user: %s", err)
 	}
@@ -83,7 +83,7 @@ func InitUsers(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("Error while generating password for Guest user: %s", err)
 	}
-	guestSalt, err := helper.GenerateRandomBytes(8)
+	guestSalt, err := helper.GenerateRandomBytesInHex(8)
 	if err != nil {
 		return fmt.Errorf("Error while generating random salt for Guest user: %s", err)
 	}
@@ -99,7 +99,7 @@ func InitUsers(ctx context.Context) error {
 func InsertUser(ctx context.Context, userName string, userPassword string, userSig string) (int, error) {
 	db := OpenDb(ctx, "users")
 	defer db.Close()
-	salt, err := helper.GenerateRandomBytes(8)
+	salt, err := helper.GenerateRandomBytesInHex(8)
 	if err != nil {
 		return INVALID_USER_ID, fmt.Errorf("Error while generating random salt for user name '%s': %s", userName, err)
 	}

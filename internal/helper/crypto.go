@@ -3,8 +3,13 @@ package helper
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"strings"
+)
+
+const (
+	SESSION_ID_LENGTH = 16 // bytes
 )
 
 func Sha256(s string) string {
@@ -12,7 +17,7 @@ func Sha256(s string) string {
 	return sha256Hash
 }
 
-func GenerateRandomBytes(length int) (string, error) {
+func GenerateRandomBytesInHex(length int) (string, error) {
 	buffer := make([]byte, length)
 	_, err := rand.Read(buffer)
 	if err != nil {
@@ -22,8 +27,23 @@ func GenerateRandomBytes(length int) (string, error) {
 	return randomBytesInHex, nil
 }
 
+func GenerateSessionId() (string, error) {
+	return GenerateRandomBytesInHex(SESSION_ID_LENGTH)
+}
+
+func IsSessionIdValid(sessionId string) bool {
+	if len(sessionId) != SESSION_ID_LENGTH*2 {
+		return false
+	}
+	_, err := hex.DecodeString(sessionId)
+	return err == nil
+}
+
 func GenerateRandomAlphanumeric(length int) (string, error) {
 	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	if len(chars) != 62 {
+		panic("Invalid total number of characters")
+	}
 	randomString := ""
 	for len(randomString) < length {
 		b := make([]byte, 1)
