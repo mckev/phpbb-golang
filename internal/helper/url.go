@@ -1,6 +1,10 @@
 package helper
 
-import "net/url"
+import (
+	"net"
+	"net/http"
+	"net/url"
+)
 
 const (
 	NO_SID = ""
@@ -16,4 +20,15 @@ func UrlWithSID(rawUrl string, sessionId string) string {
 	}
 	u.RawQuery = q.Encode()
 	return u.String()
+}
+
+func ExtractUserFingerprint(r *http.Request) (string, string, string) {
+	// To prevent hijacking of another user's session
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		ip = r.RemoteAddr
+	}
+	browser := r.Header.Get("User-Agent")
+	forwardedFor := r.Header.Get("X-Forwarded-For")
+	return ip, browser, forwardedFor
 }

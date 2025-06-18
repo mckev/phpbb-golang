@@ -3,11 +3,17 @@ package model
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"strings"
 
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/mattn/go-sqlite3"
 
 	"phpbb-golang/internal/logger"
+)
+
+const (
+	DB_ERROR_UNIQUE_CONSTRAINT = "DB_ERROR_UNIQUE_CONSTRAINT"
 )
 
 func OpenDb(ctx context.Context, tableName string) *sql.DB {
@@ -70,4 +76,37 @@ func SqlEscape(sql string) string {
 		}
 	}
 	return string(dest)
+}
+
+func IsUniqueViolation(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	// SQLite (mattn/go-sqlite3)
+	var sqliteErr sqlite3.Error
+	if errors.As(err, &sqliteErr) {
+		return sqliteErr.Code == sqlite3.ErrConstraint && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique
+	}
+
+	// PostgreSQL (lib/pq)
+	// var pqErr *pq.Error
+	// if errors.As(err, &pqErr) {
+	//     return pqErr.Code == "23505" // unique_violation
+	// }
+
+	// MySQL (go-sql-driver/mysql)
+	// var mysqlErr *mysql.MySQLError
+	// if errors.As(err, &mysqlErr) {
+	//     return mysqlErr.Number == 1062 // ER_DUP_ENTRY
+	// }
+
+	// Fallback: parse error message (least reliable)
+	// SQLite: UNIQUE constraint failed: users.user_name
+	// PostgreSQL: pq: duplicate key value violates unique constraint "users_user_name_key"
+	// MySQL: Error 1062: Duplicate entry 'alice' for key 'users.user_name'
+	msg := err.Error()
+	return strings.Contains(msg, "UNIQUE constraint failed") || // SQLite
+		strings.Contains(msg, "duplicate key value violates unique constraint") || // PostgreSQL
+		strings.Contains(msg, "Error 1062: Duplicate entry") // MySQL
 }

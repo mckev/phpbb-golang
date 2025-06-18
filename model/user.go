@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	INVALID_USER_ID = -1
+	INVALID_USER_ID = 0
 	ADMIN_USER_ID   = 1
 	ADMIN_USER_NAME = "admin"
 	GUEST_USER_ID   = 1000
@@ -22,8 +22,11 @@ type User struct {
 	UserType           UserType `json:"user_type"`
 	UserName           string   `json:"user_name"`
 	UserPasswordHashed string   `json:"user_password_hashed"`
+	UserEmail          string   `json:"user_email"`
 	UserSig            string   `json:"user_sig"`
 	UserRegTime        int64    `json:"user_reg_time"`
+	UserLastVisitTime  int64    `json:"user_last_visit_time"`
+
 	// Derived properties
 	UserNumPosts int    `json:"user_num_posts"`
 	UserTypeName string `json:"user_type_name"`
@@ -47,10 +50,12 @@ func InitUsers(ctx context.Context) error {
 	sql := `CREATE TABLE users (
 		user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		user_type TINYINT(2) NOT NULL DEFAULT '0',
-		user_name VARCHAR(255) NOT NULL DEFAULT '',
+		user_name VARCHAR(255) UNIQUE NOT NULL DEFAULT '',
 		user_password_hashed VARCHAR(255) NOT NULL DEFAULT '',
+		user_email VARCHAR(100) NOT NULL DEFAULT '',
 		user_sig MEDIUMTEXT NOT NULL DEFAULT '',
 		user_reg_time INT(11) NOT NULL DEFAULT '0',
+		user_last_visit_time INT(11) NOT NULL DEFAULT '0',
 		user_num_posts MEDIUMINT(8) NOT NULL DEFAULT '0'
 	)`
 	_, err := db.Exec(sql)
@@ -72,7 +77,7 @@ func InitUsers(ctx context.Context) error {
 		return fmt.Errorf("Error while generating random salt for Admin user: %s", err)
 	}
 	adminHashedPasswordWithSaltAndHeader := helper.HashPassword(adminPassword, adminSalt)
-	_, err = db.Exec("INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4, $5, $6)", ADMIN_USER_ID, USER_TYPE_FOUNDER, ADMIN_USER_NAME, adminHashedPasswordWithSaltAndHeader, "", userRegTime)
+	_, err = db.Exec("INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_reg_time, user_last_visit_time) VALUES ($1, $2, $3, $4, $5, $6)", ADMIN_USER_ID, USER_TYPE_FOUNDER, ADMIN_USER_NAME, adminHashedPasswordWithSaltAndHeader, userRegTime, userRegTime)
 	if err != nil {
 		return fmt.Errorf("Error while inserting Admin user into users table: %s", err)
 	}
@@ -88,7 +93,7 @@ func InitUsers(ctx context.Context) error {
 		return fmt.Errorf("Error while generating random salt for Guest user: %s", err)
 	}
 	guestHashedPasswordWithSaltAndHeader := helper.HashPassword(guestPassword, guestSalt)
-	_, err = db.Exec("INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4, $5, $6)", GUEST_USER_ID, USER_TYPE_GUEST, GUEST_USER_NAME, guestHashedPasswordWithSaltAndHeader, "", userRegTime)
+	_, err = db.Exec("INSERT INTO users (user_id, user_type, user_name, user_password_hashed, user_reg_time, user_last_visit_time) VALUES ($1, $2, $3, $4, $5, $6)", GUEST_USER_ID, USER_TYPE_GUEST, GUEST_USER_NAME, guestHashedPasswordWithSaltAndHeader, userRegTime, userRegTime)
 	if err != nil {
 		return fmt.Errorf("Error while inserting Guest user into users table: %s", err)
 	}
@@ -96,7 +101,7 @@ func InitUsers(ctx context.Context) error {
 	return nil
 }
 
-func InsertUser(ctx context.Context, userName string, userPassword string, userSig string) (int, error) {
+func InsertUser(ctx context.Context, userName string, userPassword string, userEmail string, userSig string) (int, error) {
 	db := OpenDb(ctx, "users")
 	defer db.Close()
 	salt, err := helper.GenerateRandomBytesInHex(8)
@@ -106,7 +111,10 @@ func InsertUser(ctx context.Context, userName string, userPassword string, userS
 	hashedPasswordWithSaltAndHeader := helper.HashPassword(userPassword, salt)
 	now := time.Now().UTC()
 	userRegTime := now.Unix()
-	res, err := db.Exec("INSERT INTO users (user_name, user_password_hashed, user_sig, user_reg_time) VALUES ($1, $2, $3, $4)", userName, hashedPasswordWithSaltAndHeader, userSig, userRegTime)
+	res, err := db.Exec("INSERT INTO users (user_name, user_password_hashed, user_email, user_sig, user_reg_time, user_last_visit_time) VALUES ($1, $2, $3, $4, $5, $6)", userName, hashedPasswordWithSaltAndHeader, userEmail, userSig, userRegTime, userRegTime)
+	if IsUniqueViolation(err) {
+		return INVALID_USER_ID, fmt.Errorf("Error while inserting user name '%s' into users table: %s: %s", userName, DB_ERROR_UNIQUE_CONSTRAINT, err)
+	}
 	if err != nil {
 		return INVALID_USER_ID, fmt.Errorf("Error while inserting user name '%s' into users table: %s", userName, err)
 	}
@@ -145,12 +153,31 @@ func IncreaseNumPostsForUser(ctx context.Context, userId int) error {
 	return nil
 }
 
-func ListUsers(ctx context.Context, topicId int) ([]User, error) {
+func UpdateLastVisitTimeForUser(ctx context.Context, userId int) error {
+	db := OpenDb(ctx, "users")
+	defer db.Close()
+	now := time.Now().UTC()
+	userLastVisitTime := now.Unix()
+	result, err := db.Exec("UPDATE users SET user_last_visit_time = $1 WHERE user_id = $2", userLastVisitTime, userId)
+	if err != nil {
+		return fmt.Errorf("Error while updating the last visit time for user id %d: %s", userId, err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("Error while retrieving rows affected while updating the last visit time for user id %d: %s", userId, err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("No rows were updated while updating the last visit time for user id %d", userId)
+	}
+	return nil
+}
+
+func ListUsersOfTopic(ctx context.Context, topicId int) ([]User, error) {
 	// WARNING: Issue on Golang Template may reveal sensitive information of users. So avoid reading sensitive information here.
 	db := OpenDb(ctx, "users")
 	defer db.Close()
 	// ChatGPT: SQL Database with "users" and "posts" table. A user may post multiple things. Now generate SQL SELECT statement to list unique users given a post id.
-	rows, err := db.Query("SELECT DISTINCT users.user_id, users.user_type, users.user_name, users.user_sig, users.user_reg_time, user_num_posts FROM users JOIN posts ON posts.post_user_id = users.user_id WHERE posts.topic_id = $1 ORDER BY users.user_id", topicId)
+	rows, err := db.Query("SELECT DISTINCT users.user_id, users.user_type, users.user_name, users.user_sig, users.user_reg_time, users.user_last_visit_time, users.user_num_posts FROM users JOIN posts ON posts.post_user_id = users.user_id WHERE posts.topic_id = $1 ORDER BY users.user_id", topicId)
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying users table for topic id %d: %s", topicId, err)
 	}
@@ -158,7 +185,7 @@ func ListUsers(ctx context.Context, topicId int) ([]User, error) {
 	var users []User
 	for rows.Next() {
 		var user User
-		if err := rows.Scan(&user.UserId, &user.UserType, &user.UserName, &user.UserSig, &user.UserRegTime, &user.UserNumPosts); err != nil {
+		if err := rows.Scan(&user.UserId, &user.UserType, &user.UserName, &user.UserSig, &user.UserRegTime, &user.UserLastVisitTime, &user.UserNumPosts); err != nil {
 			return nil, fmt.Errorf("Error while scanning rows on users table for topic id %d: %s", topicId, err)
 		}
 		users = append(users, user)

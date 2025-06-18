@@ -56,7 +56,7 @@ func PopulateDb(ctx context.Context) error {
 
 	// Users
 	user2Name := "The Management"
-	user2Id, err := model.InsertUser(ctx, user2Name, "Password1", "Sic transit gloria mundi. Tuesday is usually worse. - Robert A. Heinlein, Starman Jones")
+	user2Id, err := model.InsertUser(ctx, user2Name, "Password1", "user2@example.com", "Sic transit gloria mundi. Tuesday is usually worse. - Robert A. Heinlein, Starman Jones")
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func PopulateDb(ctx context.Context) error {
 		return err
 	}
 	user3Name := "PeculiarInvestor"
-	user3Id, err := model.InsertUser(ctx, user3Name, "Password1", `[url=https://www.finiki.org/wiki/Main_Page][img]https://www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg[/img]finiki, the Canadian financial wiki[/url] New editors wanted and welcomed, please help collaborate and improve the wiki.
+	user3Id, err := model.InsertUser(ctx, user3Name, "Password1", "user3@example.com", `[url=https://www.finiki.org/wiki/Main_Page][img]https://www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg[/img]finiki, the Canadian financial wiki[/url] New editors wanted and welcomed, please help collaborate and improve the wiki.
 
 "Normal people... believe that if it ain't broke, don't fix it. Engineers believe that if it ain't broke, it doesn't have enough features yet." - Scott Adams`)
 	if err != nil {
@@ -76,12 +76,12 @@ func PopulateDb(ctx context.Context) error {
 		return err
 	}
 	user4Name := "OnlyMyOpinion"
-	user4Id, err := model.InsertUser(ctx, user4Name, "Password1", "")
+	user4Id, err := model.InsertUser(ctx, user4Name, "Password1", "", "")
 	if err != nil {
 		return err
 	}
 	user5Name := "DenisD"
-	user5Id, err := model.InsertUser(ctx, user5Name, "Password4", "")
+	user5Id, err := model.InsertUser(ctx, user5Name, "Password4", "user5@example.com", "")
 	if err != nil {
 		return err
 	}

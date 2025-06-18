@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"net"
 	"net/http"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"phpbb-golang/examples/myforum"
@@ -353,7 +353,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while listing posts: %s", err)
 			return
 		}
-		users, err := model.ListUsers(ctx, topicId)
+		users, err := model.ListUsersOfTopic(ctx, topicId)
 		usersMap := map[int]model.User{} // Convert users from a list into a map
 		for _, user := range users {
 			usersMap[user.UserId] = user
@@ -398,23 +398,6 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 	} else if urlPath == "/user_register" {
 		// To try: http://localhost:9000/user_register
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			ip = r.RemoteAddr
-		}
-		browser := r.Header.Get("User-Agent")
-		forwardedFor := r.Header.Get("X-Forwarded-For")
-		session, err := model.CreateSession(ctx, model.GUEST_USER_ID, ip, browser, forwardedFor)
-		if err != nil {
-			logger.Errorf(ctx, "Unable to create session: %s", err)
-			return
-		}
-		session, err = model.ResumeSession(ctx, session.SessionId, ip, browser, forwardedFor)
-		if err != nil {
-			logger.Errorf(ctx, "Unable to create session: %s", err)
-			return
-		}
-		logger.Infof(ctx, "Session Id: %s", session.SessionId)
 		formErrors := []string{}
 		if httpMethod == "POST" {
 			err := r.ParseForm()
@@ -444,6 +427,20 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			if !helper.IsEmailValid(email) {
 				formErrors = append(formErrors, "The email address format is invalid.")
 			}
+			userId := model.GUEST_USER_ID
+			if len(formErrors) == 0 {
+				// Insert user into database
+				userId, err = model.InsertUser(ctx, username, new_password, email, "")
+				if err != nil {
+					if strings.Contains(err.Error(), model.DB_ERROR_UNIQUE_CONSTRAINT) {
+						formErrors = append(formErrors, "This username is already taken. Please choose a different one.")
+						// Falls through
+					} else {
+						logger.Errorf(ctx, "Error while inserting user: %s", err)
+						return
+					}
+				}
+			}
 			if len(formErrors) == 0 {
 				// Validation successful
 				fmt.Fprintf(w, "Forum submitted successfully!\n")
@@ -452,6 +449,29 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, "Confirm password: %s\n", password_confirm)
 				fmt.Fprintf(w, "Email address: %s\n", email)
 				// TODO: Handle CSRF token validation
+
+				// Create user session (for user registration and user login)
+				ip, browser, forwardedFor := helper.ExtractUserFingerprint(r)
+				session, err := model.CreateSession(ctx, userId, ip, browser, forwardedFor)
+				if err != nil {
+					logger.Errorf(ctx, "Error while creating user session: %s", err)
+					return
+				}
+				fmt.Fprintf(w, "Session id: %s\n", session.SessionId)
+				err = model.UpdateLastVisitTimeForUser(ctx, userId)
+				if err != nil {
+					logger.Errorf(ctx, "Error while updating last visit time for user id %d: %s", userId, err)
+					return
+				}
+
+				// Resume user session (for between pages)
+				sessionId := session.SessionId
+				session, err = model.ResumeSession(ctx, sessionId, ip, browser, forwardedFor)
+				if err != nil {
+					logger.Errorf(ctx, "Error while resuming user session for session id '%s': %s", sessionId, err)
+					return
+				}
+
 				return
 			} else {
 				// Fall through

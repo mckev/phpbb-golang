@@ -64,7 +64,7 @@ func DebugMyforum(ctx context.Context) {
 
 	TOPIC_ID := 3
 	logger.Infof(ctx, "Users of 'We're now powered by phpBB 3.3':")
-	users, err := model.ListUsers(ctx, TOPIC_ID)
+	users, err := model.ListUsersOfTopic(ctx, TOPIC_ID)
 	if err != nil {
 		logger.Errorf(ctx, "Error while listing users: %s", err)
 	}

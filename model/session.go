@@ -47,6 +47,12 @@ func InitSessions(ctx context.Context) error {
 }
 
 func CreateSession(ctx context.Context, userId int, ip string, browser string, forwardedFor string) (Session, error) {
+	if userId == GUEST_USER_ID {
+		return Session{}, fmt.Errorf("Guest user cannot create a Session")
+	}
+	if userId == INVALID_USER_ID {
+		return Session{}, fmt.Errorf("Invalid user cannot create a Session")
+	}
 	db := OpenDb(ctx, "sessions")
 	defer db.Close()
 	sessionId, err := helper.GenerateSessionId()
@@ -117,7 +123,7 @@ func ResumeSession(ctx context.Context, sessionId string, ip string, browser str
 		return Session{}, fmt.Errorf("Error while starting user session: Session has timed out with delta time %d seconds", currentTime-session.SessionTimeLast)
 	}
 	if session.SessionIp != ip || session.SessionBrowser != browser || session.SessionForwardedFor != forwardedFor {
-		return Session{}, fmt.Errorf("Error while starting user session: Fingerprint does not match: IP %s, Browser %s, ForwardedFor %s do not equal values in database IP %s, Browser %s, ForwardedFor %s", ip, browser, forwardedFor, session.SessionIp, session.SessionBrowser, session.SessionForwardedFor)
+		return Session{}, fmt.Errorf("Error while starting user session: User fingerprint does not match: IP %s, Browser %s, ForwardedFor %s do not equal values in database IP %s, Browser %s, ForwardedFor %s", ip, browser, forwardedFor, session.SessionIp, session.SessionBrowser, session.SessionForwardedFor)
 	}
 	err = UpdateSessionTimeLast(ctx, sessionId)
 	if err != nil {
