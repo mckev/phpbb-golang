@@ -7,11 +7,11 @@
             <div class="inner">
                 <h2>Financial Wisdom Forum - Registration</h2>
                 <fieldset class="fields2">
-                    {{ if gt (len $root.FormErrors) 0 }}
+                    {{ if gt (len $root.FormData.Errors) 0 }}
                     <dl>
                         <dd class="error">
-                            {{ range $counter, $formError := $root.FormErrors }}
-                            {{ $formError }}{{ if lt (fnAdd $counter 1) (len $root.FormErrors) }}<br />{{ end }}
+                            {{ range $counter, $error := $root.FormData.Errors }}
+                            {{ $error }}{{ if lt (fnAdd $counter 1) (len $root.FormData.Errors) }}<br />{{ end }}
                             {{ end }}
                         </dd>
                     </dl>
@@ -21,19 +21,19 @@
                     </dl>
                     <dl>
                         <dt><label for="username">Username:</label><br /><span>Length must be between 4 characters and 20 characters.</span></dt>
-                        <dd><input type="text" tabindex="1" name="username" id="username" size="25" value="" class="inputbox autowidth" title="Username" autocomplete="off" /></dd>
+                        <dd><input type="text" tabindex="1" name="username" id="username" size="25" value="{{ $root.FormData.Username }}" class="inputbox autowidth" title="Username" autocomplete="off" /></dd>
                     </dl>
                     <dl>
                         <dt><label for="new_password">Password:</label><br /><span>Password must be at least 8 characters long, must contain letters in mixed case and must contain numbers.</span></dt>
-                        <dd><input type="password" tabindex="2" name="new_password" id="new_password" size="25" value="" class="inputbox autowidth" title="New password" autocomplete="off" /></dd>
+                        <dd><input type="password" tabindex="2" name="new_password" id="new_password" size="25" value="{{ $root.FormData.NewPassword }}" class="inputbox autowidth" title="New password" autocomplete="off" /></dd>
                     </dl>
                     <dl>
                         <dt><label for="password_confirm">Confirm password:</label></dt>
-                        <dd><input type="password" tabindex="3" name="password_confirm" id="password_confirm" size="25" value="" class="inputbox autowidth" title="Confirm password" autocomplete="off" /></dd>
+                        <dd><input type="password" tabindex="3" name="password_confirm" id="password_confirm" size="25" value="{{ $root.FormData.PasswordConfirm }}" class="inputbox autowidth" title="Confirm password" autocomplete="off" /></dd>
                     </dl>
                     <dl>
                         <dt><label for="email">Email address (optional):</label></dt>
-                        <dd><input type="email" tabindex="4" name="email" id="email" size="25" maxlength="100" value="" class="inputbox autowidth" title="Email address" autocomplete="off" /></dd>
+                        <dd><input type="email" tabindex="4" name="email" id="email" size="25" maxlength="100" value="{{ $root.FormData.Email }}" class="inputbox autowidth" title="Email address" autocomplete="off" /></dd>
                     </dl>
                     <hr />
                 </fieldset>

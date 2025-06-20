@@ -398,56 +398,62 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 	} else if urlPath == "/user_register" {
 		// To try: http://localhost:9000/user_register
-		formErrors := []string{}
+		type FormData struct {
+			Username        string
+			NewPassword     string
+			PasswordConfirm string
+			Email           string
+			Errors          []string
+		}
+		formData := FormData{}
 		if httpMethod == "POST" {
 			err := r.ParseForm()
 			if err != nil {
 				logger.Errorf(ctx, "Error while parsing form upon user registration: %s", err)
 				return
 			}
-			username := r.Form.Get("username")
-			if len(username) < 4 {
-				formErrors = append(formErrors, "The username you entered is too short.")
+			formData.Username = r.Form.Get("username")
+			if len(formData.Username) < 4 {
+				formData.Errors = append(formData.Errors, "The username you entered is too short.")
 			}
-			if len(username) > 20 {
-				formErrors = append(formErrors, "The username you entered is too long.")
+			if len(formData.Username) > 20 {
+				formData.Errors = append(formData.Errors, "The username you entered is too long.")
 			}
-			new_password := r.Form.Get("new_password")
-			if len(new_password) < 8 {
-				formErrors = append(formErrors, "The password you entered is too short.")
+			formData.NewPassword = r.Form.Get("new_password")
+			if len(formData.NewPassword) < 8 {
+				formData.Errors = append(formData.Errors, "The password you entered is too short.")
 			}
-			if !helper.IsPasswordValid(new_password) {
-				formErrors = append(formErrors, "Password must be at least 8 characters long, must contain letters in mixed case and must contain numbers.")
+			if !helper.IsPasswordValid(formData.NewPassword) {
+				formData.Errors = append(formData.Errors, "Password must be at least 8 characters long, must contain letters in mixed case and must contain numbers.")
 			}
-			password_confirm := r.Form.Get("password_confirm")
-			if password_confirm != new_password {
-				formErrors = append(formErrors, "Password and confirmation do not match.")
+			formData.PasswordConfirm = r.Form.Get("password_confirm")
+			if formData.PasswordConfirm != formData.NewPassword {
+				formData.Errors = append(formData.Errors, "Password and confirmation do not match.")
 			}
-			email := r.Form.Get("email")
-			if !helper.IsEmailValid(email) {
-				formErrors = append(formErrors, "The email address format is invalid.")
+			formData.Email = r.Form.Get("email")
+			if !helper.IsEmailValid(formData.Email) {
+				formData.Errors = append(formData.Errors, "The email address format is invalid.")
 			}
 			userId := model.GUEST_USER_ID
-			if len(formErrors) == 0 {
+			if len(formData.Errors) == 0 {
 				// Insert user into database
-				userId, err = model.InsertUser(ctx, username, new_password, email, "")
+				userId, err = model.InsertUser(ctx, formData.Username, formData.NewPassword, formData.Email, "")
 				if err != nil {
 					if strings.Contains(err.Error(), model.DB_ERROR_UNIQUE_CONSTRAINT) {
-						formErrors = append(formErrors, "This username is already taken. Please choose a different one.")
-						// Falls through
+						formData.Errors = append(formData.Errors, "This username is already taken. Please choose a different one.")
 					} else {
 						logger.Errorf(ctx, "Error while inserting user: %s", err)
-						return
+						formData.Errors = append(formData.Errors, "The system is currently experiencing an issue. Please try again later.")
 					}
 				}
 			}
-			if len(formErrors) == 0 {
+			if len(formData.Errors) == 0 {
 				// Validation successful
 				fmt.Fprintf(w, "Forum submitted successfully!\n")
-				fmt.Fprintf(w, "Username: %s\n", username)
-				fmt.Fprintf(w, "Password: %s\n", new_password)
-				fmt.Fprintf(w, "Confirm password: %s\n", password_confirm)
-				fmt.Fprintf(w, "Email address: %s\n", email)
+				fmt.Fprintf(w, "Username: %s\n", formData.Username)
+				fmt.Fprintf(w, "Password: %s\n", formData.NewPassword)
+				fmt.Fprintf(w, "Confirm password: %s\n", formData.PasswordConfirm)
+				fmt.Fprintf(w, "Email address: %s\n", formData.Email)
 				// TODO: Handle CSRF token validation
 
 				// Create user session (for user registration and user login)
@@ -473,8 +479,6 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 				}
 
 				return
-			} else {
-				// Fall through
 			}
 		}
 
@@ -487,11 +491,11 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 		// Prepare data
 		type UserRegisterPageData struct {
-			FormErrors     []string
+			FormData       FormData
 			ForumNavTrails []forumhelper.ForumNavTrail
 		}
 		userRegisterPageData := UserRegisterPageData{
-			FormErrors:     formErrors,
+			FormData:       formData,
 			ForumNavTrails: []forumhelper.ForumNavTrail{},
 		}
 
