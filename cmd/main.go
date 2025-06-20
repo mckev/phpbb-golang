@@ -457,7 +457,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 				formData.Errors = append(formData.Errors, "Password and confirmation do not match.")
 			}
 			formData.Email = r.Form.Get("email")
-			if !helper.IsEmailValid(formData.Email) {
+			if formData.Email != "" && !helper.IsEmailValid(formData.Email) {
 				formData.Errors = append(formData.Errors, "The email address format is invalid.")
 			}
 			userId := model.GUEST_USER_ID

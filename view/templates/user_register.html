@@ -2,7 +2,7 @@
 {{ $root := . }}
 <div id="page-body" class="page-body" role="main">
 
-    <form id="register" method="post" action='{{ fnUrlWithSID "./user_register" $root.SessionId }}'>
+    <form action='{{ fnUrlWithSID "./user_register" $root.SessionId }}' method="post" id="register">
         <div class="panel">
             <div class="inner">
                 <h2>Financial Wisdom Forum - Registration</h2>
@@ -21,7 +21,7 @@
                     </dl>
                     <dl>
                         <dt><label for="username">Username:</label><br /><span>Length must be between 4 characters and 20 characters.</span></dt>
-                        <dd><input type="text" tabindex="1" name="username" id="username" size="25" value="{{ $root.FormData.Username }}" class="inputbox autowidth" title="Username" autocomplete="off" /></dd>
+                        <dd><input type="text" tabindex="1" name="username" id="username" size="25" value="{{ $root.FormData.Username }}" class="inputbox autowidth" title="Username" autocomplete="off" autofocus /></dd>
                     </dl>
                     <dl>
                         <dt><label for="new_password">Password:</label><br /><span>Password must be at least 8 characters long, must contain letters in mixed case and must contain numbers.</span></dt>
