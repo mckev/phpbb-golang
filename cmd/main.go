@@ -24,6 +24,21 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	logger.Debugf(ctx, "%s %s", httpMethod, urlPath)
 
+	// Session
+	sessionId := queryParams.Get("sid")
+	session := model.Session{}
+	if sessionId != "" {
+		// Resume user session (for between pages)
+		ip, browser, forwardedFor := helper.ExtractUserFingerprint(r)
+		var err error
+		session, err = model.ResumeSession(ctx, sessionId, ip, browser, forwardedFor)
+		if err != nil {
+			logger.Debugf(ctx, "Error while resuming user session for session id '%s': %s", sessionId, err)
+			session = model.Session{}
+			// Falls through
+		}
+	}
+
 	// Template Functions
 	funcMap := template.FuncMap{
 		"fnAdd": func(x, y int) int {
@@ -31,6 +46,9 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		},
 		"fnUnixTimeToStr": func(unixTime int64) string {
 			return helper.UnixTimeToStr(unixTime)
+		},
+		"fnUrlWithSID": func(rawUrl string, sessionId string) string {
+			return helper.UrlWithSID(rawUrl, sessionId)
 		},
 		"fnBbcodeToHtml": func(bbcodeStr string) template.HTML {
 			// To print raw, unescaped HTML within a Go HTML template, the html/template package provides the template.HTML type. By converting a string containing HTML to template.HTML, you can instruct the template engine to render it as raw HTML instead of escaping it for safe output.
@@ -61,11 +79,13 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		type MainPageData struct {
 			CurrentTime     int64
 			ForumChildNodes []forumhelper.ForumNode
+			SessionId       string
 			ForumNavTrails  []forumhelper.ForumNavTrail
 		}
 		forumsPageData := MainPageData{
 			CurrentTime:     currentTime,
 			ForumChildNodes: forumChildNodes,
+			SessionId:       session.SessionId,
 			ForumNavTrails:  []forumhelper.ForumNavTrail{},
 		}
 
@@ -229,11 +249,13 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		type ForumsPageData struct {
 			Forum           model.Forum
 			ForumChildNodes []forumhelper.ForumNode
+			SessionId       string
 			ForumNavTrails  []forumhelper.ForumNavTrail
 		}
 		forumsPageData := ForumsPageData{
 			Forum:           forum,
 			ForumChildNodes: forumChildNodes,
+			SessionId:       session.SessionId,
 			ForumNavTrails:  forumNavTrails,
 		}
 
@@ -290,14 +312,16 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		type TopicsPageData struct {
 			Forum            model.Forum
 			TopicsWithInfo   []TopicWithInfo
-			ForumNavTrails   []forumhelper.ForumNavTrail
 			TopicPaginations []forumhelper.Pagination
+			SessionId        string
+			ForumNavTrails   []forumhelper.ForumNavTrail
 		}
 		topicsPageData := TopicsPageData{
 			Forum:            forum,
 			TopicsWithInfo:   topicsWithInfo,
-			ForumNavTrails:   forumNavTrails,
 			TopicPaginations: topicPaginations,
+			SessionId:        session.SessionId,
+			ForumNavTrails:   forumNavTrails,
 		}
 
 		// Execute template
@@ -370,16 +394,18 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			Topic          model.Topic
 			Posts          []model.Post
 			UsersMap       map[int]model.User
-			ForumNavTrails []forumhelper.ForumNavTrail
 			Paginations    []forumhelper.Pagination
+			SessionId      string
+			ForumNavTrails []forumhelper.ForumNavTrail
 		}
 		postsPageData := PostsPageData{
 			Forum:          forum,
 			Topic:          topic,
 			Posts:          posts,
 			UsersMap:       usersMap,
-			ForumNavTrails: forumNavTrails,
 			Paginations:    paginations,
+			SessionId:      session.SessionId,
+			ForumNavTrails: forumNavTrails,
 		}
 
 		// Execute template
@@ -449,35 +475,44 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			}
 			if len(formData.Errors) == 0 {
 				// Validation successful
-				fmt.Fprintf(w, "Forum submitted successfully!\n")
-				fmt.Fprintf(w, "Username: %s\n", formData.Username)
-				fmt.Fprintf(w, "Password: %s\n", formData.NewPassword)
-				fmt.Fprintf(w, "Confirm password: %s\n", formData.PasswordConfirm)
-				fmt.Fprintf(w, "Email address: %s\n", formData.Email)
+				// fmt.Fprintf(w, "Forum submitted successfully!\n")
+				// fmt.Fprintf(w, "Username: %s\n", formData.Username)
+				// fmt.Fprintf(w, "Password: %s\n", formData.NewPassword)
+				// fmt.Fprintf(w, "Confirm password: %s\n", formData.PasswordConfirm)
+				// fmt.Fprintf(w, "Email address: %s\n", formData.Email)
 				// TODO: Handle CSRF token validation
 
 				// Create user session (for user registration and user login)
 				ip, browser, forwardedFor := helper.ExtractUserFingerprint(r)
-				session, err := model.CreateSession(ctx, userId, ip, browser, forwardedFor)
+				session, err = model.CreateSession(ctx, userId, ip, browser, forwardedFor)
 				if err != nil {
 					logger.Errorf(ctx, "Error while creating user session: %s", err)
 					return
 				}
-				fmt.Fprintf(w, "Session id: %s\n", session.SessionId)
 				err = model.UpdateLastVisitTimeForUser(ctx, userId)
 				if err != nil {
 					logger.Errorf(ctx, "Error while updating last visit time for user id %d: %s", userId, err)
 					return
 				}
 
-				// Resume user session (for between pages)
-				sessionId := session.SessionId
-				session, err = model.ResumeSession(ctx, sessionId, ip, browser, forwardedFor)
+				templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/user_register_created.html")
 				if err != nil {
-					logger.Errorf(ctx, "Error while resuming user session for session id '%s': %s", sessionId, err)
+					logger.Errorf(ctx, "Error while parsing user register created template files: %s", err)
 					return
 				}
-
+				type UserRegisterPageData struct {
+					SessionId      string
+					ForumNavTrails []forumhelper.ForumNavTrail
+				}
+				userRegisterPageData := UserRegisterPageData{
+					SessionId:      session.SessionId,
+					ForumNavTrails: []forumhelper.ForumNavTrail{},
+				}
+				err = templateOutput.ExecuteTemplate(w, "overall", userRegisterPageData)
+				if err != nil {
+					logger.Errorf(ctx, "Error while executing user register created template: %s", err)
+					return
+				}
 				return
 			}
 		}
@@ -485,24 +520,26 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		// Prepare template files
 		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/user_register.html")
 		if err != nil {
-			logger.Errorf(ctx, "Error while parsing user registration template files: %s", err)
+			logger.Errorf(ctx, "Error while parsing user register template files: %s", err)
 			return
 		}
 
 		// Prepare data
 		type UserRegisterPageData struct {
 			FormData       FormData
+			SessionId      string
 			ForumNavTrails []forumhelper.ForumNavTrail
 		}
 		userRegisterPageData := UserRegisterPageData{
 			FormData:       formData,
+			SessionId:      session.SessionId,
 			ForumNavTrails: []forumhelper.ForumNavTrail{},
 		}
 
 		// Execute template
 		err = templateOutput.ExecuteTemplate(w, "overall", userRegisterPageData)
 		if err != nil {
-			logger.Errorf(ctx, "Error while executing user registration template: %s", err)
+			logger.Errorf(ctx, "Error while executing user register template: %s", err)
 			return
 		}
 

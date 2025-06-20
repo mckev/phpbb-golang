@@ -1,0 +1,15 @@
+{{ define "body" }}
+{{ $root := . }}
+<div id="page-body" class="page-body" role="main">
+    <div class="panel" id="message">
+        <div class="inner">
+            <h2 class="message-title">Information</h2>
+            <p>
+                Your account has now been created. Thank you for registering.<br />
+                <br />
+                <a href='{{ fnUrlWithSID "./" $root.SessionId }}'>Return to the index page</a>
+            </p>
+        </div>
+    </div>
+</div>
+{{ end }}

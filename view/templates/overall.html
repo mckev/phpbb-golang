@@ -30,7 +30,7 @@
             <div class="headerbar" role="banner">
                 <div class="inner">
                     <div id="site-description" class="site-description">
-                        <a id="logo" class="logo" href="./" title="Board index">
+                        <a id="logo" class="logo" href='{{ fnUrlWithSID "./" $root.SessionId }}' title="Board index">
                             <span class="site_logo"></span>
                         </a>
                         <h1>My Forum</h1>
@@ -88,7 +88,7 @@
                             </a>
                         </li>
                         <li class="rightside" data-skip-responsive="true">
-                            <a href="./ucp.php?mode=register&amp;sid=16b0d49d7062ba91d398d249acdd580f" role="menuitem">
+                            <a href='{{ fnUrlWithSID "./user_register" $root.SessionId }}' role="menuitem">
                                 <i class="icon fa-pencil-square-o  fa-fw" aria-hidden="true"></i><span>Register</span>
                             </a>
                         </li>
@@ -97,16 +97,16 @@
                     <ul id="nav-breadcrumbs" class="nav-breadcrumbs linklist navlinks" role="menubar">
                         <li class="breadcrumbs" itemscope itemtype="https://schema.org/BreadcrumbList">
                             <span class="crumb" itemtype="https://schema.org/ListItem" itemprop="itemListElement" itemscope>
-                                <a itemprop="item" href="./" accesskey="h" data-navbar-reference="index"><i class="icon fa-home fa-fw"></i><span itemprop="name">Board index</span></a>
+                                <a itemprop="item" href='{{ fnUrlWithSID "./" $root.SessionId }}' accesskey="h" data-navbar-reference="index"><i class="icon fa-home fa-fw"></i><span itemprop="name">Board index</span></a>
                                 <meta itemprop="position" content="1" />
                             </span>
                             {{ $forumNavCounter := 2 }}
                             {{ range $forumNavTrail := $root.ForumNavTrails }}
                             <span class="crumb" itemtype="https://schema.org/ListItem" itemprop="itemListElement" itemscope data-forum-id="{{ $forumNavTrail.Forum.ForumId }}">
                                 {{ if $forumNavTrail.IsLeaf }}
-                                <a itemprop="item" href="./topics?f={{ $forumNavTrail.Forum.ForumId }}"><span itemprop="name">{{ $forumNavTrail.Forum.ForumName }} </span></a>
+                                <a itemprop="item" href='{{ fnUrlWithSID (printf "./topics?f=%d" $forumNavTrail.Forum.ForumId) $root.SessionId }}'><span itemprop="name">{{ $forumNavTrail.Forum.ForumName }} </span></a>
                                 {{ else }}
-                                <a itemprop="item" href="./forums?f={{ $forumNavTrail.Forum.ForumId }}"><span itemprop="name">{{ $forumNavTrail.Forum.ForumName }} </span></a>
+                                <a itemprop="item" href='{{ fnUrlWithSID (printf "./forums?f=%d" $forumNavTrail.Forum.ForumId) $root.SessionId }}'><span itemprop="name">{{ $forumNavTrail.Forum.ForumName }} </span></a>
                                 {{ end }}
                                 <meta itemprop="position" content="{{ $forumNavCounter }}" />
                             </span>
@@ -128,7 +128,7 @@
                     <ul id="nav-footer" class="nav-footer linklist" role="menubar">
                         <li class="breadcrumbs">
                             <span class="crumb">
-                                <a href="./" data-navbar-reference="index"><i class="icon fa-home fa-fw" aria-hidden="true"></i><span>Board index</span></a>
+                                <a href='{{ fnUrlWithSID "./" $root.SessionId }}' data-navbar-reference="index"><i class="icon fa-home fa-fw" aria-hidden="true"></i><span>Board index</span></a>
                             </span>
                         </li>
                         <li class="rightside">All times are <span title="Etc/UTC">UTC</span></li>

@@ -12,7 +12,7 @@
                 <li class="header">
                     <dl class="row-item">
                         <dt>
-                            <div class="list-inner"><a href="./forums?f={{ $forumNode.Forum.ForumId }}">{{ $forumNode.Forum.ForumName }}</a></div>
+                            <div class="list-inner"><a href='{{ fnUrlWithSID (printf "./forums?f=%d" $forumNode.Forum.ForumId) $root.SessionId }}'>{{ $forumNode.Forum.ForumName }}</a></div>
                         </dt>
                         <dd class="topics">Topics</dd>
                         <dd class="posts">Posts</dd>
@@ -30,19 +30,20 @@
                         <dt title="No unread posts">
                             <div class="list-inner">
                                 {{ if $forumNode.IsLeaf }}
-                                <a href="./topics?f={{ $forumNode.Forum.ForumId }}" class="forumtitle">{{ $forumNode.Forum.ForumName }}</a>
+                                <a href='{{ fnUrlWithSID (printf "./topics?f=%d" $forumNode.Forum.ForumId) $root.SessionId }}' class="forumtitle">{{ $forumNode.Forum.ForumName }}</a>
                                 {{ else }}
-                                <a href="./forums?f={{ $forumNode.Forum.ForumId }}" class="forumtitle">{{ $forumNode.Forum.ForumName }}</a>
+                                <a href='{{ fnUrlWithSID (printf "./forums?f=%d" $forumNode.Forum.ForumId) $root.SessionId }}' class="forumtitle">{{ $forumNode.Forum.ForumName }}</a>
                                 {{ end }}
                                 <br />{{ $forumNode.Forum.ForumDesc }}
 
                                 {{ if gt (len $forumNode.ForumChildNodes) 0 }}
                                 <br /><strong>Subforums:</strong>
+                                {{ $subforumLen := len $forumNode.ForumChildNodes }}
                                 {{ range $counter, $forumNode := $forumNode.ForumChildNodes }}
                                 {{ if $forumNode.IsLeaf }}
-                                <a href="./topics?f={{ $forumNode.Forum.ForumId }}" class="subforum read" title="No unread posts"><i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>{{ $forumNode.Forum.ForumName }}</a>{{ if lt (fnAdd $counter 1) (len $forumNode.ForumChildNodes) }},{{ end }}
+                                <a href='{{ fnUrlWithSID (printf "./topics?f=%d" $forumNode.Forum.ForumId) $root.SessionId }}' class="subforum read" title="No unread posts"><i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>{{ $forumNode.Forum.ForumName }}</a>{{ if lt (fnAdd $counter 1) $subforumLen }},{{ end }}
                                 {{ else }}
-                                <a href="./forums?f={{ $forumNode.Forum.ForumId }}" class="subforum read" title="No unread posts"><i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>{{ $forumNode.Forum.ForumName }}</a>{{ if lt (fnAdd $counter 1) (len $forumNode.ForumChildNodes) }},{{ end }}
+                                <a href='{{ fnUrlWithSID (printf "./forums?f=%d" $forumNode.Forum.ForumId) $root.SessionId }}' class="subforum read" title="No unread posts"><i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>{{ $forumNode.Forum.ForumName }}</a>{{ if lt (fnAdd $counter 1) $subforumLen }},{{ end }}
                                 {{ end }}
                                 {{ end }}
                                 {{ end }}
@@ -58,8 +59,8 @@
                             {{ if ne $forumNode.Forum.ForumLastPostId 0 }}
                             <span>
                                 <dfn>Last post</dfn>
-                                <a href="./posts?p={{ $forumNode.Forum.ForumLastPostId }}#p{{ $forumNode.Forum.ForumLastPostId }}" title="{{ $forumNode.Forum.ForumLastPostSubject }}" class="lastsubject">{{ $forumNode.Forum.ForumLastPostSubject }}</a> <br />
-                                by <a href="./memberlist.php?mode=viewprofile&amp;u={{ $forumNode.Forum.ForumLastPostUserId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162" class="username">{{ $forumNode.Forum.ForumLastPostUserName }}</a> <a href="./posts?p={{ $forumNode.Forum.ForumLastPostId }}#p{{ $forumNode.Forum.ForumLastPostId }}" title="View the latest post">
+                                <a href='{{ fnUrlWithSID (printf "./posts?p=%d#p%d" $forumNode.Forum.ForumLastPostId $forumNode.Forum.ForumLastPostId) $root.SessionId }}' title="{{ $forumNode.Forum.ForumLastPostSubject }}" class="lastsubject">{{ $forumNode.Forum.ForumLastPostSubject }}</a> <br />
+                                by <a href="./memberlist.php?mode=viewprofile&amp;u={{ $forumNode.Forum.ForumLastPostUserId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162" class="username">{{ $forumNode.Forum.ForumLastPostUserName }}</a> <a href='{{ fnUrlWithSID (printf "./posts?p=%d#p%d" $forumNode.Forum.ForumLastPostId $forumNode.Forum.ForumLastPostId) $root.SessionId }}' title="View the latest post">
                                     <i class="icon fa-external-link-square fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">View the latest post</span>
                                 </a>
                                 <br /><time datetime="{{ $forumNode.Forum.ForumLastPostTime }}">{{ $forumNode.Forum.ForumLastPostTime | fnUnixTimeToStr }}</time>
@@ -77,7 +78,7 @@
     <!-- Login, Register, Who is online, Statistics -->
     <form method="post" action="./ucp.php?mode=login&amp;sid=737e81ca3b461a841614ced308b629c6" class="headerspace">
         <h3>
-            <a href="./ucp.php?mode=login&amp;redirect=index.php&amp;sid=737e81ca3b461a841614ced308b629c6">Login</a>&nbsp; &bull; &nbsp;<a href="./ucp.php?mode=register&amp;sid=737e81ca3b461a841614ced308b629c6">Register</a>
+            <a href="./ucp.php?mode=login&amp;redirect=index.php&amp;sid=737e81ca3b461a841614ced308b629c6">Login</a>&nbsp; &bull; &nbsp;<a href='{{ fnUrlWithSID "./user_register" $root.SessionId }}'>Register</a>
         </h3>
         <fieldset class="quick-login">
             <label for="username"><span>Username:</span> <input type="text" tabindex="1" name="username" id="username" size="10" class="inputbox" title="Username" autocomplete="username" /></label>
@@ -85,7 +86,7 @@
             <a href="/forum/user/forgot_password?sid=737e81ca3b461a841614ced308b629c6">I forgot my password</a>
             <span class="responsive-hide">|</span> <label for="autologin">Remember me <input type="checkbox" tabindex="4" name="autologin" id="autologin" /></label>
             <input type="submit" tabindex="5" name="login" value="Login" class="button2" />
-            <input type="hidden" name="redirect" value="./index.php?sid=737e81ca3b461a841614ced308b629c6" />
+            <input type="hidden" name="redirect" value='{{ fnUrlWithSID "./" $root.SessionId }}' />
             <input type="hidden" name="creation_time" value="1746169723" />
             <input type="hidden" name="form_token" value="a3d9a8471f9010931c7ee103c1cb67b5bb38e3e0" />
         </fieldset>

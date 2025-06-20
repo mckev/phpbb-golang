@@ -4,7 +4,7 @@
 
     <!-- Topic title -->
     {{ $topic := $root.Topic }}
-    <h2 class="topic-title"><a href="./posts?t={{ $topic.TopicId }}">{{ $topic.TopicTitle }}</a></h2>
+    <h2 class="topic-title"><a href='{{ fnUrlWithSID (printf "./posts?t=%d" $topic.TopicId) $root.SessionId }}'>{{ $topic.TopicTitle }}</a></h2>
 
     <div class="action-bar bar-top">
         <a href="./posting.php?mode=reply&amp;t={{ $topic.TopicId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="button" title="Post a reply">
@@ -16,15 +16,15 @@
             <ul>
                 {{ range $pagination := $root.Paginations }}
                 {{ if eq $pagination.PaginationType "PaginationTypeArrowPrevious" }}
-                <li class="arrow previous"><a class="button button-icon-only" href="./posts?t={{ $topic.TopicId }}&amp;start={{ $pagination.StartItem }}" rel="prev" role="button"><i class="icon fa-chevron-left fa-fw" aria-hidden="true"></i><span class="sr-only">Previous</span></a></li>
+                <li class="arrow previous"><a class="button button-icon-only" href='{{ fnUrlWithSID (printf "./posts?t=%d&start=%d" $topic.TopicId $pagination.StartItem) $root.SessionId }}' rel="prev" role="button"><i class="icon fa-chevron-left fa-fw" aria-hidden="true"></i><span class="sr-only">Previous</span></a></li>
                 {{ else if eq $pagination.PaginationType "PaginationTypePage" }}
-                <li><a class="button" href="./posts?t={{ $topic.TopicId }}&amp;start={{ $pagination.StartItem }}" role="button">{{ $pagination.PageNumber }}</a></li>
+                <li><a class="button" href='{{ fnUrlWithSID (printf "./posts?t=%d&start=%d" $topic.TopicId $pagination.StartItem) $root.SessionId }}' role="button">{{ $pagination.PageNumber }}</a></li>
                 {{ else if eq $pagination.PaginationType "PaginationTypeCurrentPage" }}
                 <li class="active"><span>{{ $pagination.PageNumber }}</span></li>
                 {{ else if eq $pagination.PaginationType "PaginationTypeSeparator" }}
                 <li class="ellipsis" role="separator"><span>…</span></li>
                 {{ else if eq $pagination.PaginationType "PaginationTypeArrowNext" }}
-                <li class="arrow next"><a class="button button-icon-only" href="./posts?t={{ $topic.TopicId }}&amp;start={{ $pagination.StartItem }}" rel="next" role="button"><i class="icon fa-chevron-right fa-fw" aria-hidden="true"></i><span class="sr-only">Next</span></a></li>
+                <li class="arrow next"><a class="button button-icon-only" href='{{ fnUrlWithSID (printf "./posts?t=%d&start=%d" $topic.TopicId $pagination.StartItem) $root.SessionId }}' rel="next" role="button"><i class="icon fa-chevron-right fa-fw" aria-hidden="true"></i><span class="sr-only">Next</span></a></li>
                 {{ end }}
                 {{ end }}
             </ul>
@@ -53,7 +53,7 @@
             <div class="postbody">
                 <div id="post_content{{ $post.PostId }}">
                     <h3 class="first">
-                        <a href="./posts?p={{ $post.PostId }}#p{{ $post.PostId }}">{{ $post.PostSubject }}</a>
+                        <a href='{{ fnUrlWithSID (printf "./posts?p=%d#p%d" $post.PostId $post.PostId) $root.SessionId }}'>{{ $post.PostSubject }}</a>
                     </h3>
                     <ul class="post-buttons">
                         <li>
@@ -68,7 +68,7 @@
                         </li>
                     </ul>
                     <p class="author">
-                        <a class="unread" href="./posts?p={{ $post.PostId }}#p{{ $post.PostId }}" title="Post">
+                        <a class="unread" href='{{ fnUrlWithSID (printf "./posts?p=%d#p%d" $post.PostId $post.PostId) $root.SessionId }}' title="Post">
                             <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">Post</span>
                         </a>
                         <span class="responsive-hide">by <strong><a href="./memberlist.php?mode=viewprofile&amp;u={{ $user.UserId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">{{ $user.UserName }}</a></strong> &raquo; </span><time>{{ $post.PostTime | fnUnixTimeToStr }}</time>
@@ -105,15 +105,15 @@
             <ul>
                 {{ range $pagination := $root.Paginations }}
                 {{ if eq $pagination.PaginationType "PaginationTypeArrowPrevious" }}
-                <li class="arrow previous"><a class="button button-icon-only" href="./posts?t={{ $topic.TopicId }}&amp;start={{ $pagination.StartItem }}" rel="prev" role="button"><i class="icon fa-chevron-left fa-fw" aria-hidden="true"></i><span class="sr-only">Previous</span></a></li>
+                <li class="arrow previous"><a class="button button-icon-only" href='{{ fnUrlWithSID (printf "./posts?t=%d&start=%d" $topic.TopicId $pagination.StartItem) $root.SessionId }}' rel="prev" role="button"><i class="icon fa-chevron-left fa-fw" aria-hidden="true"></i><span class="sr-only">Previous</span></a></li>
                 {{ else if eq $pagination.PaginationType "PaginationTypePage" }}
-                <li><a class="button" href="./posts?t={{ $topic.TopicId }}&amp;start={{ $pagination.StartItem }}" role="button">{{ $pagination.PageNumber }}</a></li>
+                <li><a class="button" href='{{ fnUrlWithSID (printf "./posts?t=%d&start=%d" $topic.TopicId $pagination.StartItem) $root.SessionId }}' role="button">{{ $pagination.PageNumber }}</a></li>
                 {{ else if eq $pagination.PaginationType "PaginationTypeCurrentPage" }}
                 <li class="active"><span>{{ $pagination.PageNumber }}</span></li>
                 {{ else if eq $pagination.PaginationType "PaginationTypeSeparator" }}
                 <li class="ellipsis" role="separator"><span>…</span></li>
                 {{ else if eq $pagination.PaginationType "PaginationTypeArrowNext" }}
-                <li class="arrow next"><a class="button button-icon-only" href="./posts?t={{ $topic.TopicId }}&amp;start={{ $pagination.StartItem }}" rel="next" role="button"><i class="icon fa-chevron-right fa-fw" aria-hidden="true"></i><span class="sr-only">Next</span></a></li>
+                <li class="arrow next"><a class="button button-icon-only" href='{{ fnUrlWithSID (printf "./posts?t=%d&start=%d" $topic.TopicId $pagination.StartItem) $root.SessionId }}' rel="next" role="button"><i class="icon fa-chevron-right fa-fw" aria-hidden="true"></i><span class="sr-only">Next</span></a></li>
                 {{ end }}
                 {{ end }}
             </ul>
@@ -126,7 +126,7 @@
     <div class="action-bar actions-jump">
         <p class="jumpbox-return">
             {{ $forum := $root.Forum }}
-            <a href="./topics?f={{ $forum.ForumId }}" class="left-box arrow-left" accesskey="r">
+            <a href='{{ fnUrlWithSID (printf "./topics?f=%d" $forum.ForumId) $root.SessionId }}' class="left-box arrow-left" accesskey="r">
                 <i class="icon fa-angle-left fa-fw icon-black" aria-hidden="true"></i><span>Return to "{{ $forum.ForumName }}"</span>
             </a>
         </p>
