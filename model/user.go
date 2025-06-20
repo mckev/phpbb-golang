@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -170,6 +171,22 @@ func UpdateLastVisitTimeForUser(ctx context.Context, userId int) error {
 		return fmt.Errorf("No rows were updated while updating the last visit time for user id %d", userId)
 	}
 	return nil
+}
+
+func GetUserForLogin(ctx context.Context, userName string) (User, error) {
+	// WARNING: As this function returns sensitive information such as hashed password of user, please use this function for login validation only
+	db := OpenDb(ctx, "users")
+	defer db.Close()
+	row := db.QueryRow("SELECT user_id, user_name, user_password_hashed FROM users WHERE user_name = $1", userName)
+	var user User
+	if err := row.Scan(&user.UserId, &user.UserName, &user.UserPasswordHashed); err != nil {
+		if err == sql.ErrNoRows {
+			// No result found
+			return User{}, fmt.Errorf("Error while retrieving user name '%s' on users table: %s: No result found", userName, DB_ERROR_NO_RESULT)
+		}
+		return User{}, fmt.Errorf("Error while scanning row on users table for user name '%s': %s", userName, err)
+	}
+	return user, nil
 }
 
 func ListUsersOfTopic(ctx context.Context, topicId int) ([]User, error) {

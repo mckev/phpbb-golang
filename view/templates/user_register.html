@@ -5,7 +5,7 @@
     <form action='{{ fnUrlWithSID "./user_register" $root.SessionId }}' method="post" id="register">
         <div class="panel">
             <div class="inner">
-                <h2>Financial Wisdom Forum - Registration</h2>
+                <h2>Registration</h2>
                 <fieldset class="fields2">
                     {{ if gt (len $root.FormData.Errors) 0 }}
                     <dl>

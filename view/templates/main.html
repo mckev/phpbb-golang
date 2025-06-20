@@ -76,9 +76,9 @@
     {{ end }}
 
     <!-- Login, Register, Who is online, Statistics -->
-    <form method="post" action="./ucp.php?mode=login&amp;sid=737e81ca3b461a841614ced308b629c6" class="headerspace">
+    <form method="post" action='{{ fnUrlWithSID "./user_login" $root.SessionId }}' class="headerspace">
         <h3>
-            <a href="./ucp.php?mode=login&amp;redirect=index.php&amp;sid=737e81ca3b461a841614ced308b629c6">Login</a>&nbsp; &bull; &nbsp;<a href='{{ fnUrlWithSID "./user_register" $root.SessionId }}'>Register</a>
+            <a href='{{ fnUrlWithSID "./user_login" $root.SessionId }}'>Login</a>&nbsp; &bull; &nbsp;<a href='{{ fnUrlWithSID "./user_register" $root.SessionId }}'>Register</a>
         </h3>
         <fieldset class="quick-login">
             <label for="username"><span>Username:</span> <input type="text" tabindex="1" name="username" id="username" size="10" class="inputbox" title="Username" autocomplete="username" /></label>
@@ -86,9 +86,8 @@
             <a href="/forum/user/forgot_password?sid=737e81ca3b461a841614ced308b629c6">I forgot my password</a>
             <span class="responsive-hide">|</span> <label for="autologin">Remember me <input type="checkbox" tabindex="4" name="autologin" id="autologin" /></label>
             <input type="submit" tabindex="5" name="login" value="Login" class="button2" />
-            <input type="hidden" name="redirect" value='{{ fnUrlWithSID "./" $root.SessionId }}' />
-            <input type="hidden" name="creation_time" value="1746169723" />
-            <input type="hidden" name="form_token" value="a3d9a8471f9010931c7ee103c1cb67b5bb38e3e0" />
+            <input type="hidden" name="redirect" value="./" />
+            <input type="hidden" name="csrf_token" value="a3d9a8471f9010931c7ee103c1cb67b5bb38e3e0" />
         </fieldset>
     </form>
     <div class="stat-block online-list">

@@ -97,7 +97,7 @@ func GetSession(ctx context.Context, sessionId string) (Session, error) {
 	if err := row.Scan(&session.SessionId, &session.SessionUserId, &session.SessionTimeStart, &session.SessionTimeLast, &session.SessionIp, &session.SessionBrowser, &session.SessionForwardedFor); err != nil {
 		if err == sql.ErrNoRows {
 			// No result found
-			return Session{}, fmt.Errorf("Error while retrieving session id '%s' on sessions table: No result found", sessionId)
+			return Session{}, fmt.Errorf("Error while retrieving session id '%s' on sessions table: %s: No result found", sessionId, DB_ERROR_NO_RESULT)
 		}
 		return Session{}, fmt.Errorf("Error while scanning row on sessions table for session id '%s': %s", sessionId, err)
 	}
