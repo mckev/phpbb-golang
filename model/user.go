@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"phpbb-golang/internal/helper"
@@ -103,6 +104,16 @@ func InitUsers(ctx context.Context) error {
 }
 
 func InsertUser(ctx context.Context, userName string, userPassword string, userEmail string, userSig string) (int, error) {
+	// Check that user (lowercase) does not exist on database
+	isExists, err := CheckIfUserExists(ctx, userName)
+	if err != nil {
+		return INVALID_USER_ID, fmt.Errorf("Error while inserting user name '%s' into users table: %s", userName, err)
+	}
+	if isExists {
+		return INVALID_USER_ID, fmt.Errorf("Error while inserting user name '%s' into users table: %s: User already exists", userName, DB_ERROR_UNIQUE_CONSTRAINT)
+	}
+
+	// Proceed to insert user on database
 	db := OpenDb(ctx, "users")
 	defer db.Close()
 	salt, err := helper.GenerateRandomBytesInHex(8)
@@ -173,11 +184,22 @@ func UpdateLastVisitTimeForUser(ctx context.Context, userId int) error {
 	return nil
 }
 
+func CheckIfUserExists(ctx context.Context, userName string) (bool, error) {
+	db := OpenDb(ctx, "users")
+	defer db.Close()
+	var isExists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE LOWER(user_name) = $1)", strings.ToLower(userName)).Scan(&isExists)
+	if err != nil {
+		return false, fmt.Errorf("Error while checking if user name '%s' exists on users table: %s", userName, err)
+	}
+	return isExists, nil
+}
+
 func GetUserForLogin(ctx context.Context, userName string) (User, error) {
 	// WARNING: As this function returns sensitive information such as hashed password of user, please use this function for login validation only
 	db := OpenDb(ctx, "users")
 	defer db.Close()
-	row := db.QueryRow("SELECT user_id, user_name, user_password_hashed FROM users WHERE user_name = $1", userName)
+	row := db.QueryRow("SELECT user_id, user_name, user_password_hashed FROM users WHERE LOWER(user_name) = $1", strings.ToLower(userName))
 	var user User
 	if err := row.Scan(&user.UserId, &user.UserName, &user.UserPasswordHashed); err != nil {
 		if err == sql.ErrNoRows {

@@ -103,9 +103,9 @@ func CountPostCurItem(ctx context.Context, topicId int, postId int) (int, error)
 	// 0 <= curItem < totalItems
 	db := OpenDb(ctx, "posts")
 	defer db.Close()
-	row := db.QueryRow("SELECT COUNT(*) AS cur_item FROM posts WHERE topic_id = $1 AND post_id < $2", topicId, postId)
 	var curItem int
-	if err := row.Scan(&curItem); err != nil {
+	err := db.QueryRow("SELECT COUNT(*) AS cur_item FROM posts WHERE topic_id = $1 AND post_id < $2", topicId, postId).Scan(&curItem)
+	if err != nil {
 		return 0, fmt.Errorf("Error while counting current item on topic id %d for post id %d: %s", topicId, postId, err)
 	}
 	return curItem, nil

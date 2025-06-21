@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	DB_ERROR_NO_RESULT         = "DB_NO_RESULT"
-	DB_ERROR_UNIQUE_CONSTRAINT = "DB_ERROR_UNIQUE_CONSTRAINT"
+	DB_ERROR_NO_RESULT         = "[DB_ERROR_NO_RESULT]"
+	DB_ERROR_UNIQUE_CONSTRAINT = "[DB_ERROR_UNIQUE_CONSTRAINT]"
 )
 
 func OpenDb(ctx context.Context, tableName string) *sql.DB {

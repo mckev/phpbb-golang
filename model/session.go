@@ -34,7 +34,7 @@ func InitSessions(ctx context.Context) error {
 	sql := `CREATE TABLE sessions (
 		session_id char(32) PRIMARY KEY NOT NULL,
 		session_user_id INT(10) NOT NULL DEFAULT '0',
-		session_user_name VARCHAR(255) UNIQUE NOT NULL DEFAULT '',
+		session_user_name VARCHAR(255) NOT NULL DEFAULT '',
 		session_time_start INT(11) NOT NULL DEFAULT '0',
 		session_time_last INT(11) NOT NULL DEFAULT '0',
 		session_ip VARCHAR(40) NOT NULL DEFAULT '',
@@ -55,6 +55,9 @@ func CreateSession(ctx context.Context, userId int, userName string, ip string, 
 	}
 	if userId == INVALID_USER_ID {
 		return Session{}, fmt.Errorf("Invalid user cannot create a Session")
+	}
+	if userName == "" {
+		return Session{}, fmt.Errorf("Empty username cannot create a Session")
 	}
 	db := OpenDb(ctx, "sessions")
 	defer db.Close()
@@ -115,23 +118,23 @@ func ResumeSession(ctx context.Context, sessionId string, ip string, browser str
 	//   - 0 <= CurrentTime-SessionTimeLast < SESSION_TIMEOUT_IN_SECONDS
 	//   - IP, Browser and ForwardedFor matched.
 	if !helper.IsSessionIdValid(sessionId) {
-		return Session{}, fmt.Errorf("Error while starting user session: Session id '%s' is not valid", sessionId)
+		return Session{}, fmt.Errorf("Error while resuming user session: Session id '%s' is not valid", sessionId)
 	}
 	session, err := GetSession(ctx, sessionId)
 	if err != nil {
-		return Session{}, fmt.Errorf("Error while starting user session: %s", err)
+		return Session{}, fmt.Errorf("Error while resuming user session: %s", err)
 	}
 	now := time.Now().UTC()
 	currentTime := now.Unix()
 	if currentTime-session.SessionTimeLast < 0 || currentTime-session.SessionTimeLast >= SESSION_TIMEOUT_IN_SECONDS {
-		return Session{}, fmt.Errorf("Error while starting user session: Session has timed out with delta time %d seconds", currentTime-session.SessionTimeLast)
+		return Session{}, fmt.Errorf("Error while resuming user session: Session has timed out with delta time %d seconds", currentTime-session.SessionTimeLast)
 	}
 	if session.SessionIp != ip || session.SessionBrowser != browser || session.SessionForwardedFor != forwardedFor {
-		return Session{}, fmt.Errorf("Error while starting user session: User fingerprint does not match: IP %s, Browser %s, ForwardedFor %s do not equal values in database IP %s, Browser %s, ForwardedFor %s", ip, browser, forwardedFor, session.SessionIp, session.SessionBrowser, session.SessionForwardedFor)
+		return Session{}, fmt.Errorf("Error while resuming user session: User fingerprint does not match: IP %s, Browser %s, ForwardedFor %s do not equal values in database IP %s, Browser %s, ForwardedFor %s", ip, browser, forwardedFor, session.SessionIp, session.SessionBrowser, session.SessionForwardedFor)
 	}
 	err = UpdateSessionTimeLast(ctx, sessionId)
 	if err != nil {
-		return Session{}, fmt.Errorf("Error while starting user session: %s", err)
+		return Session{}, fmt.Errorf("Error while resuming user session: %s", err)
 	}
 	return session, nil
 }
