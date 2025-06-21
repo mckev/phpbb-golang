@@ -86,9 +86,11 @@ func ListPosts(ctx context.Context, topicId int, startItem int) ([]Post, error) 
 func GetPost(ctx context.Context, postId int) (Post, error) {
 	db := OpenDb(ctx, "posts")
 	defer db.Close()
-	row := db.QueryRow("SELECT post_id, topic_id, forum_id, post_subject, post_text, post_user_id, post_time FROM posts WHERE post_id = $1", postId)
 	var post Post
-	if err := row.Scan(&post.PostId, &post.TopicId, &post.ForumId, &post.PostSubject, &post.PostText, &post.PostUserId, &post.PostTime); err != nil {
+	err := db.
+		QueryRow("SELECT post_id, topic_id, forum_id, post_subject, post_text, post_user_id, post_time FROM posts WHERE post_id = $1", postId).
+		Scan(&post.PostId, &post.TopicId, &post.ForumId, &post.PostSubject, &post.PostText, &post.PostUserId, &post.PostTime)
+	if err != nil {
 		if err == sql.ErrNoRows {
 			// No result found
 			return Post{}, nil
@@ -104,7 +106,9 @@ func CountPostCurItem(ctx context.Context, topicId int, postId int) (int, error)
 	db := OpenDb(ctx, "posts")
 	defer db.Close()
 	var curItem int
-	err := db.QueryRow("SELECT COUNT(*) AS cur_item FROM posts WHERE topic_id = $1 AND post_id < $2", topicId, postId).Scan(&curItem)
+	err := db.
+		QueryRow("SELECT COUNT(*) AS cur_item FROM posts WHERE topic_id = $1 AND post_id < $2", topicId, postId).
+		Scan(&curItem)
 	if err != nil {
 		return 0, fmt.Errorf("Error while counting current item on topic id %d for post id %d: %s", topicId, postId, err)
 	}

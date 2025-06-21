@@ -99,9 +99,11 @@ func UpdateSessionTimeLast(ctx context.Context, sessionId string) error {
 func GetSession(ctx context.Context, sessionId string) (Session, error) {
 	db := OpenDb(ctx, "sessions")
 	defer db.Close()
-	row := db.QueryRow("SELECT session_id, session_user_id, session_user_name, session_time_start, session_time_last, session_ip, session_browser, session_forwarded_for FROM sessions WHERE session_id = $1", sessionId)
 	var session Session
-	if err := row.Scan(&session.SessionId, &session.SessionUserId, &session.SessionUserName, &session.SessionTimeStart, &session.SessionTimeLast, &session.SessionIp, &session.SessionBrowser, &session.SessionForwardedFor); err != nil {
+	err := db.
+		QueryRow("SELECT session_id, session_user_id, session_user_name, session_time_start, session_time_last, session_ip, session_browser, session_forwarded_for FROM sessions WHERE session_id = $1", sessionId).
+		Scan(&session.SessionId, &session.SessionUserId, &session.SessionUserName, &session.SessionTimeStart, &session.SessionTimeLast, &session.SessionIp, &session.SessionBrowser, &session.SessionForwardedFor)
+	if err != nil {
 		if err == sql.ErrNoRows {
 			// No result found
 			return Session{}, fmt.Errorf("Error while retrieving session id '%s' on sessions table: %s: No result found", sessionId, DB_ERROR_NO_RESULT)

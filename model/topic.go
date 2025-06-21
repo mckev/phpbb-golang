@@ -145,9 +145,11 @@ func ListTopics(ctx context.Context, forumId int, startItem int) ([]Topic, error
 func GetTopic(ctx context.Context, topicId int) (Topic, error) {
 	db := OpenDb(ctx, "topics")
 	defer db.Close()
-	row := db.QueryRow("SELECT topic_id, forum_id, topic_title, topic_user_id, topic_time, topic_num_posts, topic_num_views, topic_first_post_id, topic_first_post_user_name, topic_last_post_id, topic_last_post_user_id, topic_last_post_user_name, topic_last_post_time FROM topics WHERE topic_id = $1", topicId)
 	var topic Topic
-	if err := row.Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicUserId, &topic.TopicTime, &topic.TopicNumPosts, &topic.TopicNumViews, &topic.TopicFirstPostId, &topic.TopicFirstPostUserName, &topic.TopicLastPostId, &topic.TopicLastPostUserId, &topic.TopicLastPostUserName, &topic.TopicLastPostTime); err != nil {
+	err := db.
+		QueryRow("SELECT topic_id, forum_id, topic_title, topic_user_id, topic_time, topic_num_posts, topic_num_views, topic_first_post_id, topic_first_post_user_name, topic_last_post_id, topic_last_post_user_id, topic_last_post_user_name, topic_last_post_time FROM topics WHERE topic_id = $1", topicId).
+		Scan(&topic.TopicId, &topic.ForumId, &topic.TopicTitle, &topic.TopicUserId, &topic.TopicTime, &topic.TopicNumPosts, &topic.TopicNumViews, &topic.TopicFirstPostId, &topic.TopicFirstPostUserName, &topic.TopicLastPostId, &topic.TopicLastPostUserId, &topic.TopicLastPostUserName, &topic.TopicLastPostTime)
+	if err != nil {
 		if err == sql.ErrNoRows {
 			// No result found
 			return Topic{}, nil

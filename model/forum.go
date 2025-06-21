@@ -146,9 +146,11 @@ func ListForums(ctx context.Context) ([]Forum, error) {
 func GetForum(ctx context.Context, forumId int) (Forum, error) {
 	db := OpenDb(ctx, "forums")
 	defer db.Close()
-	row := db.QueryRow("SELECT forum_id, parent_id, forum_name, forum_desc, forum_user_id, forum_time, forum_num_topics, forum_num_posts, forum_last_post_id, forum_last_post_subject, forum_last_post_user_id, forum_last_post_user_name, forum_last_post_time FROM forums WHERE forum_id = $1", forumId)
 	var forum Forum
-	if err := row.Scan(&forum.ForumId, &forum.ParentId, &forum.ForumName, &forum.ForumDesc, &forum.ForumUserId, &forum.ForumTime, &forum.ForumNumTopics, &forum.ForumNumPosts, &forum.ForumLastPostId, &forum.ForumLastPostSubject, &forum.ForumLastPostUserId, &forum.ForumLastPostUserName, &forum.ForumLastPostTime); err != nil {
+	err := db.
+		QueryRow("SELECT forum_id, parent_id, forum_name, forum_desc, forum_user_id, forum_time, forum_num_topics, forum_num_posts, forum_last_post_id, forum_last_post_subject, forum_last_post_user_id, forum_last_post_user_name, forum_last_post_time FROM forums WHERE forum_id = $1", forumId).
+		Scan(&forum.ForumId, &forum.ParentId, &forum.ForumName, &forum.ForumDesc, &forum.ForumUserId, &forum.ForumTime, &forum.ForumNumTopics, &forum.ForumNumPosts, &forum.ForumLastPostId, &forum.ForumLastPostSubject, &forum.ForumLastPostUserId, &forum.ForumLastPostUserName, &forum.ForumLastPostTime)
+	if err != nil {
 		if err == sql.ErrNoRows {
 			// No result found
 			return Forum{}, nil
