@@ -77,18 +77,18 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		}
 		forumChildNodes := forumhelper.ComputeForumChildNodes(ctx, forums, model.ROOT_FORUM_ID, 0)
 		type MainPageData struct {
-			CurrentTime     int64
-			ForumChildNodes []forumhelper.ForumNode
-			RedirectURI     string
-			SessionId       string
-			ForumNavTrails  []forumhelper.ForumNavTrail
+			CurrentTime             int64
+			ForumChildNodes         []forumhelper.ForumNode
+			RedirectURIForLoginPage string
+			SessionId               string
+			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		forumsPageData := MainPageData{
-			CurrentTime:     currentTime,
-			ForumChildNodes: forumChildNodes,
-			RedirectURI:     "./",
-			SessionId:       session.SessionId,
-			ForumNavTrails:  []forumhelper.ForumNavTrail{},
+			CurrentTime:             currentTime,
+			ForumChildNodes:         forumChildNodes,
+			RedirectURIForLoginPage: "./",
+			SessionId:               session.SessionId,
+			ForumNavTrails:          []forumhelper.ForumNavTrail{},
 		}
 
 		// Execute template
@@ -102,15 +102,15 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		// To try: http://localhost:9000/redirect?url=https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dhow%2Bto%2Bmake%2Ba%2Braspberry%2Bpi%2Bweb%2Bserver%26hl%3Den%26source%3Dhp%26ei%3Dabcdef
 		// How to encode:  encoded := url.QueryEscape("https://www.google.com/search?q=how+to+make+a+raspberry+pi+web+server&hl=en&source=hp&ei=abcdef")
 		// How encode works:  It replaces following characters  : %3A, / %2F, ? %3F, = %3D, & %26, + %2B
-		redirectUrl := queryParams.Get("url")
-		if redirectUrl == "" {
-			redirectUrl = "/"
+		redirectURIForRedirectPage := queryParams.Get("url")
+		if redirectURIForRedirectPage == "" {
+			redirectURIForRedirectPage = "/"
 		}
 		type RedirectPageData struct {
-			RedirectUrl string
+			RedirectURIForRedirectPage string
 		}
 		redirectPageData := RedirectPageData{
-			RedirectUrl: redirectUrl,
+			RedirectURIForRedirectPage: redirectURIForRedirectPage,
 		}
 		templateOutput, err := template.ParseFiles("./view/templates/redirect.html")
 		if err != nil {
@@ -251,18 +251,18 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		type ForumsPageData struct {
 			Forum           model.Forum
 			ForumChildNodes []forumhelper.ForumNode
-			// RedirectURI is useful for returning the user to their original page after they click "Login" and successfully authenticate.
-			// And since the Session Id is provided by the login page, there's no need to include it in the RedirectURI.
-			RedirectURI    string
-			SessionId      string
-			ForumNavTrails []forumhelper.ForumNavTrail
+			// RedirectURIForLoginPage is useful for returning the user to their original page after they click "Login" and successfully authenticate.
+			// And since the Session Id is provided by the login page, there's no need to include it in the RedirectURIForLoginPage.
+			RedirectURIForLoginPage string
+			SessionId               string
+			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		forumsPageData := ForumsPageData{
-			Forum:           forum,
-			ForumChildNodes: forumChildNodes,
-			RedirectURI:     helper.UrlWithSID(r.URL.RequestURI(), ""),
-			SessionId:       session.SessionId,
-			ForumNavTrails:  forumNavTrails,
+			Forum:                   forum,
+			ForumChildNodes:         forumChildNodes,
+			RedirectURIForLoginPage: helper.UrlWithSID(r.URL.RequestURI(), ""),
+			SessionId:               session.SessionId,
+			ForumNavTrails:          forumNavTrails,
 		}
 
 		// Execute template
@@ -316,20 +316,20 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		forumNavTrails := forumhelper.ComputeForumNavTrails(ctx, forums, forumId)
 		topicPaginations := forumhelper.ComputePaginations(startItem, forum.ForumNumTopics, model.MAX_TOPICS_PER_PAGE)
 		type TopicsPageData struct {
-			Forum            model.Forum
-			TopicsWithInfo   []TopicWithInfo
-			TopicPaginations []forumhelper.Pagination
-			RedirectURI      string
-			SessionId        string
-			ForumNavTrails   []forumhelper.ForumNavTrail
+			Forum                   model.Forum
+			TopicsWithInfo          []TopicWithInfo
+			TopicPaginations        []forumhelper.Pagination
+			RedirectURIForLoginPage string
+			SessionId               string
+			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		topicsPageData := TopicsPageData{
-			Forum:            forum,
-			TopicsWithInfo:   topicsWithInfo,
-			TopicPaginations: topicPaginations,
-			RedirectURI:      helper.UrlWithSID(r.URL.RequestURI(), ""),
-			SessionId:        session.SessionId,
-			ForumNavTrails:   forumNavTrails,
+			Forum:                   forum,
+			TopicsWithInfo:          topicsWithInfo,
+			TopicPaginations:        topicPaginations,
+			RedirectURIForLoginPage: helper.UrlWithSID(r.URL.RequestURI(), ""),
+			SessionId:               session.SessionId,
+			ForumNavTrails:          forumNavTrails,
 		}
 
 		// Execute template
@@ -398,24 +398,24 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		forumNavTrails := forumhelper.ComputeForumNavTrails(ctx, forums, forum.ForumId)
 		paginations := forumhelper.ComputePaginations(startItem, topic.TopicNumPosts, model.MAX_POSTS_PER_PAGE)
 		type PostsPageData struct {
-			Forum          model.Forum
-			Topic          model.Topic
-			Posts          []model.Post
-			UsersMap       map[int]model.User
-			Paginations    []forumhelper.Pagination
-			RedirectURI    string
-			SessionId      string
-			ForumNavTrails []forumhelper.ForumNavTrail
+			Forum                   model.Forum
+			Topic                   model.Topic
+			Posts                   []model.Post
+			UsersMap                map[int]model.User
+			Paginations             []forumhelper.Pagination
+			RedirectURIForLoginPage string
+			SessionId               string
+			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		postsPageData := PostsPageData{
-			Forum:          forum,
-			Topic:          topic,
-			Posts:          posts,
-			UsersMap:       usersMap,
-			Paginations:    paginations,
-			RedirectURI:    helper.UrlWithSID(r.URL.RequestURI(), ""),
-			SessionId:      session.SessionId,
-			ForumNavTrails: forumNavTrails,
+			Forum:                   forum,
+			Topic:                   topic,
+			Posts:                   posts,
+			UsersMap:                usersMap,
+			Paginations:             paginations,
+			RedirectURIForLoginPage: helper.UrlWithSID(r.URL.RequestURI(), ""),
+			SessionId:               session.SessionId,
+			ForumNavTrails:          forumNavTrails,
 		}
 
 		// Execute template
@@ -511,14 +511,14 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				type UserRegisterPageData struct {
-					RedirectURI    string
-					SessionId      string
-					ForumNavTrails []forumhelper.ForumNavTrail
+					RedirectURIForLoginPage string
+					SessionId               string
+					ForumNavTrails          []forumhelper.ForumNavTrail
 				}
 				userRegisterPageData := UserRegisterPageData{
-					RedirectURI:    "./",
-					SessionId:      session.SessionId,
-					ForumNavTrails: []forumhelper.ForumNavTrail{},
+					RedirectURIForLoginPage: "./",
+					SessionId:               session.SessionId,
+					ForumNavTrails:          []forumhelper.ForumNavTrail{},
 				}
 				err = templateOutput.ExecuteTemplate(w, "overall", userRegisterPageData)
 				if err != nil {
@@ -538,16 +538,16 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 		// Prepare data
 		type UserRegisterPageData struct {
-			FormData       FormData
-			RedirectURI    string
-			SessionId      string
-			ForumNavTrails []forumhelper.ForumNavTrail
+			FormData                FormData
+			RedirectURIForLoginPage string
+			SessionId               string
+			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		userRegisterPageData := UserRegisterPageData{
-			FormData:       formData,
-			RedirectURI:    "./",
-			SessionId:      session.SessionId,
-			ForumNavTrails: []forumhelper.ForumNavTrail{},
+			FormData:                formData,
+			RedirectURIForLoginPage: "./",
+			SessionId:               session.SessionId,
+			ForumNavTrails:          []forumhelper.ForumNavTrail{},
 		}
 
 		// Execute template
@@ -650,16 +650,16 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		type UserLoginPageData struct {
-			FormData       FormData
-			RedirectURI    string
-			SessionId      string
-			ForumNavTrails []forumhelper.ForumNavTrail
+			FormData                FormData
+			RedirectURIForLoginPage string
+			SessionId               string
+			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		userLoginPageData := UserLoginPageData{
-			FormData:       formData,
-			RedirectURI:    "./",
-			SessionId:      session.SessionId,
-			ForumNavTrails: []forumhelper.ForumNavTrail{},
+			FormData:                formData,
+			RedirectURIForLoginPage: "./",
+			SessionId:               session.SessionId,
+			ForumNavTrails:          []forumhelper.ForumNavTrail{},
 		}
 
 		// Execute template
