@@ -50,10 +50,7 @@ func UserLoginPage(w http.ResponseWriter, r *http.Request) {
 		if formData.RedirectTo == "" {
 			formData.RedirectTo = "./"
 		}
-		user := model.User{
-			UserId:   model.GUEST_USER_ID,
-			UserName: model.GUEST_USER_NAME,
-		}
+		user := model.User{}
 		if len(formData.Errors) == 0 {
 			user, err = model.GetUserForLogin(ctx, formData.Username)
 			if err != nil {
@@ -94,10 +91,6 @@ func UserLoginPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user = model.User{
-			UserId:   model.GUEST_USER_ID,
-			UserName: model.GUEST_USER_NAME,
-		}
 		fallthrough
 
 	case "GET":

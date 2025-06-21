@@ -54,10 +54,7 @@ func UserRegisterPage(w http.ResponseWriter, r *http.Request) {
 		if formData.Email != "" && !helper.IsEmailValid(formData.Email) {
 			formData.Errors = append(formData.Errors, "The email address format is invalid.")
 		}
-		user := model.User{
-			UserId:   model.GUEST_USER_ID,
-			UserName: model.GUEST_USER_NAME,
-		}
+		user := model.User{}
 		if len(formData.Errors) == 0 {
 			// Insert user into database
 			user.UserId, err = model.InsertUser(ctx, formData.Username, formData.NewPassword, formData.Email, "")
@@ -117,10 +114,6 @@ func UserRegisterPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user = model.User{
-			UserId:   model.GUEST_USER_ID,
-			UserName: model.GUEST_USER_NAME,
-		}
 		fallthrough
 
 	case "GET":
