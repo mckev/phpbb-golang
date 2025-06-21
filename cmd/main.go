@@ -79,15 +79,15 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		type MainPageData struct {
 			CurrentTime             int64
 			ForumChildNodes         []forumhelper.ForumNode
+			Session                 model.Session
 			RedirectURIForLoginPage string
-			SessionId               string
 			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		forumsPageData := MainPageData{
 			CurrentTime:             currentTime,
 			ForumChildNodes:         forumChildNodes,
+			Session:                 session,
 			RedirectURIForLoginPage: "./",
-			SessionId:               session.SessionId,
 			ForumNavTrails:          []forumhelper.ForumNavTrail{},
 		}
 
@@ -251,17 +251,17 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		type ForumsPageData struct {
 			Forum           model.Forum
 			ForumChildNodes []forumhelper.ForumNode
+			Session         model.Session
 			// RedirectURIForLoginPage is useful for returning the user to their original page after they click "Login" and successfully authenticate.
 			// And since the Session Id is provided by the login page, there's no need to include it in the RedirectURIForLoginPage.
 			RedirectURIForLoginPage string
-			SessionId               string
 			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		forumsPageData := ForumsPageData{
 			Forum:                   forum,
 			ForumChildNodes:         forumChildNodes,
+			Session:                 session,
 			RedirectURIForLoginPage: helper.UrlWithSID(r.URL.RequestURI(), ""),
-			SessionId:               session.SessionId,
 			ForumNavTrails:          forumNavTrails,
 		}
 
@@ -319,16 +319,16 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			Forum                   model.Forum
 			TopicsWithInfo          []TopicWithInfo
 			TopicPaginations        []forumhelper.Pagination
+			Session                 model.Session
 			RedirectURIForLoginPage string
-			SessionId               string
 			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		topicsPageData := TopicsPageData{
 			Forum:                   forum,
 			TopicsWithInfo:          topicsWithInfo,
 			TopicPaginations:        topicPaginations,
+			Session:                 session,
 			RedirectURIForLoginPage: helper.UrlWithSID(r.URL.RequestURI(), ""),
-			SessionId:               session.SessionId,
 			ForumNavTrails:          forumNavTrails,
 		}
 
@@ -403,8 +403,8 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			Posts                   []model.Post
 			UsersMap                map[int]model.User
 			Paginations             []forumhelper.Pagination
+			Session                 model.Session
 			RedirectURIForLoginPage string
-			SessionId               string
 			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		postsPageData := PostsPageData{
@@ -413,8 +413,8 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			Posts:                   posts,
 			UsersMap:                usersMap,
 			Paginations:             paginations,
+			Session:                 session,
 			RedirectURIForLoginPage: helper.UrlWithSID(r.URL.RequestURI(), ""),
-			SessionId:               session.SessionId,
 			ForumNavTrails:          forumNavTrails,
 		}
 
@@ -470,10 +470,13 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			if formData.Email != "" && !helper.IsEmailValid(formData.Email) {
 				formData.Errors = append(formData.Errors, "The email address format is invalid.")
 			}
-			userId := model.GUEST_USER_ID
+			user := model.User{
+				UserId:   model.GUEST_USER_ID,
+				UserName: model.GUEST_USER_NAME,
+			}
 			if len(formData.Errors) == 0 {
 				// Insert user into database
-				userId, err = model.InsertUser(ctx, formData.Username, formData.NewPassword, formData.Email, "")
+				user.UserId, err = model.InsertUser(ctx, formData.Username, formData.NewPassword, formData.Email, "")
 				if err != nil {
 					if strings.Contains(err.Error(), model.DB_ERROR_UNIQUE_CONSTRAINT) {
 						formData.Errors = append(formData.Errors, "This username is already taken. Please choose a different one.")
@@ -485,6 +488,8 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			}
 			if len(formData.Errors) == 0 {
 				// Validation successful
+				user.UserName = formData.Username
+
 				// fmt.Fprintf(w, "Form submitted successfully!\n")
 				// fmt.Fprintf(w, "Username: %s\n", formData.Username)
 				// fmt.Fprintf(w, "Password: %s\n", formData.NewPassword)
@@ -494,14 +499,14 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 				// Create user session (for user registration and user login)
 				ip, browser, forwardedFor := helper.ExtractUserFingerprint(r)
-				session, err = model.CreateSession(ctx, userId, ip, browser, forwardedFor)
+				session, err = model.CreateSession(ctx, user.UserId, user.UserName, ip, browser, forwardedFor)
 				if err != nil {
 					logger.Errorf(ctx, "Error while creating user session: %s", err)
 					return
 				}
-				err = model.UpdateLastVisitTimeForUser(ctx, userId)
+				err = model.UpdateLastVisitTimeForUser(ctx, user.UserId)
 				if err != nil {
-					logger.Errorf(ctx, "Error while updating last visit time for user id %d: %s", userId, err)
+					logger.Errorf(ctx, "Error while updating last visit time for user id %d: %s", user.UserId, err)
 					return
 				}
 
@@ -511,13 +516,13 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				type UserRegisterPageData struct {
+					Session                 model.Session
 					RedirectURIForLoginPage string
-					SessionId               string
 					ForumNavTrails          []forumhelper.ForumNavTrail
 				}
 				userRegisterPageData := UserRegisterPageData{
+					Session:                 session,
 					RedirectURIForLoginPage: "./",
-					SessionId:               session.SessionId,
 					ForumNavTrails:          []forumhelper.ForumNavTrail{},
 				}
 				err = templateOutput.ExecuteTemplate(w, "overall", userRegisterPageData)
@@ -526,6 +531,11 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				return
+			} else {
+				user = model.User{
+					UserId:   model.GUEST_USER_ID,
+					UserName: model.GUEST_USER_NAME,
+				}
 			}
 		}
 
@@ -539,14 +549,14 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		// Prepare data
 		type UserRegisterPageData struct {
 			FormData                FormData
+			Session                 model.Session
 			RedirectURIForLoginPage string
-			SessionId               string
 			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		userRegisterPageData := UserRegisterPageData{
 			FormData:                formData,
+			Session:                 session,
 			RedirectURIForLoginPage: "./",
-			SessionId:               session.SessionId,
 			ForumNavTrails:          []forumhelper.ForumNavTrail{},
 		}
 
@@ -590,7 +600,10 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			if formData.RedirectTo == "" {
 				formData.RedirectTo = "./"
 			}
-			var user model.User
+			user := model.User{
+				UserId:   model.GUEST_USER_ID,
+				UserName: model.GUEST_USER_NAME,
+			}
 			if len(formData.Errors) == 0 {
 				user, err = model.GetUserForLogin(ctx, formData.Username)
 				if err != nil {
@@ -606,6 +619,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 			}
 			if len(formData.Errors) == 0 {
 				// Validation successful
+
 				// fmt.Fprintf(w, "Form submitted successfully!\n")
 				// fmt.Fprintf(w, "Username: %s\n", formData.Username)
 				// fmt.Fprintf(w, "Password: %s\n", formData.Password)
@@ -614,21 +628,25 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 				// Create user session (for user registration and user login)
 				ip, browser, forwardedFor := helper.ExtractUserFingerprint(r)
-				userId := user.UserId
-				session, err = model.CreateSession(ctx, userId, ip, browser, forwardedFor)
+				session, err = model.CreateSession(ctx, user.UserId, user.UserName, ip, browser, forwardedFor)
 				if err != nil {
 					logger.Errorf(ctx, "Error while creating user session: %s", err)
 					return
 				}
-				err = model.UpdateLastVisitTimeForUser(ctx, userId)
+				err = model.UpdateLastVisitTimeForUser(ctx, user.UserId)
 				if err != nil {
-					logger.Errorf(ctx, "Error while updating last visit time for user id %d: %s", userId, err)
+					logger.Errorf(ctx, "Error while updating last visit time for user id %d: %s", user.UserId, err)
 					return
 				}
 
 				// Redirect user to their last visited page
 				http.Redirect(w, r, helper.UrlWithSID(formData.RedirectTo, session.SessionId), http.StatusFound)
 				return
+			} else {
+				user = model.User{
+					UserId:   model.GUEST_USER_ID,
+					UserName: model.GUEST_USER_NAME,
+				}
 			}
 		}
 
@@ -651,14 +669,14 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		}
 		type UserLoginPageData struct {
 			FormData                FormData
+			Session                 model.Session
 			RedirectURIForLoginPage string
-			SessionId               string
 			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
 		userLoginPageData := UserLoginPageData{
 			FormData:                formData,
+			Session:                 session,
 			RedirectURIForLoginPage: "./",
-			SessionId:               session.SessionId,
 			ForumNavTrails:          []forumhelper.ForumNavTrail{},
 		}
 

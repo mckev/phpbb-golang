@@ -2,7 +2,7 @@
 {{ $root := . }}
 <div id="page-body" class="page-body" role="main">
     <!-- Forum title -->
-    <h2 class="forum-title"><a href='{{ fnUrlWithSID (printf "./forums?f=%d" $root.Forum.ForumId) $root.SessionId }}'>{{ $root.Forum.ForumName }}</a></h2>
+    <h2 class="forum-title"><a href='{{ fnUrlWithSID (printf "./forums?f=%d" $root.Forum.ForumId) $root.Session.SessionId }}'>{{ $root.Forum.ForumName }}</a></h2>
 
     <a class="category" id="category29" style="display: none; height: 0"></a>
     <div class="forabg">
@@ -28,9 +28,9 @@
                         <dt title="No unread posts">
                             <div class="list-inner">
                                 {{ if $forumNode.IsLeaf }}
-                                <a href='{{ fnUrlWithSID (printf "./topics?f=%d" $forumNode.Forum.ForumId) $root.SessionId }}' class="forumtitle">{{ $forumNode.Forum.ForumName }}</a>
+                                <a href='{{ fnUrlWithSID (printf "./topics?f=%d" $forumNode.Forum.ForumId) $root.Session.SessionId }}' class="forumtitle">{{ $forumNode.Forum.ForumName }}</a>
                                 {{ else }}
-                                <a href='{{ fnUrlWithSID (printf "./forums?f=%d" $forumNode.Forum.ForumId) $root.SessionId }}' class="forumtitle">{{ $forumNode.Forum.ForumName }}</a>
+                                <a href='{{ fnUrlWithSID (printf "./forums?f=%d" $forumNode.Forum.ForumId) $root.Session.SessionId }}' class="forumtitle">{{ $forumNode.Forum.ForumName }}</a>
                                 {{ end }}
                                 <br />{{ $forumNode.Forum.ForumDesc }}
 
@@ -39,9 +39,9 @@
                                 {{ $subforumLen := len $forumNode.ForumChildNodes }}
                                 {{ range $counter, $forumNode := $forumNode.ForumChildNodes }}
                                 {{ if $forumNode.IsLeaf }}
-                                <a href='{{ fnUrlWithSID (printf "./topics?f=%d" $forumNode.Forum.ForumId) $root.SessionId }}' class="subforum read" title="No unread posts"><i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>{{ $forumNode.Forum.ForumName }}</a>{{ if lt (fnAdd $counter 1) $subforumLen }},{{ end }}
+                                <a href='{{ fnUrlWithSID (printf "./topics?f=%d" $forumNode.Forum.ForumId) $root.Session.SessionId }}' class="subforum read" title="No unread posts"><i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>{{ $forumNode.Forum.ForumName }}</a>{{ if lt (fnAdd $counter 1) $subforumLen }},{{ end }}
                                 {{ else }}
-                                <a href='{{ fnUrlWithSID (printf "./forums?f=%d" $forumNode.Forum.ForumId) $root.SessionId }}' class="subforum read" title="No unread posts"><i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>{{ $forumNode.Forum.ForumName }}</a>{{ if lt (fnAdd $counter 1) $subforumLen }},{{ end }}
+                                <a href='{{ fnUrlWithSID (printf "./forums?f=%d" $forumNode.Forum.ForumId) $root.Session.SessionId }}' class="subforum read" title="No unread posts"><i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>{{ $forumNode.Forum.ForumName }}</a>{{ if lt (fnAdd $counter 1) $subforumLen }},{{ end }}
                                 {{ end }}
                                 {{ end }}
                                 {{ end }}
@@ -57,8 +57,8 @@
                             {{ if ne $forumNode.Forum.ForumLastPostId 0 }}
                             <span>
                                 <dfn>Last post</dfn>
-                                <a href='{{ fnUrlWithSID (printf "./posts?p=%d#p%d" $forumNode.Forum.ForumLastPostId $forumNode.Forum.ForumLastPostId) $root.SessionId }}' title="{{ $forumNode.Forum.ForumLastPostSubject }}" class="lastsubject">{{ $forumNode.Forum.ForumLastPostSubject }}</a> <br />
-                                by <a href="./memberlist.php?mode=viewprofile&amp;u={{ $forumNode.Forum.ForumLastPostUserId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162" class="username">{{ $forumNode.Forum.ForumLastPostUserName }}</a> <a href='{{ fnUrlWithSID (printf "./posts?p=%d#p%d" $forumNode.Forum.ForumLastPostId $forumNode.Forum.ForumLastPostId) $root.SessionId }}' title="View the latest post">
+                                <a href='{{ fnUrlWithSID (printf "./posts?p=%d#p%d" $forumNode.Forum.ForumLastPostId $forumNode.Forum.ForumLastPostId) $root.Session.SessionId }}' title="{{ $forumNode.Forum.ForumLastPostSubject }}" class="lastsubject">{{ $forumNode.Forum.ForumLastPostSubject }}</a> <br />
+                                by <a href="./memberlist.php?mode=viewprofile&amp;u={{ $forumNode.Forum.ForumLastPostUserId }}&amp;sid=929a524515b952cd9cf2ca670ce2d162" class="username">{{ $forumNode.Forum.ForumLastPostUserName }}</a> <a href='{{ fnUrlWithSID (printf "./posts?p=%d#p%d" $forumNode.Forum.ForumLastPostId $forumNode.Forum.ForumLastPostId) $root.Session.SessionId }}' title="View the latest post">
                                     <i class="icon fa-external-link-square fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only">View the latest post</span>
                                 </a>
                                 <br /><time datetime="{{ $forumNode.Forum.ForumLastPostTime }}">{{ $forumNode.Forum.ForumLastPostTime | fnUnixTimeToStr }}</time>
@@ -76,7 +76,7 @@
     <!-- Bottom bar -->
     <div class="action-bar actions-jump">
         <p class="jumpbox-return">
-            <a href='{{ fnUrlWithSID "./" $root.SessionId }}' class="left-box arrow-left" accesskey="r">
+            <a href='{{ fnUrlWithSID "./" $root.Session.SessionId }}' class="left-box arrow-left" accesskey="r">
                 <i class="icon fa-angle-left fa-fw icon-black" aria-hidden="true"></i><span>Return to Board Index</span>
             </a>
         </p>

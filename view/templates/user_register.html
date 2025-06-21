@@ -2,7 +2,7 @@
 {{ $root := . }}
 <div id="page-body" class="page-body" role="main">
 
-    <form action='{{ fnUrlWithSID "./user_register" $root.SessionId }}' method="post" id="register">
+    <form action='{{ fnUrlWithSID "./user_register" $root.Session.SessionId }}' method="post" id="register">
         <div class="panel">
             <div class="inner">
                 <h2>Registration</h2>

@@ -30,7 +30,7 @@
             <div class="headerbar" role="banner">
                 <div class="inner">
                     <div id="site-description" class="site-description">
-                        <a id="logo" class="logo" href='{{ fnUrlWithSID "./" $root.SessionId }}' title="Board index">
+                        <a id="logo" class="logo" href='{{ fnUrlWithSID "./" $root.Session.SessionId }}' title="Board index">
                             <span class="site_logo"></span>
                         </a>
                         <h1>My Forum</h1>
@@ -82,31 +82,99 @@
                                 <i class="icon fa-envelope fa-fw" aria-hidden="true"></i><span>Contact us</span>
                             </a>
                         </li>
+
+                        <!-- Account Menu dropdown (case logged in) -->
+                        {{ if ne $root.Session.SessionUserId 0 }}
+                        <li id="username_logged_in" class="rightside " data-skip-responsive="true">
+                            <div class="header-profile dropdown-container">
+                                <a href="./ucp.php" class="header-avatar dropdown-trigger"> <span class="username">{{ $root.Session.SessionUserName }}</span></a>
+                                <div class="dropdown">
+                                    <div class="pointer">
+                                        <div class="pointer-inner"></div>
+                                    </div>
+                                    <ul class="dropdown-contents" role="menu">
+                                        <li>
+                                            <a href="./ucp.php" title="User Control Panel" role="menuitem">
+                                                <i class="icon fa-sliders fa-fw" aria-hidden="true"></i><span>User Control Panel</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="./memberlist.php?mode=viewprofile&amp;u={{ $root.Session.SessionUserId }}" title="Profile" role="menuitem">
+                                                <i class="icon fa-user fa-fw" aria-hidden="true"></i><span>Profile</span>
+                                            </a>
+                                        </li>
+                                        <li class="separator"></li>
+                                        <li>
+                                            <a href="./ucp.php?mode=logout&amp;sid=afbb398c57824adc07edfc7ec7b2488b" title="Logout" accesskey="x" role="menuitem">
+                                                <i class="icon fa-power-off fa-fw" aria-hidden="true"></i><span>Logout</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
                         <li class="rightside" data-skip-responsive="true">
-                            <a href='{{ fnUrlWithSID (printf "./user_login?redirect=%s" $root.RedirectURIForLoginPage) $root.SessionId }}' title="Login" accesskey="x" role="menuitem">
+                            <a href="./ucp.php?i=pm&amp;folder=inbox" role="menuitem">
+                                <i class="icon fa-inbox fa-fw" aria-hidden="true"></i><span>Private messages </span><strong class="badge hidden">0</strong>
+                            </a>
+                        </li>
+                        <li class="dropdown-container dropdown-right rightside" data-skip-responsive="true">
+                            <a href="./ucp.php?i=ucp_notifications" id="notification_list_button" class="dropdown-trigger">
+                                <i class="icon fa-bell fa-fw" aria-hidden="true"></i><span>Notifications </span><strong class="badge hidden">0</strong>
+                            </a>
+                            <div id="notification_list" class="dropdown dropdown-extended notification_list">
+                                <div class="pointer">
+                                    <div class="pointer-inner"></div>
+                                </div>
+                                <div class="dropdown-contents">
+                                    <div class="header">
+                                        Notifications
+                                        <span class="header_settings">
+                                            <a href="./ucp.php?i=ucp_notifications&amp;mode=notification_options">Settings</a>
+                                        </span>
+                                    </div>
+                                    <ul>
+                                        <li class="no_notifications">
+                                            You have no notifications
+                                        </li>
+                                    </ul>
+                                    <div class="footer">
+                                        <a href="./ucp.php?i=ucp_notifications"><span>See All</span></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {{ end }}
+
+                        <!-- Login and Register (case not logged in) -->
+                        {{ if eq $root.Session.SessionUserId 0 }}
+                        <li class="rightside" data-skip-responsive="true">
+                            <a href='{{ fnUrlWithSID (printf "./user_login?redirect=%s" $root.RedirectURIForLoginPage) $root.Session.SessionId }}' title="Login" accesskey="x" role="menuitem">
                                 <i class="icon fa-power-off fa-fw" aria-hidden="true"></i><span>Login</span>
                             </a>
                         </li>
                         <li class="rightside" data-skip-responsive="true">
-                            <a href='{{ fnUrlWithSID "./user_register" $root.SessionId }}' role="menuitem">
+                            <a href='{{ fnUrlWithSID "./user_register" $root.Session.SessionId }}' role="menuitem">
                                 <i class="icon fa-pencil-square-o  fa-fw" aria-hidden="true"></i><span>Register</span>
                             </a>
                         </li>
+                        {{ end }}
+
                     </ul>
 
                     <ul id="nav-breadcrumbs" class="nav-breadcrumbs linklist navlinks" role="menubar">
                         <li class="breadcrumbs" itemscope itemtype="https://schema.org/BreadcrumbList">
                             <span class="crumb" itemtype="https://schema.org/ListItem" itemprop="itemListElement" itemscope>
-                                <a itemprop="item" href='{{ fnUrlWithSID "./" $root.SessionId }}' accesskey="h" data-navbar-reference="index"><i class="icon fa-home fa-fw"></i><span itemprop="name">Board index</span></a>
+                                <a itemprop="item" href='{{ fnUrlWithSID "./" $root.Session.SessionId }}' accesskey="h" data-navbar-reference="index"><i class="icon fa-home fa-fw"></i><span itemprop="name">Board index</span></a>
                                 <meta itemprop="position" content="1" />
                             </span>
                             {{ $forumNavCounter := 2 }}
                             {{ range $forumNavTrail := $root.ForumNavTrails }}
                             <span class="crumb" itemtype="https://schema.org/ListItem" itemprop="itemListElement" itemscope data-forum-id="{{ $forumNavTrail.Forum.ForumId }}">
                                 {{ if $forumNavTrail.IsLeaf }}
-                                <a itemprop="item" href='{{ fnUrlWithSID (printf "./topics?f=%d" $forumNavTrail.Forum.ForumId) $root.SessionId }}'><span itemprop="name">{{ $forumNavTrail.Forum.ForumName }} </span></a>
+                                <a itemprop="item" href='{{ fnUrlWithSID (printf "./topics?f=%d" $forumNavTrail.Forum.ForumId) $root.Session.SessionId }}'><span itemprop="name">{{ $forumNavTrail.Forum.ForumName }} </span></a>
                                 {{ else }}
-                                <a itemprop="item" href='{{ fnUrlWithSID (printf "./forums?f=%d" $forumNavTrail.Forum.ForumId) $root.SessionId }}'><span itemprop="name">{{ $forumNavTrail.Forum.ForumName }} </span></a>
+                                <a itemprop="item" href='{{ fnUrlWithSID (printf "./forums?f=%d" $forumNavTrail.Forum.ForumId) $root.Session.SessionId }}'><span itemprop="name">{{ $forumNavTrail.Forum.ForumName }} </span></a>
                                 {{ end }}
                                 <meta itemprop="position" content="{{ $forumNavCounter }}" />
                             </span>
@@ -128,7 +196,7 @@
                     <ul id="nav-footer" class="nav-footer linklist" role="menubar">
                         <li class="breadcrumbs">
                             <span class="crumb">
-                                <a href='{{ fnUrlWithSID "./" $root.SessionId }}' data-navbar-reference="index"><i class="icon fa-home fa-fw" aria-hidden="true"></i><span>Board index</span></a>
+                                <a href='{{ fnUrlWithSID "./" $root.Session.SessionId }}' data-navbar-reference="index"><i class="icon fa-home fa-fw" aria-hidden="true"></i><span>Board index</span></a>
                             </span>
                         </li>
                         <li class="rightside">All times are <span title="Etc/UTC">UTC</span></li>
