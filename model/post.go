@@ -50,11 +50,11 @@ func InsertPost(ctx context.Context, topicId int, forumId int, postSubject strin
 	defer db.Close()
 	now := time.Now().UTC()
 	postTime := now.Unix()
-	res, err := db.Exec("INSERT INTO posts (topic_id, forum_id, post_subject, post_text, post_user_id, post_time) VALUES ($1, $2, $3, $4, $5, $6)", topicId, forumId, postSubject, postText, postUserId, postTime)
+	result, err := db.Exec("INSERT INTO posts (topic_id, forum_id, post_subject, post_text, post_user_id, post_time) VALUES ($1, $2, $3, $4, $5, $6)", topicId, forumId, postSubject, postText, postUserId, postTime)
 	if err != nil {
 		return INVALID_POST_ID, fmt.Errorf("Error while inserting post subject '%s' with topic id %d and forum id %d into posts table: %s", postSubject, topicId, forumId, err)
 	}
-	postId, err := res.LastInsertId()
+	postId, err := result.LastInsertId()
 	if err != nil {
 		return INVALID_POST_ID, fmt.Errorf("Error while retrieving last insert id for post subject '%s': %s", postSubject, err)
 	}

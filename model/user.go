@@ -123,16 +123,23 @@ func InsertUser(ctx context.Context, userName string, userPassword string, userE
 	hashedPasswordWithSaltAndHeader := helper.HashPassword(userPassword, salt)
 	now := time.Now().UTC()
 	userRegTime := now.Unix()
-	res, err := db.Exec("INSERT INTO users (user_name, user_password_hashed, user_email, user_sig, user_reg_time, user_last_visit_time) VALUES ($1, $2, $3, $4, $5, $6)", userName, hashedPasswordWithSaltAndHeader, userEmail, userSig, userRegTime, userRegTime)
+	result, err := db.Exec("INSERT INTO users (user_name, user_password_hashed, user_email, user_sig, user_reg_time, user_last_visit_time) VALUES ($1, $2, $3, $4, $5, $6)", userName, hashedPasswordWithSaltAndHeader, userEmail, userSig, userRegTime, userRegTime)
 	if IsUniqueViolation(err) {
 		return INVALID_USER_ID, fmt.Errorf("Error while inserting user name '%s' into users table: %s: %s", userName, DB_ERROR_UNIQUE_CONSTRAINT, err)
 	}
 	if err != nil {
 		return INVALID_USER_ID, fmt.Errorf("Error while inserting user name '%s' into users table: %s", userName, err)
 	}
-	userId, err := res.LastInsertId()
+	userId, err := result.LastInsertId()
 	if err != nil {
-		return INVALID_USER_ID, fmt.Errorf("Error while retrieving last insert id for user name '%s': %s", userName, err)
+		return INVALID_USER_ID, fmt.Errorf("Error while retrieving last insert id while inserting user name '%s' into users table: %s", userName, err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return INVALID_USER_ID, fmt.Errorf("Error while retrieving rows affected while inserting user name '%s' into users table: %s", userName, err)
+	}
+	if rowsAffected == 0 {
+		return INVALID_USER_ID, fmt.Errorf("No rows were updated while inserting user name '%s' into users table", userName)
 	}
 	return int(userId), nil
 }
@@ -140,17 +147,9 @@ func InsertUser(ctx context.Context, userName string, userPassword string, userE
 func SetUserType(ctx context.Context, userId int, userType UserType) error {
 	db := OpenDb(ctx, "users")
 	defer db.Close()
-	result, err := db.Exec("UPDATE users SET user_type = $1 WHERE user_id = $2", userType, userId)
+	_, err := db.Exec("UPDATE users SET user_type = $1 WHERE user_id = $2", userType, userId)
 	if err != nil {
 		return fmt.Errorf("Error while setting user type %d for user id %d: %s", userType, userId, err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("Error while retrieving rows affected while setting user type %d for user id %d: %s", userType, userId, err)
-	}
-	// TODO: Behavior may not be correct if there is no change to user type
-	if rowsAffected == 0 {
-		return fmt.Errorf("No rows were updated while setting user type %d for user id %d", userType, userId)
 	}
 	return nil
 }
@@ -170,16 +169,9 @@ func UpdateLastVisitTimeForUser(ctx context.Context, userId int) error {
 	defer db.Close()
 	now := time.Now().UTC()
 	userLastVisitTime := now.Unix()
-	result, err := db.Exec("UPDATE users SET user_last_visit_time = $1 WHERE user_id = $2", userLastVisitTime, userId)
+	_, err := db.Exec("UPDATE users SET user_last_visit_time = $1 WHERE user_id = $2", userLastVisitTime, userId)
 	if err != nil {
 		return fmt.Errorf("Error while updating the last visit time for user id %d: %s", userId, err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("Error while retrieving rows affected while updating the last visit time for user id %d: %s", userId, err)
-	}
-	if rowsAffected == 0 {
-		return fmt.Errorf("No rows were updated while updating the last visit time for user id %d", userId)
 	}
 	return nil
 }

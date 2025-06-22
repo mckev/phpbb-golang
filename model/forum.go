@@ -70,11 +70,11 @@ func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc 
 	defer db.Close()
 	now := time.Now().UTC()
 	forumTime := now.Unix()
-	res, err := db.Exec("INSERT INTO forums (parent_id, forum_name, forum_desc, forum_user_id, forum_time, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)", parentId, forumName, forumDesc, forumUserId, forumTime, forumUserId)
+	result, err := db.Exec("INSERT INTO forums (parent_id, forum_name, forum_desc, forum_user_id, forum_time, forum_last_post_user_id) VALUES ($1, $2, $3, $4, $5, $6)", parentId, forumName, forumDesc, forumUserId, forumTime, forumUserId)
 	if err != nil {
 		return INVALID_FORUM_ID, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent id %d into forums table: %s", forumName, forumDesc, parentId, err)
 	}
-	forumId, err := res.LastInsertId()
+	forumId, err := result.LastInsertId()
 	if err != nil {
 		return INVALID_FORUM_ID, fmt.Errorf("Error while retrieving last insert id for forum name '%s': %s", forumName, err)
 	}
@@ -106,16 +106,9 @@ func UpdateLastPostOfForum(ctx context.Context, forumId int, forumLastPostId int
 	defer db.Close()
 	now := time.Now().UTC()
 	topicLastPostTime := now.Unix()
-	result, err := db.Exec("UPDATE forums SET forum_last_post_id = $1, forum_last_post_subject = $2, forum_last_post_user_id = $3, forum_last_post_user_name = $4, forum_last_post_time = $5 WHERE forum_id = $6", forumLastPostId, forumLastPostSubject, forumLastPostUserId, forumLastPostUserName, topicLastPostTime, forumId)
+	_, err := db.Exec("UPDATE forums SET forum_last_post_id = $1, forum_last_post_subject = $2, forum_last_post_user_id = $3, forum_last_post_user_name = $4, forum_last_post_time = $5 WHERE forum_id = $6", forumLastPostId, forumLastPostSubject, forumLastPostUserId, forumLastPostUserName, topicLastPostTime, forumId)
 	if err != nil {
 		return fmt.Errorf("Error while updating the last post for forum id %d: %s", forumId, err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("Error while retrieving rows affected while updating the last post for forum id %d: %s", forumId, err)
-	}
-	if rowsAffected == 0 {
-		return fmt.Errorf("No rows were updated while updating the last post for forum id %d", forumId)
 	}
 	return nil
 }

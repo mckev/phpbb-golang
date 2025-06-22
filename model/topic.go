@@ -63,11 +63,11 @@ func InsertTopic(ctx context.Context, forumId int, topicTitle string, topicUserI
 	defer db.Close()
 	now := time.Now().UTC()
 	topicTime := now.Unix()
-	res, err := db.Exec("INSERT INTO topics (forum_id, topic_title, topic_time, topic_user_id, topic_first_post_user_name, topic_last_post_user_id, topic_last_post_user_name) VALUES ($1, $2, $3, $4, $5, $6, $7)", forumId, topicTitle, topicTime, topicUserId, topicUserName, topicUserId, topicUserName)
+	result, err := db.Exec("INSERT INTO topics (forum_id, topic_title, topic_time, topic_user_id, topic_first_post_user_name, topic_last_post_user_id, topic_last_post_user_name) VALUES ($1, $2, $3, $4, $5, $6, $7)", forumId, topicTitle, topicTime, topicUserId, topicUserName, topicUserId, topicUserName)
 	if err != nil {
 		return INVALID_TOPIC_ID, fmt.Errorf("Error while inserting topic title '%s' with forum id %d into topics table: %s", topicTitle, forumId, err)
 	}
-	topicId, err := res.LastInsertId()
+	topicId, err := result.LastInsertId()
 	if err != nil {
 		return INVALID_TOPIC_ID, fmt.Errorf("Error while retrieving last insert id for topic title '%s': %s", topicTitle, err)
 	}
@@ -87,16 +87,9 @@ func IncreaseNumPostsForTopic(ctx context.Context, topicId int) error {
 func UpdateFirstPostOfTopic(ctx context.Context, topicId int, topicFirstPostId int) error {
 	db := OpenDb(ctx, "topics")
 	defer db.Close()
-	result, err := db.Exec("UPDATE topics SET topic_first_post_id = $1 WHERE topic_id = $2", topicFirstPostId, topicId)
+	_, err := db.Exec("UPDATE topics SET topic_first_post_id = $1 WHERE topic_id = $2", topicFirstPostId, topicId)
 	if err != nil {
 		return fmt.Errorf("Error while updating the first post for topic id %d: %s", topicId, err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("Error while retrieving rows affected while updating the first post for topic id %d: %s", topicId, err)
-	}
-	if rowsAffected == 0 {
-		return fmt.Errorf("No rows were updated while updating the first post for topic id %d", topicId)
 	}
 	return nil
 }
@@ -106,16 +99,9 @@ func UpdateLastPostOfTopic(ctx context.Context, topicId int, topicLastPostId int
 	defer db.Close()
 	now := time.Now().UTC()
 	topicLastPostTime := now.Unix()
-	result, err := db.Exec("UPDATE topics SET topic_last_post_id = $1, topic_last_post_user_id = $2, topic_last_post_user_name = $3, topic_last_post_time = $4 WHERE topic_id = $5", topicLastPostId, topicLastPostUserId, topicLastPostUserName, topicLastPostTime, topicId)
+	_, err := db.Exec("UPDATE topics SET topic_last_post_id = $1, topic_last_post_user_id = $2, topic_last_post_user_name = $3, topic_last_post_time = $4 WHERE topic_id = $5", topicLastPostId, topicLastPostUserId, topicLastPostUserName, topicLastPostTime, topicId)
 	if err != nil {
 		return fmt.Errorf("Error while updating the last post for topic id %d: %s", topicId, err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("Error while retrieving rows affected while updating the last post for topic id %d: %s", topicId, err)
-	}
-	if rowsAffected == 0 {
-		return fmt.Errorf("No rows were updated while updating the last post for topic id %d", topicId)
 	}
 	return nil
 }
