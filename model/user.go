@@ -198,7 +198,7 @@ func CheckIfUserExists(ctx context.Context, userName string) (bool, error) {
 }
 
 func GetUserForLogin(ctx context.Context, userName string) (User, error) {
-	// WARNING: As this function returns sensitive information such as hashed password of user, please use this function for login validation only
+	// WARNING: As this function returns sensitive information such as hashed password of user, use this function for login validation only
 	db := OpenDb(ctx, "users")
 	defer db.Close()
 	var user User
@@ -219,7 +219,6 @@ func ListUsersOfTopic(ctx context.Context, topicId int) ([]User, error) {
 	// WARNING: Issue on Golang Template may reveal sensitive information of users. So avoid reading sensitive information here.
 	db := OpenDb(ctx, "users")
 	defer db.Close()
-	// ChatGPT: SQL Database with "users" and "posts" table. A user may post multiple things. Now generate SQL SELECT statement to list unique users given a post id.
 	rows, err := db.Query("SELECT DISTINCT users.user_id, users.user_type, users.user_name, users.user_sig, users.user_reg_time, users.user_last_visit_time, users.user_num_posts FROM users JOIN posts ON posts.post_user_id = users.user_id WHERE posts.topic_id = $1 ORDER BY users.user_id", topicId)
 	if err != nil {
 		return nil, fmt.Errorf("Error while querying users table for topic id %d: %s", topicId, err)

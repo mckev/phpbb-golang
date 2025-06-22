@@ -13,7 +13,7 @@ import (
 func TopicsPage(w http.ResponseWriter, r *http.Request) {
 	// To try: http://localhost:9000/topics?f=10
 	ctx := r.Context()
-	session := GetSession(r)
+	session := getSession(r)
 
 	queryParams := r.URL.Query()
 	forumId := helper.StrToInt(queryParams.Get("f"), model.INVALID_FORUM_ID)

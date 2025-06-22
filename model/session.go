@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
-
-	"phpbb-golang/internal/helper"
 )
 
 const (
@@ -49,25 +47,12 @@ func InitSessions(ctx context.Context) error {
 	return nil
 }
 
-func CreateSession(ctx context.Context, userId int, userName string, ip string, browser string, forwardedFor string) (Session, error) {
-	if userId == GUEST_USER_ID {
-		return Session{}, fmt.Errorf("Guest user cannot create a Session")
-	}
-	if userId == INVALID_USER_ID {
-		return Session{}, fmt.Errorf("Invalid user cannot create a Session")
-	}
-	if userName == "" {
-		return Session{}, fmt.Errorf("Empty username cannot create a Session")
-	}
+func CreateSession(ctx context.Context, sessionId string, userId int, userName string, ip string, browser string, forwardedFor string) (Session, error) {
 	db := OpenDb(ctx, "sessions")
 	defer db.Close()
-	sessionId, err := helper.GenerateSessionId()
-	if err != nil {
-		return Session{}, fmt.Errorf("Error while generating a random SID: %s", err)
-	}
 	now := time.Now().UTC()
 	sessionTimeStart := now.Unix()
-	_, err = db.Exec("INSERT INTO sessions (session_id, session_user_id, session_user_name, session_time_start, session_time_last, session_ip, session_browser, session_forwarded_for) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", sessionId, userId, userName, sessionTimeStart, sessionTimeStart, ip, browser, forwardedFor)
+	_, err := db.Exec("INSERT INTO sessions (session_id, session_user_id, session_user_name, session_time_start, session_time_last, session_ip, session_browser, session_forwarded_for) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", sessionId, userId, userName, sessionTimeStart, sessionTimeStart, ip, browser, forwardedFor)
 	if err != nil {
 		return Session{}, fmt.Errorf("Error while inserting session id '%s' for user id %d: %s", sessionId, userId, err)
 	}
@@ -109,34 +94,6 @@ func GetSession(ctx context.Context, sessionId string) (Session, error) {
 			return Session{}, fmt.Errorf("Error while retrieving session id '%s' on sessions table: %s: No result found", sessionId, DB_ERROR_NO_RESULT)
 		}
 		return Session{}, fmt.Errorf("Error while scanning row on sessions table for session id '%s': %s", sessionId, err)
-	}
-	return session, nil
-}
-
-func ResumeSession(ctx context.Context, sessionId string, ip string, browser string, forwardedFor string) (Session, error) {
-	// Existing session is valid if:
-	//   - Session id string is valid
-	//   - Session exists on sessions table
-	//   - 0 <= CurrentTime-SessionTimeLast < SESSION_TIMEOUT_IN_SECONDS
-	//   - IP, Browser and ForwardedFor matched.
-	if !helper.IsSessionIdValid(sessionId) {
-		return Session{}, fmt.Errorf("Error while resuming user session: Session id '%s' is not valid", sessionId)
-	}
-	session, err := GetSession(ctx, sessionId)
-	if err != nil {
-		return Session{}, fmt.Errorf("Error while resuming user session: %s", err)
-	}
-	now := time.Now().UTC()
-	currentTime := now.Unix()
-	if currentTime-session.SessionTimeLast < 0 || currentTime-session.SessionTimeLast >= SESSION_TIMEOUT_IN_SECONDS {
-		return Session{}, fmt.Errorf("Error while resuming user session: Session has timed out with delta time %d seconds", currentTime-session.SessionTimeLast)
-	}
-	if session.SessionIp != ip || session.SessionBrowser != browser || session.SessionForwardedFor != forwardedFor {
-		return Session{}, fmt.Errorf("Error while resuming user session: User fingerprint does not match: IP %s, Browser %s, ForwardedFor %s do not equal values in database IP %s, Browser %s, ForwardedFor %s", ip, browser, forwardedFor, session.SessionIp, session.SessionBrowser, session.SessionForwardedFor)
-	}
-	err = UpdateSessionTimeLast(ctx, sessionId)
-	if err != nil {
-		return Session{}, fmt.Errorf("Error while resuming user session: %s", err)
 	}
 	return session, nil
 }

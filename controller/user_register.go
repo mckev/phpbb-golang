@@ -14,7 +14,7 @@ import (
 func UserRegisterPage(w http.ResponseWriter, r *http.Request) {
 	// To try: http://localhost:9000/user_register
 	ctx := r.Context()
-	session := GetSession(r)
+	session := getSession(r)
 
 	type FormData struct {
 		Username        string
@@ -80,7 +80,7 @@ func UserRegisterPage(w http.ResponseWriter, r *http.Request) {
 
 			// Create user session (for user registration and user login)
 			ip, browser, forwardedFor := helper.ExtractUserFingerprint(r)
-			session, err = model.CreateSession(ctx, user.UserId, user.UserName, ip, browser, forwardedFor)
+			session, err = createSession(ctx, user.UserId, user.UserName, ip, browser, forwardedFor)
 			if err != nil {
 				logger.Errorf(ctx, "Error while creating user session: %s", err)
 				return

@@ -13,7 +13,7 @@ import (
 func MainPage(w http.ResponseWriter, r *http.Request) {
 	// To try: http://localhost:9000/
 	ctx := r.Context()
-	session := GetSession(r)
+	session := getSession(r)
 
 	// Prepare template files
 	templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/main.html")

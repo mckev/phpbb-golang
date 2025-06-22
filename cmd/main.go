@@ -10,14 +10,15 @@ import (
 	"phpbb-golang/internal/logger"
 )
 
-func handler() http.Handler {
+func httpHandler() http.Handler {
 	rootMux := http.NewServeMux()
 
 	// Public (no middleware)
+	// Note: The "/" suffix will do prefix match, otherwise it will do exact match
 	rootMux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./view/static/assets/"))))
 	rootMux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./view/static/images/"))))
 	rootMux.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("./view/static/styles/"))))
-	rootMux.HandleFunc("/myforum/", controller.MyForumPage) // Note: The "/" suffix will do prefix match, otherwise it will do exact match
+	rootMux.HandleFunc("/myforum/", controller.MyForumPage)
 
 	// With Session middleware
 	sessionMux := http.NewServeMux()
@@ -43,12 +44,13 @@ func main() {
 	ctx := context.Background()
 
 	// MyForum example
+	// TODO: Delete after finish development
 	myforum.InitMyforum(ctx)
 	myforum.DebugMyforum(ctx)
 
 	portNumber := 9000
 	logger.Infof(ctx, "Server is listening on port %d", portNumber)
-	err := http.ListenAndServe(fmt.Sprintf("localhost:%d", portNumber), handler())
+	err := http.ListenAndServe(fmt.Sprintf("localhost:%d", portNumber), httpHandler())
 	if err != nil {
 		logger.Fatalf(ctx, "Error while listening on port %d: %s", portNumber, err)
 	}

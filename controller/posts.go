@@ -13,7 +13,7 @@ import (
 func PostsPage(w http.ResponseWriter, r *http.Request) {
 	// To try: http://localhost:9000/posts?t=2
 	ctx := r.Context()
-	session := GetSession(r)
+	session := getSession(r)
 
 	// Parse query string. We use queryParams.Get("key") to retrieve the first value for a given query parameter.
 	queryParams := r.URL.Query()
