@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
+	"unicode/utf8"
 
 	"phpbb-golang/internal/forumhelper"
 	"phpbb-golang/internal/helper"
@@ -33,14 +34,19 @@ func UserRegisterPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		formData.Username = strings.TrimSpace(r.Form.Get("username"))
-		if len(formData.Username) < 4 {
+		if utf8.RuneCountInString(formData.Username) < 4 {
 			formData.Errors = append(formData.Errors, "The username you entered is too short.")
-		} else if len(formData.Username) > 20 {
+		} else if utf8.RuneCountInString(formData.Username) > 20 {
 			formData.Errors = append(formData.Errors, "The username you entered is too long.")
 		}
-		// TODO: Check that username does not have invalid characters, such as space
+		if strings.Contains(formData.Username, "  ") {
+			formData.Errors = append(formData.Errors, "The username contains consecutive spaces.")
+		}
+		if !helper.IsStringNFKCNormalized(formData.Username) {
+			formData.Errors = append(formData.Errors, "The username is not NFKC-normalized.")
+		}
 		formData.NewPassword = strings.TrimSpace(r.Form.Get("new_password"))
-		if len(formData.NewPassword) < 8 {
+		if utf8.RuneCountInString(formData.NewPassword) < 8 {
 			formData.Errors = append(formData.Errors, "The password you entered is too short.")
 		}
 		if !helper.IsPasswordValid(formData.NewPassword) {

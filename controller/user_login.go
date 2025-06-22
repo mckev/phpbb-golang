@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
+	"unicode/utf8"
 
 	"phpbb-golang/internal/forumhelper"
 	"phpbb-golang/internal/helper"
@@ -35,15 +36,15 @@ func UserLoginPage(w http.ResponseWriter, r *http.Request) {
 		formData.Username = strings.TrimSpace(r.Form.Get("username"))
 		if formData.Username == "" {
 			formData.Errors = append(formData.Errors, "You have specified an incorrect username. Please check your username and try again.")
-		} else if len(formData.Username) < 4 {
+		} else if utf8.RuneCountInString(formData.Username) < 4 {
 			formData.Errors = append(formData.Errors, "The username you entered is too short.")
-		} else if len(formData.Username) > 20 {
+		} else if utf8.RuneCountInString(formData.Username) > 20 {
 			formData.Errors = append(formData.Errors, "The username you entered is too long.")
 		}
 		formData.Password = strings.TrimSpace(r.Form.Get("password"))
 		if formData.Password == "" {
 			formData.Errors = append(formData.Errors, "You cannot login without a password.")
-		} else if len(formData.Password) < 8 {
+		} else if utf8.RuneCountInString(formData.Password) < 8 {
 			formData.Errors = append(formData.Errors, "The password you entered is too short.")
 		}
 		formData.RedirectTo = strings.TrimSpace(r.Form.Get("redirect"))
