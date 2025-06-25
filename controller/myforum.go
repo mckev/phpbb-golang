@@ -67,6 +67,19 @@ func MyForumPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+	case "/myforum/post_write":
+		// To try: http://localhost:9000/myforum/post_write
+		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/post_write.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing template files: %s", err)
+			return
+		}
+		err = templateOutput.ExecuteTemplate(w, "overall", nil)
+		if err != nil {
+			logger.Errorf(ctx, "Error while executing template: %s", err)
+			return
+		}
+
 	case "/myforum/user_login":
 		// To try: http://localhost:9000/myforum/user_login
 		templateOutput, err := template.ParseFiles("./examples/myforum/templates/overall.html", "./examples/myforum/templates/user_login.html")

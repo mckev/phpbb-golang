@@ -18,7 +18,9 @@ func httpHandler() http.Handler {
 	rootMux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./view/static/assets/"))))
 	rootMux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./view/static/images/"))))
 	rootMux.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("./view/static/styles/"))))
+	// Example pages
 	rootMux.HandleFunc("/myforum/", controller.MyForumPage)
+	rootMux.Handle("/myforum/images/", http.StripPrefix("/myforum/images/", http.FileServer(http.Dir("./view/static/images/"))))
 
 	// With Session middleware
 	sessionMux := http.NewServeMux()

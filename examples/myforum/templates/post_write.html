@@ -1,0 +1,981 @@
+{{ define "body" }}
+{{ $root := . }}
+<div id="page-body" class="page-body" role="main">
+    <h2 class="posting-title"><a href="./viewtopic.php?t=13">Introduce Yourself</a></h2>
+    <form id="postform" method="post" action="./posting.php?mode=reply&amp;t=13" enctype="multipart/form-data">
+        <div class="panel" id="postingbox">
+            <div class="inner">
+                <h3>Post a reply</h3>
+                <fieldset class="fields1">
+                    <dl style="clear: left;">
+                        <dt><label for="subject">Subject:</label></dt>
+                        <dd>
+                            <input type="text" name="subject" id="subject" size="45" maxlength="124" tabindex="2" value="Re: Introduce Yourself" class="inputbox autowidth" />
+                        </dd>
+                    </dl>
+
+                    <script>
+                        var form_name = 'postform';
+                        var text_name = 'message';
+                        var load_draft = false;
+                        var upload = false;
+
+                        // Define the bbCode tags
+                        var bbcode = new Array();
+                        var bbtags = new Array('[b]', '[/b]', '[i]', '[/i]', '[u]', '[/u]', '[quote]', '[/quote]', '[code]', '[/code]', '[list]', '[/list]', '[list=]', '[/list]', '[img]', '[/img]', '[url]', '[/url]', '[flash=]', '[/flash]', '[size=]', '[/size]', '[s]', '[/s]', '[sub]', '[/sub]', '[super]', '[/super]');
+                        var imageTag = false;
+
+                        function change_palette() {
+                            phpbb.toggleDisplay('colour_palette');
+                            e = document.getElementById('colour_palette');
+
+                            if (e.style.display == 'block') {
+                                document.getElementById('bbpalette').value = 'Hide\u0020font\u0020colour';
+                            }
+                            else {
+                                document.getElementById('bbpalette').value = 'Font\u0020colour';
+                            }
+                        }
+                    </script>
+
+                    <div id="colour_palette" style="display: none;">
+                        <dl style="clear: left;">
+                            <dt><label>Font colour:</label></dt>
+                            <dd id="color_palette_placeholder" class="color_palette_placeholder" data-color-palette="h" data-height="12" data-width="15" data-bbcode="true"></dd>
+                        </dl>
+                    </div>
+
+                    <div id="format-buttons" class="format-buttons">
+                        <button type="button" class="button button-icon-only bbcode-b" accesskey="b" name="addbbcode0" value=" B " onclick="bbstyle(0)" title="Bold text: [b]text[/b]">
+                            <i class="icon fa-bold fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-icon-only bbcode-i" accesskey="i" name="addbbcode2" value=" i " onclick="bbstyle(2)" title="Italic text: [i]text[/i]">
+                            <i class="icon fa-italic fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-icon-only bbcode-u" accesskey="u" name="addbbcode4" value=" u " onclick="bbstyle(4)" title="Underline text: [u]text[/u]">
+                            <i class="icon fa-underline fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-icon-only bbcode-quote" accesskey="q" name="addbbcode6" value="Quote" onclick="bbstyle(6)" title="Quote text: [quote]text[/quote]">
+                            <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-icon-only bbcode-code" accesskey="c" name="addbbcode8" value="Code" onclick="bbstyle(8)" title="Code display: [code]code[/code]">
+                            <i class="icon fa-code fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-icon-only bbcode-list" accesskey="l" name="addbbcode10" value="List" onclick="bbstyle(10)" title="List: [list][*]text[/list]">
+                            <i class="icon fa-list fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-icon-only bbcode-list-" accesskey="o" name="addbbcode12" value="List=" onclick="bbstyle(12)" title="Ordered list: e.g. [list=1][*]First point[/list] or [list=a][*]Point a[/list]">
+                            <i class="icon fa-list-ol fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-icon-only bbcode-asterisk" accesskey="y" name="addlistitem" value="[*]" onclick="bbstyle(-1)" title="List item: [*]text">
+                            <i class="icon fa-asterisk fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-icon-only bbcode-img" accesskey="p" name="addbbcode14" value="Img" onclick="bbstyle(14)" title="Insert image: [img]http://image_url[/img]">
+                            <i class="icon fa-image fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-icon-only bbcode-url" accesskey="w" name="addbbcode16" value="URL" onclick="bbstyle(16)" title="Insert URL: [url]http://url[/url] or [url=http://url]URL text[/url]">
+                            <i class="icon fa-link fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-icon-only bbcode-color" name="bbpalette" id="bbpalette" value="Font colour" onclick="change_palette();" title="Font colour: [color=red]text[/color] or [color=#FF0000]text[/color]">
+                            <i class="icon fa-tint fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <select name="addbbcode20" class="bbcode-size" onchange="bbfontstyle('[size=' + this.form.addbbcode20.options[this.form.addbbcode20.selectedIndex].value + ']', '[/size]');this.form.addbbcode20.selectedIndex = 2;" title="Font size: [size=85]small text[/size]">
+                            <option value="50">Tiny</option>
+                            <option value="85">Small</option>
+                            <option value="100" selected="selected">Normal</option>
+                            <option value="150">Large</option>
+                            <option value="200">Huge</option>
+                        </select>
+                        <button type="button" class="button button-icon-only bbcode-media" accesskey="m" name="addmedia" value="Media" onclick="bbfontstyle('[media]', '[/media]');" title="Media Embed: [media]http://media_url[/media]">
+                            <i class="icon fa-television fa-fw" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="button button-secondary bbcode-s" name="addbbcode22" value="s" onclick="bbstyle(22)" title="[s]strikethrough text[/s]">
+                            s
+                        </button>
+                        <button type="button" class="button button-secondary bbcode-sub" name="addbbcode24" value="sub" onclick="bbstyle(24)" title="H[sub]2[/sub]O">
+                            sub
+                        </button>
+                        <button type="button" class="button button-secondary bbcode-super" name="addbbcode26" value="super" onclick="bbstyle(26)" title="x[super]3[/super]">
+                            super
+                        </button>
+                    </div>
+
+                    <div id="smiley-box" class="smiley-box">
+                        <strong>Smilies</strong><br />
+                        <a href="#" onclick="insert_text(':D', true); return false;"><img src="./images/smilies/icon_e_biggrin.svg" width="15" height="17" alt=":D" title="Very Happy" /></a>
+                        <a href="#" onclick="insert_text(':)', true); return false;"><img src="./images/smilies/icon_e_smile.svg" width="15" height="17" alt=":)" title="Smile" /></a>
+                        <a href="#" onclick="insert_text(';)', true); return false;"><img src="./images/smilies/icon_e_wink.svg" width="15" height="17" alt=";)" title="Wink" /></a>
+                        <a href="#" onclick="insert_text(':(', true); return false;"><img src="./images/smilies/icon_e_sad.svg" width="15" height="17" alt=":(" title="Sad" /></a>
+                        <a href="#" onclick="insert_text(':o', true); return false;"><img src="./images/smilies/icon_e_surprised.svg" width="15" height="17" alt=":o" title="Surprised" /></a>
+                        <a href="#" onclick="insert_text(':shock:', true); return false;"><img src="./images/smilies/icon_eek.svg" width="15" height="17" alt=":shock:" title="Shocked" /></a>
+                        <a href="#" onclick="insert_text(':?', true); return false;"><img src="./images/smilies/icon_e_confused.svg" width="15" height="17" alt=":?" title="Confused" /></a>
+                        <a href="#" onclick="insert_text('8-)', true); return false;"><img src="./images/smilies/icon_cool.svg" width="15" height="17" alt="8-)" title="Cool" /></a>
+                        <a href="#" onclick="insert_text(':lol:', true); return false;"><img src="./images/smilies/icon_lol.svg" width="15" height="17" alt=":lol:" title="Laughing" /></a>
+                        <a href="#" onclick="insert_text(':x', true); return false;"><img src="./images/smilies/icon_mad.svg" width="15" height="17" alt=":x" title="Mad" /></a>
+                        <a href="#" onclick="insert_text(':P', true); return false;"><img src="./images/smilies/icon_razz.svg" width="15" height="17" alt=":P" title="Razz" /></a>
+                        <a href="#" onclick="insert_text(':oops:', true); return false;"><img src="./images/smilies/icon_redface.svg" width="15" height="17" alt=":oops:" title="Embarrassed" /></a>
+                        <a href="#" onclick="insert_text(':cry:', true); return false;"><img src="./images/smilies/icon_cry.svg" width="15" height="17" alt=":cry:" title="Crying or Very Sad" /></a>
+                        <a href="#" onclick="insert_text(':evil:', true); return false;"><img src="./images/smilies/icon_evil.svg" width="15" height="17" alt=":evil:" title="Evil or Very Mad" /></a>
+                        <a href="#" onclick="insert_text(':twisted:', true); return false;"><img src="./images/smilies/icon_twisted.svg" width="15" height="17" alt=":twisted:" title="Twisted Evil" /></a>
+                        <a href="#" onclick="insert_text(':roll:', true); return false;"><img src="./images/smilies/icon_rolleyes.svg" width="15" height="17" alt=":roll:" title="Rolling Eyes" /></a>
+                        <a href="#" onclick="insert_text(':!:', true); return false;"><img src="./images/smilies/icon_exclaim.svg" width="15" height="17" alt=":!:" title="Exclamation" /></a>
+                        <a href="#" onclick="insert_text(':?:', true); return false;"><img src="./images/smilies/icon_question.svg" width="15" height="17" alt=":?:" title="Question" /></a>
+                        <a href="#" onclick="insert_text(':idea:', true); return false;"><img src="./images/smilies/icon_idea.svg" width="15" height="17" alt=":idea:" title="Idea" /></a>
+                        <a href="#" onclick="insert_text(':arrow:', true); return false;"><img src="./images/smilies/icon_arrow.svg" width="15" height="17" alt=":arrow:" title="Arrow" /></a>
+                        <a href="#" onclick="insert_text(':|', true); return false;"><img src="./images/smilies/icon_neutral.svg" width="15" height="17" alt=":|" title="Neutral" /></a>
+                        <a href="#" onclick="insert_text(':mrgreen:', true); return false;"><img src="./images/smilies/icon_mrgreen.svg" width="15" height="17" alt=":mrgreen:" title="Mr. Green" /></a>
+                        <a href="#" onclick="insert_text(':geek:', true); return false;"><img src="./images/smilies/icon_e_geek.svg" width="17" height="17" alt=":geek:" title="Geek" /></a>
+                        <a href="#" onclick="insert_text(':ugeek:', true); return false;"><img src="./images/smilies/icon_e_ugeek.svg" width="17" height="18" alt=":ugeek:" title="Uber Geek" /></a>
+                        <a href="#" onclick="insert_text(':beer:', true); return false;"><img src="./images/smilies/1f37a.svg" width="17" height="17" alt=":beer:" title="Beer!" /></a>
+                        <a href="#" onclick="insert_text(':thumbsup:', true); return false;"><img src="./images/smilies/1f44d.svg" width="17" height="17" alt=":thumbsup:" title="Thumbs up" /></a>
+                        <a href="#" onclick="insert_text(':rofl:', true); return false;"><img src="./images/smilies/1f923.svg" width="17" height="17" alt=":rofl:" title="Rolling on the floor laughing" /></a>
+                        <div class="bbcode-status">
+                            <hr /> <a href="/forum/help/bbcode">BBCode</a> is <em>ON</em><br />
+                            [img] is <em>ON</em><br />
+                            [url] is <em>ON</em><br />
+                            Smilies are <em>ON</em>
+                        </div>
+                        <hr /> <strong><a href="#review">Topic review</a></strong>
+                    </div>
+
+
+                    <div id="message-box" class="message-box">
+                        <textarea name="message" id="message" rows="15" cols="76" tabindex="4" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onfocus="initInsertions();" class="inputbox"></textarea>
+                    </div>
+
+                </fieldset>
+
+
+            </div>
+        </div>
+
+        <div class="panel bg2">
+            <div class="inner">
+                <fieldset class="submit-buttons">
+                    <input type="hidden" name="topic_cur_post_id" value="792165" />
+                    <input type="submit" accesskey="k" tabindex="7" name="save" value="Save draft" class="button2" />&nbsp; <input type="submit" tabindex="5" name="preview" value="Preview" class="button1" onclick="document.getElementById('postform').action += '#preview';" />&nbsp;
+                    <input type="submit" accesskey="s" tabindex="6" name="post" value="Submit" class="button1 default-submit-action" />&nbsp;
+                </fieldset>
+            </div>
+        </div>
+
+        <div id="tabs" class="tabs sub-panels" data-show-panel="options-panel" role="tablist">
+            <ul>
+                <li id="options-panel-tab" class="tab activetab"><a href="#tabs" data-subpanel="options-panel" role="tab" aria-controls="options-panel"><span>Options</span></a></li>
+                <li id="attach-panel-tab" class="tab">
+                    <a href="#tabs" data-subpanel="attach-panel" role="tab" aria-controls="attach-panel">
+                        Attachments <strong id="file-total-progress" class="file-total-progress"><strong id="file-total-progress-bar" class="file-total-progress-bar"></strong></strong>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="panel bg3" id="options-panel">
+            <div class="inner">
+                <fieldset class="fields1">
+                    <div><label for="disable_bbcode"><input type="checkbox" name="disable_bbcode" id="disable_bbcode" /> Disable BBCode</label></div>
+                    <div><label for="disable_smilies"><input type="checkbox" name="disable_smilies" id="disable_smilies" /> Disable smilies</label></div>
+                    <div><label for="disable_magic_url"><input type="checkbox" name="disable_magic_url" id="disable_magic_url" /> Do not automatically parse URLs</label></div>
+                    <div><label for="attach_sig"><input type="checkbox" name="attach_sig" id="attach_sig" checked="checked" /> Attach a signature (signatures can be altered via the UCP)</label></div>
+                    <div><label for="notify"><input type="checkbox" name="notify" id="notify" /> Notify me when a reply is posted</label></div>
+                </fieldset>
+                <input type="hidden" name="show_panel" value="options-panel" />
+                <input type="hidden" name="creation_time" value="1750874642" />
+                <input type="hidden" name="form_token" value="08e32252d442e82d22598284f1c2f975f7768941" />
+            </div>
+        </div>
+
+        <div class="panel bg3 panel-container" id="attach-panel">
+            <div class="inner">
+                <p>If you wish to attach one or more files enter the details below. <span class="hidden" id="drag-n-drop-message">You may also attach files by dragging and dropping them in the message box.</span></p>
+                <p>Maximum filesize per attachment: 1 MiB.</p>
+                <fieldset class="fields2" id="attach-panel-basic">
+                    <dl>
+                        <dt><label for="fileupload">Filename:</label></dt>
+                        <dd>
+                            <input type="file" accept=".gif,.png,.jpeg,.jpg,.tif,.tga,.gtar,.gz,.tar,.zip,.rar,.ace,.txt,.c,.h,.cpp,.hpp,.diz,.xls,.doc,.dot,.pdf,.ai,.ps,.ppt,.tiff,.7z,.bz2,.tgz,.torrent,.csv,.ini,.js,.log,.xml,.docm,.docx,.dotm,.dotx,.odg,.odp,.ods,.odt,.pptm,.pptx,.rtf,.xlsb,.xlsm,.xlsx,.webp" name="fileupload" id="fileupload" class="inputbox autowidth" />
+                            <input type="submit" name="add_file" value="Add the file" class="button2" onclick="upload = true;" />
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="filecomment">File comment:</label></dt>
+                        <dd><textarea name="filecomment" id="filecomment" rows="1" cols="40" class="inputbox autowidth"></textarea></dd>
+                    </dl>
+                </fieldset>
+
+                <div id="attach-panel-multi" class="attach-panel-multi">
+                    <input type="button" class="button2" value="Add files" id="add_files" />
+                </div>
+
+                <div class="panel hidden file-list-container" id="file-list-container">
+                    <div class="inner">
+                        <table class="table1 zebra-list fixed-width-table">
+                            <thead>
+                                <tr>
+                                    <th class="attach-name">Filename</th>
+                                    <th class="attach-comment">File comment</th>
+                                    <th class="attach-filesize">Size</th>
+                                    <th class="attach-status">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="responsive-skip-empty file-list" id="file-list">
+                                <tr class="attach-row attach-row-tpl" id="attach-row-tpl">
+                                    <td class="attach-name">
+                                        <span class="file-name ellipsis-text"></span>
+                                        <span class="attach-controls">
+                                            <input type="button" value="Place inline" class="button2 hidden file-inline-bbcode" />&nbsp; <input type="button" value="Delete file" class="button2 file-delete" />
+                                        </span>
+                                        <span class="clear"></span>
+                                    </td>
+                                    <td class="attach-comment">
+                                        <textarea rows="1" cols="30" class="inputbox"></textarea>
+                                    </td>
+                                    <td class="attach-filesize">
+                                        <span class="file-size"></span>
+                                    </td>
+                                    <td class="attach-status">
+                                        <span class="file-progress">
+                                            <span class="file-progress-bar"></span>
+                                        </span>
+                                        <span class="file-status"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 id="review" class="review">
+            <span class="right-box"><a href="#review" onclick="viewableArea(getElementById('topicreview'), true); var rev_text = getElementById('review').getElementsByTagName('a').item(0).firstChild; if (rev_text.data == 'Expand\u0020view'){rev_text.data = 'Collapse\u0020view'; } else if (rev_text.data == 'Collapse\u0020view'){rev_text.data = 'Expand\u0020view'};">Expand view</a></span>
+            Topic review: Introduce Yourself
+        </h3>
+
+        <div id="topicreview" class="topicreview">
+            <script>
+                bbcodeEnabled = 1;
+            </script>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr792165">
+                        <h3><a href="./viewtopic.php?p=792165#p792165">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(792165, 'afulldeck', 'wrote', {post_id:792165,time:1746809687,user_id:12209});" title="Quote afulldeck" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote afulldeck</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=792165#p792165" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=12209" class="username">afulldeck</a></strong> &raquo; 09 May 2025 11:54
+                        </p>
+                        <div class="content">Welcome to the club!</div>
+                        <div id="message_792165" style="display: none;">Welcome to the club!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr792139">
+                        <h3><a href="./viewtopic.php?p=792139#p792139">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(792139, 'MVC1', 'wrote', {post_id:792139,time:1746753924,user_id:16934});" title="Quote MVC1" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote MVC1</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=792139#p792139" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=16934" class="username">MVC1</a></strong> &raquo; 08 May 2025 20:25
+                        </p>
+                        <div class="content">Hello all, wanted to introduce myself: I left corporate world a couple of years ago to slow down a bit and pursue passion projects. As part of that, did extensive planning and research, and a lot of DIY preparation. Personal finance is a hobby and a passion of mine. Wife still working full-time, kids still in school. Looking forward to contributing.</div>
+                        <div id="message_792139" style="display: none;">Hello all, wanted to introduce myself: I left corporate world a couple of years ago to slow down a bit and pursue passion projects. As part of that, did extensive planning and research, and a lot of DIY preparation. Personal finance is a hobby and a passion of mine. Wife still working full-time, kids still in school. Looking forward to contributing.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr782434">
+                        <h3><a href="./viewtopic.php?p=782434#p782434">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(782434, 'LadyGeek', 'wrote', {post_id:782434,time:1735740689,user_id:6954});" title="Quote LadyGeek" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote LadyGeek</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=782434#p782434" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=6954" class="username">LadyGeek</a></strong> &raquo; 01 Jan 2025 09:11
+                        </p>
+                        <div class="content">This is as good a place as any. I'd say it's an introduction to 2025. Happy New Year!</div>
+                        <div id="message_782434" style="display: none;">This is as good a place as any. I'd say it's an introduction to 2025. Happy New Year!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr782417">
+                        <h3><a href="./viewtopic.php?p=782417#p782417">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(782417, 'spicy86', 'wrote', {post_id:782417,time:1735725495,user_id:17457});" title="Quote spicy86" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote spicy86</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=782417#p782417" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=17457" class="username">spicy86</a></strong> &raquo; 01 Jan 2025 04:58
+                        </p>
+                        <div class="content">Wasn't sure where to post this, but Happy New Year everyone!</div>
+                        <div id="message_782417" style="display: none;">Wasn't sure where to post this, but Happy New Year everyone!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr782381">
+                        <h3><a href="./viewtopic.php?p=782381#p782381">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(782381, 'poedin', 'wrote', {post_id:782381,time:1735663117,user_id:3174});" title="Quote poedin" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote poedin</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=782381#p782381" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=3174" class="username">poedin</a></strong> &raquo; 31 Dec 2024 11:38
+                        </p>
+                        <div class="content">
+                            <blockquote cite="./viewtopic.php?p=782361#p782361">
+                                <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=8718">hamor</a> wrote: <a href="./viewtopic.php?p=782361#p782361" aria-label="View quoted post" data-post-id="782361" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">31 Dec 2024 08:11</span></cite>
+                                    What's different about FWF is many members know each other if not personally, than certainly by the history of posts and know who they can trust and who to stay away from It's the best virtual club internet can facilitate.
+                                </div>
+                            </blockquote> <img class="smilies" src="./images/smilies/1f44d.svg" width="17" height="17" alt=":thumbsup:" title="Thumbs up">
+                        </div>
+                        <div id="message_782381" style="display: none;">[quote=hamor post_id=782361 time=1735650690 user_id=8718]<br />What's different about FWF is many members know each other if not personally, than certainly by the history of posts and know who they can trust and who to stay away from It's the best virtual club internet can facilitate.<br />[/quote] :thumbsup:</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr782362">
+                        <h3><a href="./viewtopic.php?p=782362#p782362">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(782362, 'spicy86', 'wrote', {post_id:782362,time:1735651339,user_id:17457});" title="Quote spicy86" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote spicy86</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=782362#p782362" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=17457" class="username">spicy86</a></strong> &raquo; 31 Dec 2024 08:22
+                        </p>
+                        <div class="content">Thanks everyone.</div>
+                        <div id="message_782362" style="display: none;">Thanks everyone.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr782361">
+                        <h3><a href="./viewtopic.php?p=782361#p782361">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(782361, 'hamor', 'wrote', {post_id:782361,time:1735650690,user_id:8718});" title="Quote hamor" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote hamor</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=782361#p782361" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=8718" class="username">hamor</a></strong> &raquo; 31 Dec 2024 08:11
+                        </p>
+                        <div class="content">
+                            <blockquote cite="./viewtopic.php?p=782359#p782359">
+                                <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=17457">spicy86</a> wrote: <a href="./viewtopic.php?p=782359#p782359" aria-label="View quoted post" data-post-id="782359" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">31 Dec 2024 08:00</span></cite>
+                                    when this forum was started
+                                </div>
+                            </blockquote>
+
+                            Welcome! The current forum est. 2008? is reincarnation of another one. Some members have been around longer.<br>
+                            What's different about FWF is many members know each other if not personally, than certainly by the history of posts and know who they can trust and who to stay away from <img class="smilies" src="./images/smilies/icon_e_smile.svg" width="15" height="17" alt=":)" title="Smile"> It's the best virtual club internet can facilitate. <br>
+                            May be there's something in the wiki - Finiki.
+                        </div>
+                        <div id="message_782361" style="display: none;">[quote=spicy86 post_id=782359 time=1735650047 user_id=17457]<br />when this forum was started<br />[/quote]<br /><br />Welcome! The current forum est. 2008? is reincarnation of another one. Some members have been around longer.<br />What's different about FWF is many members know each other if not personally, than certainly by the history of posts and know who they can trust and who to stay away from :) It's the best virtual
+                            club internet can facilitate. <br />May be there's something in the wiki - Finiki.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr782360">
+                        <h3><a href="./viewtopic.php?p=782360#p782360">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(782360, 'Peculiar_Investor', 'wrote', {post_id:782360,time:1735650353,user_id:636});" title="Quote Peculiar_Investor" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote Peculiar_Investor</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=782360#p782360" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=636" class="username">Peculiar_Investor</a></strong> &raquo; 31 Dec 2024 08:05
+                        </p>
+                        <div class="content">
+                            <blockquote cite="./viewtopic.php?p=782359#p782359">
+                                <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=17457">spicy86</a> wrote: <a href="./viewtopic.php?p=782359#p782359" aria-label="View quoted post" data-post-id="782359" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">31 Dec 2024 08:00</span></cite>
+                                    I'm just wondering when this forum was started.
+                                </div>
+                            </blockquote>
+                            Read all about it in <a href="https://www.financialwisdomforum.org/history-of-fwf/" class="postlink">History of FWF â€“ Financial Wisdom Forum</a>
+                            <blockquote class="uncited">
+                                <div>February 18, 2005, FWF goes live using phpBB v2.0.11</div>
+                            </blockquote>
+                            so closing in on 20 years of providing a place "Where Canadian Investors Meet for Financial Education and Empowerment". Most important is FWF is an independent, non-commercial site that is solely run by volunteers.
+                        </div>
+                        <div id="message_782360" style="display: none;">[quote=spicy86 post_id=782359 time=1735650047 user_id=17457]<br />I'm just wondering when this forum was started.<br />[/quote]<br />Read all about it in [url=https://www.financialwisdomforum.org/history-of-fwf/]History of FWF â€“ Financial Wisdom Forum[/url] [quote]February 18, 2005, FWF goes live using phpBB v2.0.11[/quote]<br />so closing in on 20 years of providing a place &quot;Where Canadian Investors Meet for
+                            Financial Education and Empowerment&quot;. Most important is FWF is an independent, non-commercial site that is solely run by volunteers.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr782359">
+                        <h3><a href="./viewtopic.php?p=782359#p782359">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(782359, 'spicy86', 'wrote', {post_id:782359,time:1735650047,user_id:17457});" title="Quote spicy86" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote spicy86</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=782359#p782359" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=17457" class="username">spicy86</a></strong> &raquo; 31 Dec 2024 08:00
+                        </p>
+                        <div class="content">Hi,<br>
+                            <br>
+                            I'm new here. I'm just wondering when this forum was started.<br>
+                            <br>
+                            Cheers
+                        </div>
+                        <div id="message_782359" style="display: none;">Hi,<br /><br />I'm new here. I'm just wondering when this forum was started.<br /><br />Cheers</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr782104">
+                        <h3><a href="./viewtopic.php?p=782104#p782104">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(782104, 'subiemax', 'wrote', {post_id:782104,time:1735314428,user_id:17464});" title="Quote subiemax" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote subiemax</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=782104#p782104" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=17464" class="username">subiemax</a></strong> &raquo; 27 Dec 2024 10:47
+                        </p>
+                        <div class="content">First book I red was "Millionaire Teacher" by Andrew Hallam.<br>
+                            I have engineering background, so graphs and stats in that book as well as simple and concise language were convincing. <br>
+                            <br>
+                            q points to these who get some financial acumen early in life, makes a huge difference. I didn't, but made sure my daughter red that book.<br>
+                            <br>
+                            subiemax
+                        </div>
+                        <div id="message_782104" style="display: none;">First book I red was &quot;Millionaire Teacher&quot; by Andrew Hallam.<br />I have engineering background, so graphs and stats in that book as well as simple and concise language were convincing. <br /><br />q points to these who get some financial acumen early in life, makes a huge difference. I didn't, but made sure my daughter red that book.<br /><br />subiemax</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr781987">
+                        <h3><a href="./viewtopic.php?p=781987#p781987">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(781987, 'Bylo Selhi', 'wrote', {post_id:781987,time:1735062002,user_id:8});" title="Quote Bylo Selhi" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote Bylo Selhi</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=781987#p781987" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=8" class="username">Bylo Selhi</a></strong> &raquo; 24 Dec 2024 12:40
+                        </p>
+                        <div class="content">
+                            <blockquote cite="./viewtopic.php?p=781926#p781926">
+                                <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=17464">subiemax</a> wrote: <a href="./viewtopic.php?p=781926#p781926" aria-label="View quoted post" data-post-id="781926" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">23 Dec 2024 15:21</span></cite>majority of our investments are in VBAL (based on a financial book I red few years back).
+                                </div>
+                            </blockquote>Welcome, "on board." <br>
+                            <br>
+                            Do you recall the title or author of the book? Good to see all-in-one ETFs becoming more mainstream.
+                        </div>
+                        <div id="message_781987" style="display: none;">[quote=subiemax post_id=781926 time=1734985282 user_id=17464]majority of our investments are in VBAL (based on a financial book I red few years back).[/quote]Welcome, &quot;on board.&quot; <br /><br />Do you recall the title or author of the book? Good to see all-in-one ETFs becoming more mainstream.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr781981">
+                        <h3><a href="./viewtopic.php?p=781981#p781981">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(781981, 'Peculiar_Investor', 'wrote', {post_id:781981,time:1735060211,user_id:636});" title="Quote Peculiar_Investor" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote Peculiar_Investor</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=781981#p781981" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=636" class="username">Peculiar_Investor</a></strong> &raquo; 24 Dec 2024 12:10
+                        </p>
+                        <div class="content">
+                            <blockquote cite="./viewtopic.php?p=781926#p781926">
+                                <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=17464">subiemax</a> wrote: <a href="./viewtopic.php?p=781926#p781926" aria-label="View quoted post" data-post-id="781926" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">23 Dec 2024 15:21</span></cite>
+                                    Hello to all
+                                </div>
+                            </blockquote>
+                            Welcome to the FWF community.
+                        </div>
+                        <div id="message_781981" style="display: none;">[quote=subiemax post_id=781926 time=1734985282 user_id=17464]<br />Hello to all<br />[/quote]<br />Welcome to the FWF community.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr781926">
+                        <h3><a href="./viewtopic.php?p=781926#p781926">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(781926, 'subiemax', 'wrote', {post_id:781926,time:1734985282,user_id:17464});" title="Quote subiemax" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote subiemax</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=781926#p781926" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=17464" class="username">subiemax</a></strong> &raquo; 23 Dec 2024 15:21
+                        </p>
+                        <div class="content">Hello to all<br>
+                            just registered and this is my first post here although i have been lurking around and reading posts for awhile.<br>
+                            I retired 4 years ago, recently my wife retired as well, so this seemed like a good time to register and also download a VPW spreadsheet that I will be maintaining for ourselves, as majority of our investments are in VBAL (based on a financial book I red few years back).<br>
+                            So hello again from Ontario<br>
+                            <br>
+                            subiemax
+                        </div>
+                        <div id="message_781926" style="display: none;">Hello to all<br />just registered and this is my first post here although i have been lurking around and reading posts for awhile.<br />I retired 4 years ago, recently my wife retired as well, so this seemed like a good time to register and also download a VPW spreadsheet that I will be maintaining for ourselves, as majority of our investments are in VBAL (based on a financial book I red few years back).<br />So hello again
+                            from Ontario<br /><br />subiemax</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr781871">
+                        <h3><a href="./viewtopic.php?p=781871#p781871">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(781871, 'spicy86', 'wrote', {post_id:781871,time:1734934414,user_id:17457});" title="Quote spicy86" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote spicy86</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=781871#p781871" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=17457" class="username">spicy86</a></strong> &raquo; 23 Dec 2024 01:13
+                        </p>
+                        <div class="content">Thanks @afulldeck</div>
+                        <div id="message_781871" style="display: none;">Thanks @afulldeck</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr781857">
+                        <h3><a href="./viewtopic.php?p=781857#p781857">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(781857, 'afulldeck', 'wrote', {post_id:781857,time:1734904326,user_id:12209});" title="Quote afulldeck" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote afulldeck</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=781857#p781857" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=12209" class="username">afulldeck</a></strong> &raquo; 22 Dec 2024 16:52
+                        </p>
+                        <div class="content">
+                            <blockquote cite="./viewtopic.php?p=781810#p781810">
+                                <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=17457">spicy86</a> wrote: <a href="./viewtopic.php?p=781810#p781810" aria-label="View quoted post" data-post-id="781810" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">22 Dec 2024 10:47</span></cite>
+                                    Hi All,<br>
+                                    <br>
+                                    I'm just a small time investor. Been investing for a little more than a decade. Looking for some good discussions.<br>
+                                    <br>
+                                    Cheers,<br>
+                                    <br>
+                                    spicy86
+                                </div>
+                            </blockquote>
+                            Welcome....
+                        </div>
+                        <div id="message_781857" style="display: none;">[quote=spicy86 post_id=781810 time=1734882433 user_id=17457]<br />Hi All,<br /><br />I'm just a small time investor. Been investing for a little more than a decade. Looking for some good discussions.<br /><br />Cheers,<br /><br />spicy86<br />[/quote]<br /><br />Welcome....</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr781823">
+                        <h3><a href="./viewtopic.php?p=781823#p781823">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(781823, 'poedin', 'wrote', {post_id:781823,time:1734887793,user_id:3174});" title="Quote poedin" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote poedin</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=781823#p781823" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=3174" class="username">poedin</a></strong> &raquo; 22 Dec 2024 12:16
+                        </p>
+                        <div class="content">Welcome to our community!</div>
+                        <div id="message_781823" style="display: none;">Welcome to our community!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr781810">
+                        <h3><a href="./viewtopic.php?p=781810#p781810">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(781810, 'spicy86', 'wrote', {post_id:781810,time:1734882433,user_id:17457});" title="Quote spicy86" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote spicy86</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=781810#p781810" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=17457" class="username">spicy86</a></strong> &raquo; 22 Dec 2024 10:47
+                        </p>
+                        <div class="content">Hi All,<br>
+                            <br>
+                            I'm just a small time investor. Been investing for a little more than a decade. Looking for some good discussions.<br>
+                            <br>
+                            Cheers,<br>
+                            <br>
+                            spicy86
+                        </div>
+                        <div id="message_781810" style="display: none;">Hi All,<br /><br />I'm just a small time investor. Been investing for a little more than a decade. Looking for some good discussions.<br /><br />Cheers,<br /><br />spicy86</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr762038">
+                        <h3><a href="./viewtopic.php?p=762038#p762038">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(762038, 'afulldeck', 'wrote', {post_id:762038,time:1707620959,user_id:12209});" title="Quote afulldeck" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote afulldeck</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=762038#p762038" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=12209" class="username">afulldeck</a></strong> &raquo; 10 Feb 2024 22:09
+                        </p>
+                        <div class="content">Welcome to FWF!</div>
+                        <div id="message_762038" style="display: none;">Welcome to FWF!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr762036">
+                        <h3><a href="./viewtopic.php?p=762036#p762036">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(762036, 'thesen2', 'wrote', {post_id:762036,time:1707619371,user_id:16837});" title="Quote thesen2" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote thesen2</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=762036#p762036" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=16837" class="username">thesen2</a></strong> &raquo; 10 Feb 2024 21:42
+                        </p>
+                        <div class="content">Hi everyone,<br>
+                            <br>
+                            I'm new here in last few days, but feel I've been on this site in the distant past. <img class="smilies" src="./images/smilies/icon_e_smile.svg" width="15" height="17" alt=":)" title="Smile"> Thanks for having me!<br>
+                            <br>
+                            I'm in my mid-50's, and about 6 months ago was packaged at a fairly large company after 30 years. Luckily, between my DB pension and my savings acquired through DIY since the 90's, I feel I'm in decent shape heading into what I think is retirement. My partner is still working, likely for another 10-ish years.<br>
+                            <br>
+                            Mainly in div-growth stocks held for many years across my RRSP, TFSA, and cash account. Hold mostly Cdn, and then mainly US based in RRSP. I'm here to learn from the many posters I've seen who have already entered very successfully this next phase of life.<br>
+                            <br>
+                            Love to travel, and recently completed the Camino in Spain. For those who don't know, it's a hike across northern Spain from border with France. It's close to 800km's.<br>
+                            Look forward to contributing across these boards. Thank you!
+                        </div>
+                        <div id="message_762036" style="display: none;">Hi everyone,<br /><br />I'm new here in last few days, but feel I've been on this site in the distant past. :) Thanks for having me!<br /><br />I'm in my mid-50's, and about 6 months ago was packaged at a fairly large company after 30 years. Luckily, between my DB pension and my savings acquired through DIY since the 90's, I feel I'm in decent shape heading into what I think is retirement. My partner is still working, likely
+                            for another 10-ish years.<br /><br />Mainly in div-growth stocks held for many years across my RRSP, TFSA, and cash account. Hold mostly Cdn, and then mainly US based in RRSP. I'm here to learn from the many posters I've seen who have already entered very successfully this next phase of life.<br /><br />Love to travel, and recently completed the Camino in Spain. For those who don't know, it's a hike across northern Spain from border with France. It's close to
+                            800km's.<br />Look forward to contributing across these boards. Thank you!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr759097">
+                        <h3><a href="./viewtopic.php?p=759097#p759097">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(759097, 'Peculiar_Investor', 'wrote', {post_id:759097,time:1704474793,user_id:636});" title="Quote Peculiar_Investor" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote Peculiar_Investor</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=759097#p759097" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=636" class="username">Peculiar_Investor</a></strong> &raquo; 05 Jan 2024 12:13
+                        </p>
+                        <div class="content">
+                            <blockquote cite="./viewtopic.php?p=759071#p759071">
+                                <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=16763">Ozzmodium</a> wrote: <a href="./viewtopic.php?p=759071#p759071" aria-label="View quoted post" data-post-id="759071" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">05 Jan 2024 05:53</span></cite>
+                                    Looking forward to asking some questions and learning from all of you. <img class="smilies" src="./images/smilies/1f44d.svg" width="17" height="17" alt=":thumbsup:" title="Thumbs up">
+                                </div>
+                            </blockquote>
+                            Welcome to the FWF community. We are also looking forward to helping you with whatever questions you might have. Post away.
+                        </div>
+                        <div id="message_759097" style="display: none;">[quote=Ozzmodium post_id=759071 time=1704451994 user_id=16763]<br />Looking forward to asking some questions and learning from all of you. :thumbsup:<br />[/quote]<br />Welcome to the FWF community. We are also looking forward to helping you with whatever questions you might have. Post away.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr759071">
+                        <h3><a href="./viewtopic.php?p=759071#p759071">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(759071, 'Ozzmodium', 'wrote', {post_id:759071,time:1704451994,user_id:16763});" title="Quote Ozzmodium" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote Ozzmodium</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=759071#p759071" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=16763" class="username">Ozzmodium</a></strong> &raquo; 05 Jan 2024 05:53
+                        </p>
+                        <div class="content">Hello FWFers,<br>
+                            <br>
+                            I stumbled onto this site a few days ago and I have been reading a lot of threads, and wondering how I never found this earlier!<br>
+                            <br>
+                            I retired from a worker-bee job in the Federal Public Service just over 12 months ago; my wife retired as a teacher about two years earlier. <br>
+                            <br>
+                            So we have two safe pensions but do not own a house and live in the `land of the wealthy', Metro Vancouver. <br>
+                            <br>
+                            Looking forward to asking some questions and learning from all of you. <img class="smilies" src="./images/smilies/1f44d.svg" width="17" height="17" alt=":thumbsup:" title="Thumbs up">
+                        </div>
+                        <div id="message_759071" style="display: none;">Hello FWFers,<br /><br />I stumbled onto this site a few days ago and I have been reading a lot of threads, and wondering how I never found this earlier!<br /><br />I retired from a worker-bee job in the Federal Public Service just over 12 months ago; my wife retired as a teacher about two years earlier. <br /><br />So we have two safe pensions but do not own a house and live in the `land of the wealthy', Metro
+                            Vancouver. <br /><br />Looking forward to asking some questions and learning from all of you. :thumbsup:</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr758797">
+                        <h3><a href="./viewtopic.php?p=758797#p758797">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(758797, 'Steve Matthew', 'wrote', {post_id:758797,time:1704117431,user_id:16744});" title="Quote Steve Matthew" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote Steve Matthew</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=758797#p758797" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=16744" class="username">Steve Matthew</a></strong> &raquo; 01 Jan 2024 08:57
+                        </p>
+                        <div class="content">
+                            <blockquote cite="./viewtopic.php?p=758572#p758572">
+                                <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=12209">afulldeck</a> wrote: <a href="./viewtopic.php?p=758572#p758572" aria-label="View quoted post" data-post-id="758572" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">28 Dec 2023 13:11</span></cite>
+                                    <blockquote cite="./viewtopic.php?p=758561#p758561">
+                                        <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=16744">Steve Matthew</a> wrote: <a href="./viewtopic.php?p=758561#p758561" aria-label="View quoted post" data-post-id="758561" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">28 Dec 2023 09:08</span></cite>
+                                            Hello Everyone! Hope you all doing amazing. This is my first post on forum, just wanted to say Hi to you all and get connected with you all. <img class="smilies" src="./images/smilies/icon_e_biggrin.svg" width="15" height="17" alt=":D" title="Very Happy">
+                                        </div>
+                                    </blockquote>
+
+                                    Welcome Steve!
+                                </div>
+                            </blockquote>
+                            Thankyou <img class="smilies" src="./images/smilies/icon_e_smile.svg" width="15" height="17" alt=":)" title="Smile">
+                        </div>
+                        <div id="message_758797" style="display: none;">[quote=afulldeck post_id=758572 time=1703787110 user_id=12209]<br />[quote=&quot;Steve Matthew&quot; post_id=758561 time=1703772520 user_id=16744]<br />Hello Everyone! Hope you all doing amazing. This is my first post on forum, just wanted to say Hi to you all and get connected with you all. :D<br />[/quote]<br /><br />Welcome Steve!<br />[/quote]<br /><br />Thankyou :)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr758795">
+                        <h3><a href="./viewtopic.php?p=758795#p758795">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(758795, 'Steve Matthew', 'wrote', {post_id:758795,time:1704117411,user_id:16744});" title="Quote Steve Matthew" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote Steve Matthew</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=758795#p758795" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=16744" class="username">Steve Matthew</a></strong> &raquo; 01 Jan 2024 08:56
+                        </p>
+                        <div class="content">
+                            <blockquote cite="./viewtopic.php?p=758569#p758569">
+                                <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=543">DavidR</a> wrote: <a href="./viewtopic.php?p=758569#p758569" aria-label="View quoted post" data-post-id="758569" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">28 Dec 2023 11:38</span></cite>Welcome Steve!</div>
+                            </blockquote>
+
+                            Thankyou <img class="smilies" src="./images/smilies/icon_e_smile.svg" width="15" height="17" alt=":)" title="Smile">
+                        </div>
+                        <div id="message_758795" style="display: none;">[quote=DavidR post_id=758569 time=1703781505 user_id=543]Welcome Steve![/quote]<br /><br />Thankyou :)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg1">
+                <div class="inner">
+                    <div class="postbody" id="pr758572">
+                        <h3><a href="./viewtopic.php?p=758572#p758572">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(758572, 'afulldeck', 'wrote', {post_id:758572,time:1703787110,user_id:12209});" title="Quote afulldeck" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote afulldeck</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=758572#p758572" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=12209" class="username">afulldeck</a></strong> &raquo; 28 Dec 2023 13:11
+                        </p>
+                        <div class="content">
+                            <blockquote cite="./viewtopic.php?p=758561#p758561">
+                                <div><cite><a href="./memberlist.php?mode=viewprofile&amp;u=16744">Steve Matthew</a> wrote: <a href="./viewtopic.php?p=758561#p758561" aria-label="View quoted post" data-post-id="758561" onclick="if(document.getElementById(hash.substr(1)))href=hash"><i class="icon fa-arrow-circle-up fa-fw" aria-hidden="true"></i></a><span class="responsive-hide">28 Dec 2023 09:08</span></cite>
+                                    Hello Everyone! Hope you all doing amazing. This is my first post on forum, just wanted to say Hi to you all and get connected with you all. <img class="smilies" src="./images/smilies/icon_e_biggrin.svg" width="15" height="17" alt=":D" title="Very Happy">
+                                </div>
+                            </blockquote>
+
+                            Welcome Steve!
+                        </div>
+                        <div id="message_758572" style="display: none;">[quote=&quot;Steve Matthew&quot; post_id=758561 time=1703772520 user_id=16744]<br />Hello Everyone! Hope you all doing amazing. This is my first post on forum, just wanted to say Hi to you all and get connected with you all. :D<br />[/quote]<br /><br />Welcome Steve!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post bg2">
+                <div class="inner">
+                    <div class="postbody" id="pr758569">
+                        <h3><a href="./viewtopic.php?p=758569#p758569">Re: Introduce Yourself</a></h3>
+                        <ul class="post-buttons">
+                            <li>
+                                <a href="#postingbox" onclick="addquote(758569, 'DavidR', 'wrote', {post_id:758569,time:1703781505,user_id:543});" title="Quote DavidR" class="button button-icon-only">
+                                    <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote DavidR</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="author">
+                            <a href="./viewtopic.php?p=758569#p758569" title="">
+                                <i class="icon fa-file fa-fw icon-lightgray icon-md" aria-hidden="true"></i><span class="sr-only"></span>
+                            </a>
+                            by <strong><a href="./memberlist.php?mode=viewprofile&amp;u=543" class="username">DavidR</a></strong> &raquo; 28 Dec 2023 11:38
+                        </p>
+                        <div class="content">Welcome Steve!</div>
+                        <div id="message_758569" style="display: none;">Welcome Steve!</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <hr />
+        <p>
+            <a href="#postingbox" class="top">
+                <i class="icon fa-chevron-circle-up fa-fw icon-gray" aria-hidden="true"></i><span>Top</span>
+            </a>
+        </p>
+    </form>
+</div>
+{{ end }}
