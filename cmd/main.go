@@ -20,6 +20,7 @@ func httpHandler() http.Handler {
 	rootMux.Handle("/styles/", http.StripPrefix("/styles/", http.FileServer(http.Dir("./view/static/styles/"))))
 	// Example pages
 	rootMux.HandleFunc("/myforum/", controller.MyForumPage)
+	rootMux.Handle("/myforum/assets/", http.StripPrefix("/myforum/assets/", http.FileServer(http.Dir("./view/static/assets/"))))
 	rootMux.Handle("/myforum/images/", http.StripPrefix("/myforum/images/", http.FileServer(http.Dir("./view/static/images/"))))
 
 	// With Session middleware
