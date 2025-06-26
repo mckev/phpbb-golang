@@ -1,6 +1,6 @@
 /**
 * bbCode control by subBlue design [ www.subBlue.com ]
-* Includes unixsafe colour palette selector by SHS`
+* Includes unixsafe color palette selector by SHS`
 */
 
 // Startup variables
@@ -32,7 +32,7 @@ function initInsertions() {
 
 	var textarea = doc.forms[form_name].elements[text_name];
 
-	if (is_ie && typeof(baseHeight) !== 'number') {
+	if (is_ie && typeof (baseHeight) !== 'number') {
 		textarea.focus();
 		baseHeight = doc.selection.createRange().duplicate().boundingHeight;
 
@@ -47,7 +47,7 @@ function initInsertions() {
 */
 function bbstyle(bbnumber) {
 	if (bbnumber !== -1) {
-		bbfontstyle(bbtags[bbnumber], bbtags[bbnumber+1]);
+		bbfontstyle(bbtags[bbnumber], bbtags[bbnumber + 1]);
 	} else {
 		insert_text('[*]');
 		document.forms[form_name].elements[text_name].focus();
@@ -281,7 +281,7 @@ function split_lines(text) {
 	var j = 0;
 	var i;
 
-	for(i = 0; i < lines.length; i++) {
+	for (i = 0; i < lines.length; i++) {
 		if (lines[i].length <= 80) {
 			splitLines[j] = lines[i];
 			j++;
@@ -300,7 +300,7 @@ function split_lines(text) {
 					j++;
 				}
 			}
-			while(splitAt !== -1);
+			while (splitAt !== -1);
 		}
 	}
 	return splitLines;
@@ -310,12 +310,12 @@ function split_lines(text) {
 * From http://www.massless.org/mozedit/
 */
 function mozWrap(txtarea, open, close) {
-	var selLength = (typeof(txtarea.textLength) === 'undefined') ? txtarea.value.length : txtarea.textLength;
+	var selLength = (typeof (txtarea.textLength) === 'undefined') ? txtarea.value.length : txtarea.textLength;
 	var selStart = txtarea.selectionStart;
 	var selEnd = txtarea.selectionEnd;
 	var scrollTop = txtarea.scrollTop;
 
-	var s1 = (txtarea.value).substring(0,selStart);
+	var s1 = (txtarea.value).substring(0, selStart);
 	var s2 = (txtarea.value).substring(selStart, selEnd);
 	var s3 = (txtarea.value).substring(selEnd, selLength);
 
@@ -383,36 +383,109 @@ function getCaretPosition(txtarea) {
 }
 
 /**
-* Allow to use tab character when typing code
-* Keep indentation of last line of code when typing code
-*/
-(function($) {
-	$(document).ready(function() {
-		var doc, textarea;
+ * Non Editor functions
+ */
+function toggleDisplay(id, action, type = 'block') {
+	var element = document.getElementById(id);
+	if (!element) return;
 
-		// find textarea, make sure browser supports necessary functions
-		if (document.forms[form_name]) {
-			doc = document;
-		} else {
-			doc = opener.document;
+	// Get the current computed display style
+	var display = getComputedStyle(element).display;
+
+	// If action not provided, toggle display
+	if (action === undefined || action === null) {
+		action = (display === '' || display === type) ? -1 : 1;
+	}
+
+	element.style.display = (action === 1) ? type : 'none';
+}
+
+/**
+ * Color Palette
+ */
+function colorPalette(dir, width, height) {
+	var r, g, b,
+		numberList = new Array(6),
+		color = '',
+		html = '';
+
+	numberList[0] = '00';
+	numberList[1] = '40';
+	numberList[2] = '80';
+	numberList[3] = 'BF';
+	numberList[4] = 'FF';
+
+	var tableClass = (dir === 'h') ? 'horizontal-palette' : 'vertical-palette';
+	html += '<table class="not-responsive colour-palette ' + tableClass + '" style="width: auto;">';
+
+	for (r = 0; r < 5; r++) {
+		if (dir === 'h') {
+			html += '<tr>';
 		}
 
-		if (!doc.forms[form_name]) {
-			return;
-		}
-
-		textarea = doc.forms[form_name].elements[text_name];
-
-		phpbb.applyCodeEditor(textarea);
-		if ($('#attach-panel').length) {
-			phpbb.showDragNDrop(textarea);
-		}
-
-		$('textarea').on('keydown', function (e) {
-			if (e.which === 13 && (e.metaKey || e.ctrlKey)) {
-				$(this).closest('form').find(':submit').click();
+		for (g = 0; g < 5; g++) {
+			if (dir === 'v') {
+				html += '<tr>';
 			}
-		});
-	});
-})(jQuery);
 
+			for (b = 0; b < 5; b++) {
+				color = '' + numberList[r] + numberList[g] + numberList[b];
+				html += '<td style="background-color: #' + color + '; width: ' + width + 'px; height: ' +
+					height + 'px;"><a href="#" data-color="' + color + '" style="display: block; width: ' +
+					width + 'px; height: ' + height + 'px; " alt="#' + color + '" title="#' + color + '"></a>';
+				html += '</td>';
+			}
+
+			if (dir === 'v') {
+				html += '</tr>';
+			}
+		}
+
+		if (dir === 'h') {
+			html += '</tr>';
+		}
+	}
+	html += '</table>';
+	return html;
+};
+
+function registerPalette(el) {
+	var orientation = el.getAttribute('data-color-palette') || el.getAttribute('data-orientation'),
+		height = el.getAttribute('data-height'),
+		width = el.getAttribute('data-width'),
+		target = el.getAttribute('data-target'),
+		bbcode = el.getAttribute('data-bbcode');
+
+	el.innerHTML = colorPalette(orientation, width, height);
+
+	var toggle = document.getElementById('color_palette_toggle');
+	if (toggle) {
+		toggle.addEventListener('click', function (e) {
+			if (el.style.display === 'none' || getComputedStyle(el).display === 'none') {
+				el.style.display = '';
+			} else {
+				el.style.display = 'none';
+			}
+			e.preventDefault();
+		});
+	}
+
+	el.addEventListener('click', function (e) {
+		var targetEl = e.target;
+		while (targetEl && targetEl !== el && targetEl.tagName.toLowerCase() !== 'a') {
+			targetEl = targetEl.parentElement;
+		}
+		if (targetEl && targetEl.tagName.toLowerCase() === 'a') {
+			var color = targetEl.getAttribute('data-color');
+			if (bbcode) {
+				bbfontstyle('[color=#' + color + ']', '[/color]');
+			} else if (target) {
+				var inputEl = document.querySelector(target);
+				if (inputEl) {
+					inputEl.value = color;
+				}
+			}
+			e.preventDefault();
+		}
+	});
+}

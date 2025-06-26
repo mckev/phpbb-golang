@@ -26,21 +26,25 @@
                         var imageTag = false;
 
                         function change_palette() {
-                            phpbb.toggleDisplay('colour_palette');
-                            e = document.getElementById('colour_palette');
-
-                            if (e.style.display == 'block') {
-                                document.getElementById('bbpalette').value = 'Hide\u0020font\u0020colour';
-                            }
-                            else {
-                                document.getElementById('bbpalette').value = 'Font\u0020colour';
+                            toggleDisplay('color_palette');
+                            var el = document.getElementById('color_palette');
+                            if (el.style.display == 'block') {
+                                document.getElementById('bbpalette').value = 'Hide\u0020font\u0020color';
+                            } else {
+                                document.getElementById('bbpalette').value = 'Font\u0020color';
                             }
                         }
+
+                        // Upon page load
+                        document.addEventListener('DOMContentLoaded', function () {
+                            var el = document.getElementById('color_palette_placeholder');
+                            registerPalette(el);
+                        });
                     </script>
 
-                    <div id="colour_palette" style="display: none;">
+                    <div id="color_palette" style="display: none;">
                         <dl style="clear: left;">
-                            <dt><label>Font colour:</label></dt>
+                            <dt><label>Font color:</label></dt>
                             <dd id="color_palette_placeholder" class="color_palette_placeholder" data-color-palette="h" data-height="12" data-width="15" data-bbcode="true"></dd>
                         </dl>
                     </div>
@@ -76,7 +80,7 @@
                         <button type="button" class="button button-icon-only bbcode-url" accesskey="w" name="addbbcode16" value="URL" onclick="bbstyle(16)" title="Insert URL: [url]http://url[/url] or [url=http://url]URL text[/url]">
                             <i class="icon fa-link fa-fw" aria-hidden="true"></i>
                         </button>
-                        <button type="button" class="button button-icon-only bbcode-color" name="bbpalette" id="bbpalette" value="Font colour" onclick="change_palette();" title="Font colour: [color=red]text[/color] or [color=#FF0000]text[/color]">
+                        <button type="button" class="button button-icon-only bbcode-color" name="bbpalette" id="bbpalette" value="Font color" onclick="change_palette();" title="Font color: [color=red]text[/color] or [color=#FF0000]text[/color]">
                             <i class="icon fa-tint fa-fw" aria-hidden="true"></i>
                         </button>
                         <select name="addbbcode20" class="bbcode-size" onchange="bbfontstyle('[size=' + this.form.addbbcode20.options[this.form.addbbcode20.selectedIndex].value + ']', '[/size]');this.form.addbbcode20.selectedIndex = 2;" title="Font size: [size=85]small text[/size]">
@@ -978,8 +982,5 @@
         </p>
     </form>
 </div>
-<script src="./assets/javascript/jquery-3.7.1.min.js?assets_version=314"></script>
-<script src="./assets/javascript/core.js?assets_version=314"></script>
 <script src="./assets/javascript/editor.js?assets_version=314"></script>
-<!-- <script src="./assets/javascript/plupload.js?assets_version=314"></script> -->
 {{ end }}
