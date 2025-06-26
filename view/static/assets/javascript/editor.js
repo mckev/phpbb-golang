@@ -11,8 +11,6 @@ var bbcodeEnabled = true;
 // Check for Browser & Platform for PC & IE specific bits
 // More details from: http://www.mozilla.org/docs/web-developer/sniffer/browser_type.html
 var clientPC = navigator.userAgent.toLowerCase(); // Get client info
-var clientVer = parseInt(navigator.appVersion, 10); // Get browser version
-
 var is_ie = ((clientPC.indexOf('msie') !== -1) && (clientPC.indexOf('opera') === -1));
 var is_win = ((clientPC.indexOf('win') !== -1) || (clientPC.indexOf('16bit') !== -1));
 var baseHeight;
@@ -64,22 +62,13 @@ function bbfontstyle(bbopen, bbclose) {
 
 	textarea.focus();
 
-	if ((clientVer >= 4) && is_ie && is_win) {
-		// Get text selection
-		theSelection = document.selection.createRange().text;
-
-		if (theSelection) {
-			// Add tags around selection
-			document.selection.createRange().text = bbopen + theSelection + bbclose;
+	if (typeof textarea.selectionStart === "number" && typeof textarea.selectionEnd === "number") {
+		if (textarea.selectionEnd > textarea.selectionStart) {
+			mozWrap(textarea, bbopen, bbclose);
 			textarea.focus();
 			theSelection = '';
 			return;
 		}
-	} else if (textarea.selectionEnd && (textarea.selectionEnd - textarea.selectionStart > 0)) {
-		mozWrap(textarea, bbopen, bbclose);
-		textarea.focus();
-		theSelection = '';
-		return;
 	}
 
 	//The new position for the cursor after adding the bbcode
@@ -173,11 +162,7 @@ function addquote(post_id, username, l_wrote, attributes) {
 		attributes = {};
 	}
 
-	if (document.all) {
-		divarea = document.all[message_name];
-	} else {
-		divarea = document.getElementById(message_name);
-	}
+	divarea = document.getElementById(message_name);
 
 	// Get text selection - not only the post content :(
 	// IE9 must use the document.selection method but has the *.getSelection so we just force no IE
@@ -191,17 +176,18 @@ function addquote(post_id, username, l_wrote, attributes) {
 
 	if (theSelection === '' || typeof theSelection === 'undefined' || theSelection === null) {
 		if (divarea.innerHTML) {
-			theSelection = divarea.innerHTML.replace(/<br>/ig, '\n');
-			theSelection = theSelection.replace(/<br\/>/ig, '\n');
-			theSelection = theSelection.replace(/&lt\;/ig, '<');
-			theSelection = theSelection.replace(/&gt\;/ig, '>');
-			theSelection = theSelection.replace(/&amp\;/ig, '&');
-			theSelection = theSelection.replace(/&nbsp\;/ig, ' ');
-		} else if (document.all) {
-			theSelection = divarea.innerText;
+			theSelection = divarea.innerHTML
+				.replace(/<br>/ig, '\n')
+				.replace(/<br\/>/ig, '\n')
+				.replace(/&lt\;/ig, '<')
+				.replace(/&gt\;/ig, '>')
+				.replace(/&amp\;/ig, '&')
+				.replace(/&nbsp\;/ig, ' ');
 		} else if (divarea.textContent) {
 			theSelection = divarea.textContent;
-		} else if (divarea.firstChild.nodeValue) {
+		} else if (divarea.innerText) {
+			theSelection = divarea.innerText;
+		} else if (divarea.firstChild && divarea.firstChild.nodeValue) {
 			theSelection = divarea.firstChild.nodeValue;
 		}
 	}
