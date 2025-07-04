@@ -85,6 +85,11 @@ func PopulateDb(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	userXssName := `"]an escape[/blockquote]<script>alert('Test XSS User name')</script>`
+	userXssId, err := model.InsertUser(ctx, userXssName, "Password1", "user_xss@example.com", "<script>alert('Test XSS User Signature')</script>")
+	if err != nil {
+		return err
+	}
 
 	// Forums
 	{
@@ -96,7 +101,7 @@ func PopulateDb(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		forumABId, err := model.InsertForum(ctx, forumAId, "Retirement, <script>alert('Test XSS')</script> Pensions and Peace of Mind", "Preparing for life after work. RRSPs, RRIFs, TFSAs, annuities and meeting future financial and psychological needs.", user2Id)
+		forumABId, err := model.InsertForum(ctx, forumAId, "Retirement, <script>alert('Test XSS Forum name')</script> Pensions and Peace of Mind", "Preparing for life after work. RRSPs, RRIFs, TFSAs, annuities and meeting future financial and psychological needs.", user2Id)
 		if err != nil {
 			return err
 		}
@@ -172,6 +177,60 @@ Posting on this thread is entirely voluntary - but, if you do wish to post, than
 				return err
 			}
 			err = model.IncreaseNumPostsForUser(ctx, user2Id)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForTopic(ctx, topicBB1Id)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForForum(ctx, forumBBId)
+			if err != nil {
+				return err
+			}
+			postBB1BId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: Introduce <script>alert('Test XSS Post Subject')</script> Yourself", `Hello, <script>alert('Test XSS Post Text')</script> there!
+[blockquote=<script>alert('Test BB Attack')</script> user_name="User<script>alert('Test BB Attack')</script>" <script> user_id="123<script>alert('Test BB Attack')</script>" post_id="<script>alert('Test BB Attack')</script>456" time="<script>alert('Test BB Attack')</script>" <script>="<script>"]a <script>alert('Test BB Attack')</script> test[/blockquote]`, userXssId)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateLastPostOfTopic(ctx, topicBB1Id, postBB1BId, userXssId, userXssName)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateLastPostOfForum(ctx, forumBBId, postBB1BId, "Re: Introduce Yourself", userXssId, userXssName)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForUser(ctx, userXssId)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForTopic(ctx, topicBB1Id)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForForum(ctx, forumBBId)
+			if err != nil {
+				return err
+			}
+			postBB1CId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: Introduce Yourself", `[blockquote user_name=spicy86 post_id=782359 time=1735650047 user_id=17457]
+I'm just wondering when this forum was started.
+[/blockquote]
+Read all about it in [url=https://www.financialwisdomforum.org/history-of-fwf/]History of FWF - Financial Wisdom Forum[/url]
+[blockquote]February 18, 2005, FWF goes live using phpBB v2.0.11[/blockquote]
+so closing in on 20 years of providing a place "Where Canadian Investors Meet for Financial Education and Empowerment". Most important is FWF is an independent, non-commercial site that is solely run by volunteers.`, user3Id)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateLastPostOfTopic(ctx, topicBB1Id, postBB1CId, user3Id, user3Name)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateLastPostOfForum(ctx, forumBBId, postBB1CId, "Re: Introduce Yourself", user3Id, user3Name)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForUser(ctx, user3Id)
 			if err != nil {
 				return err
 			}
