@@ -11,9 +11,19 @@ import (
 
 func TestConvertBbcodeToHtml_BlockQuote(t *testing.T) {
 	// 1234567890 is 2009-02-13 23:31:30 +0000 UTC
-	bbcodeStr := `[blockquote user_name="User" user_id="123" post_id="456" time="1234567890"]text[/blockquote]`
+	bbcodeStr := `[blockquote user_name="User" user_id="123" post_id="321" time="1234567890"]text[/blockquote]`
 	actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
-	expected := `<blockquote><div><cite><a href="./users?u=123">User</a> wrote: <a aria-label="View quoted post" href="./posts?p=456#p456"><i aria-hidden="true" class="icon fa-arrow-circle-up fa-fw"></i></a><span class="responsive-hide">13 Feb 09 23:31 UTC</span></cite>text</div></blockquote>`
+	expected := `<blockquote><div><cite><a href="./users?u=123">User</a> wrote: <a aria-label="View quoted post" href="./posts?p=321#p321"><i aria-hidden="true" class="icon fa-arrow-circle-up fa-fw"></i></a><span class="responsive-hide">13 Feb 09 23:31 UTC</span></cite>text</div></blockquote>`
+	if actual != expected {
+		t.Errorf("Got %s, wanted %s", actual, expected)
+		return
+	}
+}
+
+func TestConvertBbcodeToHtml_NestedBlockQuote(t *testing.T) {
+	bbcodeStr := `[blockquote user_name="User 123" user_id="123" post_id="321" time="1234567890"][blockquote user_name="User 456" user_id="456" post_id="654" time="1234567890"]inner[/blockquote]outer[/blockquote]`
+	actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
+	expected := `<blockquote><div><cite><a href="./users?u=123">User 123</a> wrote: <a aria-label="View quoted post" href="./posts?p=321#p321"><i aria-hidden="true" class="icon fa-arrow-circle-up fa-fw"></i></a><span class="responsive-hide">13 Feb 09 23:31 UTC</span></cite><blockquote><div><cite><a href="./users?u=456">User 456</a> wrote: <a aria-label="View quoted post" href="./posts?p=654#p654"><i aria-hidden="true" class="icon fa-arrow-circle-up fa-fw"></i></a><span class="responsive-hide">13 Feb 09 23:31 UTC</span></cite>inner</div></blockquote>outer</div></blockquote>`
 	if actual != expected {
 		t.Errorf("Got %s, wanted %s", actual, expected)
 		return

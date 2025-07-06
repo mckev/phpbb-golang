@@ -20,7 +20,7 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	//                   - postIconTag <i class="icon fa-arrow-circle-up fa-fw">
 	//               - timeTag <span>
 	//                   - <time>
-	//           - <text>
+	//           - <node.Children>
 	blockquoteHtmlTag := bbcode.NewHTMLTag("")
 	blockquoteHtmlTag.Name = "blockquote"
 	in := node.GetOpeningTag()
@@ -75,8 +75,11 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	timeTag.AppendChild(bbcode.NewHTMLTag(helper.UnixTimeToStr(unixTime)))
 	citeHtmlTag.AppendChild(timeTag)
 	divHtmlTag.AppendChild(citeHtmlTag)
-	text := bbcode.CompileText(node) // The text within [blockquote]...[/blockquote]
-	divHtmlTag.AppendChild(bbcode.NewHTMLTag(text))
+	// Process things within [blockquote]...[/blockquote], including another [blockquote]
+	for _, child := range node.Children {
+		htmlChild := node.Compiler.CompileTree(child)
+		divHtmlTag.AppendChild(htmlChild)
+	}
 	blockquoteHtmlTag.AppendChild(divHtmlTag)
 	return blockquoteHtmlTag, false
 }
