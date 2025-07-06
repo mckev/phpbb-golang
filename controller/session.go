@@ -47,17 +47,9 @@ func getSession(r *http.Request) model.Session {
 
 func createSession(ctx context.Context, userId int, userName string, ip string, browser string, forwardedFor string) (model.Session, error) {
 	// Create user session (for user registration and user login)
-	if userId == model.GUEST_USER_ID {
-		return model.Session{}, fmt.Errorf("Guest user cannot create a Session")
-	}
-	if userId == model.INVALID_USER_ID {
-		return model.Session{}, fmt.Errorf("Invalid user cannot create a Session")
-	}
-	if userId == 0 {
-		return model.Session{}, fmt.Errorf("Empty user id cannot create a Session")
-	}
-	if userName == "" {
-		return model.Session{}, fmt.Errorf("Empty user name cannot create a Session")
+	err := model.CheckIfGuestUser(ctx, userId, userName)
+	if err != nil {
+		return model.Session{}, fmt.Errorf("Error while creating user session: %s", err)
 	}
 	sessionId, err := helper.GenerateSessionId()
 	if err != nil {

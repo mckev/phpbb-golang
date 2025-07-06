@@ -65,7 +65,11 @@ func InitForums(ctx context.Context) error {
 	return nil
 }
 
-func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc string, forumUserId int) (int, error) {
+func InsertForum(ctx context.Context, parentId int, forumName string, forumDesc string, forumUserId int, forumUserName string) (int, error) {
+	err := CheckIfGuestUser(ctx, forumUserId, forumUserName)
+	if err != nil {
+		return INVALID_FORUM_ID, fmt.Errorf("Error while inserting forum name '%s' with forum description '%s' and parent id %d: %s", forumName, forumDesc, parentId, err)
+	}
 	db := OpenDb(ctx, "forums")
 	defer db.Close()
 	now := time.Now().UTC()

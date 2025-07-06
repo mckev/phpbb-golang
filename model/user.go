@@ -189,6 +189,22 @@ func CheckIfUserExists(ctx context.Context, userName string) (bool, error) {
 	return isExists, nil
 }
 
+func CheckIfGuestUser(ctx context.Context, userId int, userName string) error {
+	if userId == GUEST_USER_ID {
+		return fmt.Errorf("Guest user")
+	}
+	if userId == INVALID_USER_ID {
+		return fmt.Errorf("Invalid user")
+	}
+	if userId == 0 {
+		return fmt.Errorf("Empty user id")
+	}
+	if userName == "" {
+		return fmt.Errorf("Empty user name")
+	}
+	return nil
+}
+
 func GetUserForLogin(ctx context.Context, userName string) (User, error) {
 	// WARNING: As this function returns sensitive information such as hashed password of user, use this function for login validation only
 	db := OpenDb(ctx, "users")

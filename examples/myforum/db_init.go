@@ -65,7 +65,7 @@ func PopulateDb(ctx context.Context) error {
 		return err
 	}
 	user3Name := "PeculiarInvestor"
-	user3Id, err := model.InsertUser(ctx, user3Name, "Password1", "user3@example.com", `[url=https://www.finiki.org/wiki/Main_Page][img]https://www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg[/img]finiki, the Canadian financial wiki[/url] New editors wanted and welcomed, please help collaborate and improve the wiki.
+	user3Id, err := model.InsertUser(ctx, user3Name, "Password2", "user3@example.com", `[url=https://www.finiki.org/wiki/Main_Page][img]https://www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg[/img]finiki, the Canadian financial wiki[/url] New editors wanted and welcomed, please help collaborate and improve the wiki.
 
 "Normal people... believe that if it ain't broke, don't fix it. Engineers believe that if it ain't broke, it doesn't have enough features yet." - Scott Adams`)
 	if err != nil {
@@ -81,7 +81,12 @@ func PopulateDb(ctx context.Context) error {
 		return err
 	}
 	user5Name := "DenisD"
-	user5Id, err := model.InsertUser(ctx, user5Name, "Password4", "user5@example.com", "")
+	user5Id, err := model.InsertUser(ctx, user5Name, "Password1", "user5@example.com", "")
+	if err != nil {
+		return err
+	}
+	user6Name := "Steve Matthew"
+	user6Id, err := model.InsertUser(ctx, user6Name, "Password1", "user6@example.com", "")
 	if err != nil {
 		return err
 	}
@@ -93,34 +98,34 @@ func PopulateDb(ctx context.Context) error {
 
 	// Forums
 	{
-		forumAId, err := model.InsertForum(ctx, model.ROOT_FORUM_ID, "Your Money", "", model.ADMIN_USER_ID)
+		forumAId, err := model.InsertForum(ctx, model.ROOT_FORUM_ID, "Your Money", "", model.ADMIN_USER_ID, model.ADMIN_USER_NAME)
 		if err != nil {
 			return err
 		}
-		_, err = model.InsertForum(ctx, forumAId, "Financial Planning and Building Portfolios", "Asset allocation, risk, diversification and rebalancing. Pros/cons of hiring a financial advisor. Seeking advice on your portfolio?", user2Id)
+		_, err = model.InsertForum(ctx, forumAId, "Financial Planning and Building Portfolios", "Asset allocation, risk, diversification and rebalancing. Pros/cons of hiring a financial advisor. Seeking advice on your portfolio?", user2Id, user2Name)
 		if err != nil {
 			return err
 		}
-		forumABId, err := model.InsertForum(ctx, forumAId, "Retirement, <script>alert('Test XSS Forum name')</script> Pensions and Peace of Mind", "Preparing for life after work. RRSPs, RRIFs, TFSAs, annuities and meeting future financial and psychological needs.", user2Id)
+		forumABId, err := model.InsertForum(ctx, forumAId, "Retirement, <script>alert('Test XSS Forum name')</script> Pensions and Peace of Mind", "Preparing for life after work. RRSPs, RRIFs, TFSAs, annuities and meeting future financial and psychological needs.", user2Id, user2Name)
 		if err != nil {
 			return err
 		}
 		{
 			// Subforum example: https://forums.linuxmint.com/
-			_, err := model.InsertForum(ctx, forumABId, "Jakarta & Bandung", "Retire on Jakarta and Bandung, Indonesia", user2Id)
+			_, err := model.InsertForum(ctx, forumABId, "Jakarta & Bandung", "Retire on Jakarta and Bandung, Indonesia", user2Id, user2Name)
 			if err != nil {
 				return err
 			}
-			_, err = model.InsertForum(ctx, forumABId, "Pattaya", "Retire on Pattaya, Thailand", user2Id)
+			_, err = model.InsertForum(ctx, forumABId, "Pattaya", "Retire on Pattaya, Thailand", user2Id, user2Name)
 			if err != nil {
 				return err
 			}
-			_, err = model.InsertForum(ctx, forumABId, "Kuala Lumpur", "Retire on Kuala Lumpur, Malaysia", user2Id)
+			_, err = model.InsertForum(ctx, forumABId, "Kuala Lumpur", "Retire on Kuala Lumpur, Malaysia", user2Id, user2Name)
 			if err != nil {
 				return err
 			}
 		}
-		forumACId, err := model.InsertForum(ctx, forumAId, "Financial News, Policy and Economics", "Recommended reading, economic debates, predictions and opinions.", model.ADMIN_USER_ID)
+		forumACId, err := model.InsertForum(ctx, forumAId, "Financial News, Policy and Economics", "Recommended reading, economic debates, predictions and opinions.", model.ADMIN_USER_ID, model.ADMIN_USER_NAME)
 		if err != nil {
 			return err
 		}
@@ -134,15 +139,15 @@ func PopulateDb(ctx context.Context) error {
 		}
 	}
 	{
-		forumBId, err := model.InsertForum(ctx, model.ROOT_FORUM_ID, "Your Life", "", model.ADMIN_USER_ID)
+		forumBId, err := model.InsertForum(ctx, model.ROOT_FORUM_ID, "Your Life", "", model.ADMIN_USER_ID, model.ADMIN_USER_NAME)
 		if err != nil {
 			return err
 		}
-		_, err = model.InsertForum(ctx, forumBId, "Community Centre", "Non financial topics: autos; computers; entertainment; gatherings; hobbies; sports and travel.", user2Id)
+		_, err = model.InsertForum(ctx, forumBId, "Community Centre", "Non financial topics: autos; computers; entertainment; gatherings; hobbies; sports and travel.", user2Id, user2Name)
 		if err != nil {
 			return err
 		}
-		forumBBId, err := model.InsertForum(ctx, forumBId, "Now Hear This!", "Announcements from the Management and assistance with forum software. New to FWF? Please consider introducing yourself", user2Id)
+		forumBBId, err := model.InsertForum(ctx, forumBId, "Now Hear This!", "Announcements from the Management and assistance with forum software. New to FWF? Please consider introducing yourself", user2Id, user2Name)
 		if err != nil {
 			return err
 		}
@@ -160,7 +165,7 @@ func PopulateDb(ctx context.Context) error {
 
 Posting on this thread is entirely voluntary - but, if you do wish to post, thank you and welcome to the Financial Wisdom Forum (FWF)!
 
--- The Management`, user2Id)
+-- The Management`, user2Id, user2Name)
 			if err != nil {
 				return err
 			}
@@ -189,7 +194,7 @@ Posting on this thread is entirely voluntary - but, if you do wish to post, than
 				return err
 			}
 			postBB1BId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: Introduce <script>alert('Test XSS Post Subject')</script> Yourself", `Hello, <script>alert('Test XSS Post Text')</script> there!
-[blockquote=<script>alert('Test BB Attack')</script> user_name="User<script>alert('Test BB Attack')</script>" <script> user_id="123<script>alert('Test BB Attack')</script>" post_id="<script>alert('Test BB Attack')</script>456" time="<script>alert('Test BB Attack')</script>" <script>="<script>"]a <script>alert('Test BB Attack')</script> test[/blockquote]`, userXssId)
+[blockquote=<script>alert('Test BB Attack')</script> user_name="User<script>alert('Test BB Attack')</script>" <script> user_id="123<script>alert('Test BB Attack')</script>" post_id="<script>alert('Test BB Attack')</script>456" time="<script>alert('Test BB Attack')</script>" <script>="<script>"]a <script>alert('Test BB Attack')</script> test[/blockquote]`, userXssId, userXssName)
 			if err != nil {
 				return err
 			}
@@ -218,7 +223,7 @@ I'm just wondering when this forum was started.
 [/blockquote]
 Read all about it in [url=https://www.financialwisdomforum.org/history-of-fwf/]History of FWF - Financial Wisdom Forum[/url]
 [blockquote]February 18, 2005, FWF goes live using phpBB v2.0.11[/blockquote]
-so closing in on 20 years of providing a place "Where Canadian Investors Meet for Financial Education and Empowerment". Most important is FWF is an independent, non-commercial site that is solely run by volunteers.`, user3Id)
+so closing in on 20 years of providing a place "Where Canadian Investors Meet for Financial Education and Empowerment". Most important is FWF is an independent, non-commercial site that is solely run by volunteers.`, user3Id, user3Name)
 			if err != nil {
 				return err
 			}
@@ -231,6 +236,36 @@ so closing in on 20 years of providing a place "Where Canadian Investors Meet fo
 				return err
 			}
 			err = model.IncreaseNumPostsForUser(ctx, user3Id)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForTopic(ctx, topicBB1Id)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForForum(ctx, forumBBId)
+			if err != nil {
+				return err
+			}
+			postBB1DId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: Introduce Yourself", `[blockquote user_name=afulldeck post_id=758572 time=1703787110 user_id=12209]
+[blockquote user_name="Steve Matthew" post_id=758561 time=1703772520 user_id=16744]
+Hello Everyone! Hope you all doing amazing. This is my first post on forum, just wanted to say Hi to you all and get connected with you all. :D
+[/blockquote]
+Welcome Steve!
+[/blockquote]
+Thankyou :)`, user6Id, user6Name)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateLastPostOfTopic(ctx, topicBB1Id, postBB1DId, user6Id, user6Name)
+			if err != nil {
+				return err
+			}
+			err = model.UpdateLastPostOfForum(ctx, forumBBId, postBB1DId, "Re: Introduce Yourself", user6Id, user6Name)
+			if err != nil {
+				return err
+			}
+			err = model.IncreaseNumPostsForUser(ctx, user6Id)
 			if err != nil {
 				return err
 			}
@@ -260,7 +295,7 @@ For the most part this upgrade was about getting the underlying components and f
 
 For those keeping track, the fix for [url=https://www.financialwisdomforum.org/forum/viewtopic.php?p=650049#p650049]this bug[/url] hasn't been included in this phpBB feature release. It is due in the next, currently unscheduled, bugfix release. A reminder that the workaround is to delete the PM when reading it, not from the list of PMs.
 
-Please use this topic if you encounter any problems.`, user3Id)
+Please use this topic if you encounter any problems.`, user3Id, user3Name)
 			if err != nil {
 				return err
 			}
@@ -294,7 +329,7 @@ Please use this topic if you encounter any problems.`, user3Id)
 			}
 			postBB2BId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar_Investor" user_id="636" post_id="2" time="1586687280"]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
 I would't know anything had changed if not for your posts/updates.
-As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`, user4Id)
+As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`, user4Id, user4Name)
 			if err != nil {
 				return err
 			}
@@ -318,7 +353,7 @@ As always, thanks for the work you and others do to keep FWF such an excellent s
 			if err != nil {
 				return err
 			}
-			postBB2CId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", "Haven't noticed any differences.", user5Id)
+			postBB2CId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", "Haven't noticed any differences.", user5Id, user5Name)
 			if err != nil {
 				return err
 			}
