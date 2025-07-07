@@ -194,7 +194,7 @@ Posting on this thread is entirely voluntary - but, if you do wish to post, than
 				return err
 			}
 			postBB1BId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: Introduce <script>alert('Test XSS Post Subject')</script> Yourself", `Hello, <script>alert('Test XSS Post Text')</script> there!
-[blockquote=<script>alert('Test BB Attack')</script> user_name="User<script>alert('Test BB Attack')</script>" <script> user_id="123<script>alert('Test BB Attack')</script>" post_id="<script>alert('Test BB Attack')</script>456" time="<script>alert('Test BB Attack')</script>" <script>="<script>"]a <script>alert('Test BB Attack')</script> test[/blockquote]`, userXssId, userXssName)
+[blockquote=<script>alert('Test BB Attack')</script> user_name="User<script>alert('Test BB Attack')</script>" <script> user_id="123<script>alert('Test BB Attack')</script>" post_id="<script>alert('Test BB Attack')</script>321" time="<script>alert('Test BB Attack')</script>" <script>="<script>"]a <script>alert('Test BB Attack')</script> test[/blockquote]`, userXssId, userXssName)
 			if err != nil {
 				return err
 			}
