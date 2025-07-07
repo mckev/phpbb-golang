@@ -7,7 +7,7 @@
     <h2 class="topic-title"><a href='{{ fnUrlWithSID (printf "./posts?t=%d" $topic.TopicId) $root.Session.SessionId }}'>{{ $topic.TopicTitle }}</a></h2>
 
     <div class="action-bar bar-top">
-        <a href="./posting.php?mode=reply&amp;t={{ $topic.TopicId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="button" title="Post a reply">
+        <a href='{{ fnUrlWithSID (printf "./post_write?t=%d" $topic.TopicId) $root.Session.SessionId }}' class="button" title="Post a reply">
             <span>Post Reply</span> <i class="icon fa-reply fa-fw" aria-hidden="true"></i>
         </a>
         <div class="pagination">
@@ -96,7 +96,7 @@
 
     <!-- Bottom bar -->
     <div class="action-bar bar-bottom">
-        <a href="./posting.php?mode=reply&amp;t={{ $topic.TopicId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="button" title="Post a reply">
+        <a href='{{ fnUrlWithSID (printf "./post_write?t=%d" $topic.TopicId) $root.Session.SessionId }}' class="button" title="Post a reply">
             <span>Post Reply</span> <i class="icon fa-reply fa-fw" aria-hidden="true"></i>
         </a>
         <div class="pagination">

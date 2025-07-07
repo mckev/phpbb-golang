@@ -11,6 +11,9 @@ var funcMap = template.FuncMap{
 	"fnAdd": func(x, y int) int {
 		return x + y
 	},
+	"fnMod": func(x, y int) bool {
+		return x%y == 0
+	},
 	"fnUnixTimeToStr": func(unixTime int64) string {
 		return helper.UnixTimeToStr(unixTime)
 	},

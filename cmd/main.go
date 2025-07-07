@@ -36,6 +36,7 @@ func httpHandler() http.Handler {
 	sessionMux.HandleFunc("/forums", http.HandlerFunc(controller.ForumsPage))
 	sessionMux.HandleFunc("/topics", http.HandlerFunc(controller.TopicsPage))
 	sessionMux.HandleFunc("/posts", http.HandlerFunc(controller.PostsPage))
+	sessionMux.HandleFunc("/post_write", http.HandlerFunc(controller.PostWritePage))
 	sessionMux.HandleFunc("/user_register", http.HandlerFunc(controller.UserRegisterPage))
 	sessionMux.HandleFunc("/user_login", http.HandlerFunc(controller.UserLoginPage))
 	rootMux.Handle("/", controller.SessionMiddleware(sessionMux))

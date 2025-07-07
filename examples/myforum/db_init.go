@@ -64,7 +64,7 @@ func PopulateDb(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	user3Name := "PeculiarInvestor"
+	user3Name := "Peculiar Investor"
 	user3Id, err := model.InsertUser(ctx, user3Name, "Password2", "user3@example.com", `[url=https://www.finiki.org/wiki/Main_Page][img]https://www.financialwisdomforum.org/forum/images/icons/icon_wiki.svg[/img]finiki, the Canadian financial wiki[/url] New editors wanted and welcomed, please help collaborate and improve the wiki.
 
 "Normal people... believe that if it ain't broke, don't fix it. Engineers believe that if it ain't broke, it doesn't have enough features yet." - Scott Adams`)
@@ -218,7 +218,7 @@ Posting on this thread is entirely voluntary - but, if you do wish to post, than
 			if err != nil {
 				return err
 			}
-			postBB1CId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: Introduce Yourself", `[blockquote user_name=spicy86 post_id=782359 time=1735650047 user_id=17457]
+			postBB1CId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: Introduce Yourself", `[blockquote user_name=spicy86 user_id=17457 post_id=782359 time=1735650047]
 I'm just wondering when this forum was started.
 [/blockquote]
 Read all about it in [url=https://www.financialwisdomforum.org/history-of-fwf/]History of FWF - Financial Wisdom Forum[/url]
@@ -247,8 +247,8 @@ so closing in on 20 years of providing a place "Where Canadian Investors Meet fo
 			if err != nil {
 				return err
 			}
-			postBB1DId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: Introduce Yourself", `[blockquote user_name=afulldeck post_id=758572 time=1703787110 user_id=12209]
-[blockquote user_name="Steve Matthew" post_id=758561 time=1703772520 user_id=16744]
+			postBB1DId, err := model.InsertPost(ctx, topicBB1Id, forumBBId, "Re: Introduce Yourself", `[blockquote user_name=afulldeck user_id=12209 post_id=758572 time=1703787110]
+[blockquote user_name="Steve Matthew" user_id=16744 post_id=758561 time=1703772520]
 Hello Everyone! Hope you all doing amazing. This is my first post on forum, just wanted to say Hi to you all and get connected with you all. :D
 [/blockquote]
 Welcome Steve!
@@ -327,7 +327,7 @@ Please use this topic if you encounter any problems.`, user3Id, user3Name)
 			if err != nil {
 				return err
 			}
-			postBB2BId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar_Investor" user_id="636" post_id="2" time="1586687280"]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
+			postBB2BId, err := model.InsertPost(ctx, topicBB2Id, forumBBId, "Re: We're now powered by phpBB 3.3", `[blockquote user_name="Peculiar Investor" user_id=636 post_id=2 time=1586687280]Has anyone else even noticed we upgraded and have you found anything else that might have changed?[/blockquote]
 I would't know anything had changed if not for your posts/updates.
 As always, thanks for the work you and others do to keep FWF such an excellent site and resource.`, user4Id, user4Name)
 			if err != nil {
