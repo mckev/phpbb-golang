@@ -3,7 +3,23 @@
 <div id="page-body" class="page-body" role="main">
     {{ $topic := $root.Topic }}
     <h2 class="posting-title"><a href='{{ fnUrlWithSID (printf "./posts?t=%d" $topic.TopicId) $root.Session.SessionId }}'>{{ $topic.TopicTitle }}</a></h2>
-    <form id="postform" method="post" action="./posting.php?mode=reply&amp;t=13" enctype="multipart/form-data">
+    <form id="postform" method="post" action='{{ fnUrlWithSID (printf "./post_write?t=%d&mode=reply" $topic.TopicId) $root.Session.SessionId }}'>
+
+        <!-- Preview panel -->
+        {{ if ne $root.FormData.Message "" }}
+        <div class="post bg2" id="preview">
+            <div class="inner">
+                <div class="postbody">
+                    <h3>Preview: {{ $root.FormData.Subject }}</h3>
+                    <div class="content">
+                        {{ $root.FormData.Message | fnBbcodeToHtml }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr />
+        {{ end }}
+
         <div class="panel" id="postingbox">
             <div class="inner">
                 <h3>Post a reply</h3>
@@ -11,7 +27,7 @@
                     <dl style="clear: left;">
                         <dt><label for="subject">Subject:</label></dt>
                         <dd>
-                            <input type="text" name="subject" id="subject" size="45" maxlength="124" tabindex="2" value="Re: {{ $topic.TopicTitle }}" class="inputbox autowidth" />
+                            <input type="text" name="subject" id="subject" size="45" maxlength="124" tabindex="2" value="{{ $root.FormData.Subject }}" class="inputbox autowidth" />
                         </dd>
                     </dl>
 
@@ -143,17 +159,13 @@
                         <hr /> <strong><a href="#review">Topic review</a></strong>
                     </div>
 
-
                     <div id="message-box" class="message-box">
-                        <textarea name="message" id="message" rows="15" cols="76" tabindex="4" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onfocus="initInsertions();" class="inputbox"></textarea>
+                        <textarea name="message" id="message" rows="15" cols="76" tabindex="4" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onfocus="initInsertions();" class="inputbox">{{ $root.FormData.Message }}</textarea>
                     </div>
 
                 </fieldset>
-
-
             </div>
         </div>
-
         <div class="panel bg2">
             <div class="inner">
                 <fieldset class="submit-buttons">
@@ -163,18 +175,16 @@
                 </fieldset>
             </div>
         </div>
-
         <div id="tabs" class="tabs sub-panels" data-show-panel="options-panel" role="tablist">
             <ul>
                 <li id="options-panel-tab" class="tab activetab"><a href="#tabs" data-subpanel="options-panel" role="tab" aria-controls="options-panel"><span>Options</span></a></li>
                 <li id="attach-panel-tab" class="tab">
                     <a href="#tabs" data-subpanel="attach-panel" role="tab" aria-controls="attach-panel">
-                        Attachments <strong id="file-total-progress" class="file-total-progress"><strong id="file-total-progress-bar" class="file-total-progress-bar"></strong></strong>
+                        Attachments
                     </a>
                 </li>
             </ul>
         </div>
-
         <div class="panel bg3" id="options-panel">
             <div class="inner">
                 <fieldset class="fields1">
@@ -190,78 +200,14 @@
             </div>
         </div>
 
-        <div class="panel bg3 panel-container" id="attach-panel">
-            <div class="inner">
-                <p>If you wish to attach one or more files enter the details below. <span class="hidden" id="drag-n-drop-message">You may also attach files by dragging and dropping them in the message box.</span></p>
-                <p>Maximum filesize per attachment: 1 MiB.</p>
-                <fieldset class="fields2" id="attach-panel-basic">
-                    <dl>
-                        <dt><label for="fileupload">Filename:</label></dt>
-                        <dd>
-                            <input type="file" accept=".gif,.png,.jpeg,.jpg,.tif,.tga,.gtar,.gz,.tar,.zip,.rar,.ace,.txt,.c,.h,.cpp,.hpp,.diz,.xls,.doc,.dot,.pdf,.ai,.ps,.ppt,.tiff,.7z,.bz2,.tgz,.torrent,.csv,.ini,.js,.log,.xml,.docm,.docx,.dotm,.dotx,.odg,.odp,.ods,.odt,.pptm,.pptx,.rtf,.xlsb,.xlsm,.xlsx,.webp" name="fileupload" id="fileupload" class="inputbox autowidth" />
-                            <input type="submit" name="add_file" value="Add the file" class="button2" onclick="upload = true;" />
-                        </dd>
-                    </dl>
-                    <dl>
-                        <dt><label for="filecomment">File comment:</label></dt>
-                        <dd><textarea name="filecomment" id="filecomment" rows="1" cols="40" class="inputbox autowidth"></textarea></dd>
-                    </dl>
-                </fieldset>
-
-                <div id="attach-panel-multi" class="attach-panel-multi">
-                    <input type="button" class="button2" value="Add files" id="add_files" />
-                </div>
-
-                <div class="panel hidden file-list-container" id="file-list-container">
-                    <div class="inner">
-                        <table class="table1 zebra-list fixed-width-table">
-                            <thead>
-                                <tr>
-                                    <th class="attach-name">Filename</th>
-                                    <th class="attach-comment">File comment</th>
-                                    <th class="attach-filesize">Size</th>
-                                    <th class="attach-status">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="responsive-skip-empty file-list" id="file-list">
-                                <tr class="attach-row attach-row-tpl" id="attach-row-tpl">
-                                    <td class="attach-name">
-                                        <span class="file-name ellipsis-text"></span>
-                                        <span class="attach-controls">
-                                            <input type="button" value="Place inline" class="button2 hidden file-inline-bbcode" />&nbsp; <input type="button" value="Delete file" class="button2 file-delete" />
-                                        </span>
-                                        <span class="clear"></span>
-                                    </td>
-                                    <td class="attach-comment">
-                                        <textarea rows="1" cols="30" class="inputbox"></textarea>
-                                    </td>
-                                    <td class="attach-filesize">
-                                        <span class="file-size"></span>
-                                    </td>
-                                    <td class="attach-status">
-                                        <span class="file-progress">
-                                            <span class="file-progress-bar"></span>
-                                        </span>
-                                        <span class="file-status"></span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <h3 id="review" class="review">
             <span class="right-box"><a href="#review" onclick="viewableArea(getElementById('topicreview'), true); var rev_text = getElementById('review').getElementsByTagName('a').item(0).firstChild; if (rev_text.data == 'Expand\u0020view'){rev_text.data = 'Collapse\u0020view'; } else if (rev_text.data == 'Collapse\u0020view'){rev_text.data = 'Expand\u0020view'};">Expand view</a></span>
             Topic review: {{ $topic.TopicTitle }}
         </h3>
-
         <div id="topicreview" class="topicreview">
             <script>
                 bbcodeEnabled = 1;
             </script>
-
             {{ range $index, $post := $root.Posts }}
             {{ $user := index $root.UsersMap $post.PostUserId }}
             <div {{ if fnMod $index 2 }} class="post bg2" {{ else }} class="post bg1" {{ end }}>
@@ -289,9 +235,9 @@
                 </div>
             </div>
             {{ end }}
-
         </div>
         <hr />
+
         <p>
             <a href="#postingbox" class="top">
                 <i class="icon fa-chevron-circle-up fa-fw icon-gray" aria-hidden="true"></i><span>Top</span>

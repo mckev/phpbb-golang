@@ -33,7 +33,7 @@ func UserRegisterPage(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while parsing form upon user registration: %s", err)
 			return
 		}
-		formData.Username = strings.TrimSpace(r.Form.Get("username"))
+		formData.Username = strings.TrimSpace(r.PostForm.Get("username"))
 		if utf8.RuneCountInString(formData.Username) < 4 {
 			formData.Errors = append(formData.Errors, "The username you entered is too short.")
 		} else if utf8.RuneCountInString(formData.Username) > 20 {
@@ -45,18 +45,18 @@ func UserRegisterPage(w http.ResponseWriter, r *http.Request) {
 		if !helper.IsStringNFKCNormalized(formData.Username) {
 			formData.Errors = append(formData.Errors, "The username is not NFKC-normalized.")
 		}
-		formData.NewPassword = strings.TrimSpace(r.Form.Get("new_password"))
+		formData.NewPassword = strings.TrimSpace(r.PostForm.Get("new_password"))
 		if utf8.RuneCountInString(formData.NewPassword) < 8 {
 			formData.Errors = append(formData.Errors, "The password you entered is too short.")
 		}
 		if !helper.IsPasswordValid(formData.NewPassword) {
 			formData.Errors = append(formData.Errors, "Password must be at least 8 characters long, must contain letters in mixed case and must contain numbers.")
 		}
-		formData.PasswordConfirm = strings.TrimSpace(r.Form.Get("password_confirm"))
+		formData.PasswordConfirm = strings.TrimSpace(r.PostForm.Get("password_confirm"))
 		if formData.PasswordConfirm != formData.NewPassword {
 			formData.Errors = append(formData.Errors, "Password and confirmation do not match.")
 		}
-		formData.Email = strings.TrimSpace(r.Form.Get("email"))
+		formData.Email = strings.TrimSpace(r.PostForm.Get("email"))
 		if formData.Email != "" && !helper.IsEmailValid(formData.Email) {
 			formData.Errors = append(formData.Errors, "The email address format is invalid.")
 		}

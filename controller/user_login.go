@@ -33,7 +33,7 @@ func UserLoginPage(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf(ctx, "Error while parsing form upon user login: %s", err)
 			return
 		}
-		formData.Username = strings.TrimSpace(r.Form.Get("username"))
+		formData.Username = strings.TrimSpace(r.PostForm.Get("username"))
 		if formData.Username == "" {
 			formData.Errors = append(formData.Errors, "You have specified an incorrect username. Please check your username and try again.")
 		} else if utf8.RuneCountInString(formData.Username) < 4 {
@@ -41,13 +41,13 @@ func UserLoginPage(w http.ResponseWriter, r *http.Request) {
 		} else if utf8.RuneCountInString(formData.Username) > 20 {
 			formData.Errors = append(formData.Errors, "The username you entered is too long.")
 		}
-		formData.Password = strings.TrimSpace(r.Form.Get("password"))
+		formData.Password = strings.TrimSpace(r.PostForm.Get("password"))
 		if formData.Password == "" {
 			formData.Errors = append(formData.Errors, "You cannot login without a password.")
 		} else if utf8.RuneCountInString(formData.Password) < 8 {
 			formData.Errors = append(formData.Errors, "The password you entered is too short.")
 		}
-		formData.RedirectTo = strings.TrimSpace(r.Form.Get("redirect"))
+		formData.RedirectTo = strings.TrimSpace(r.PostForm.Get("redirect"))
 		if formData.RedirectTo == "" {
 			formData.RedirectTo = "./"
 		}
