@@ -94,8 +94,8 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	// Process things within [blockquote]...[/blockquote], including another [blockquote]
 	for _, child := range node.Children {
 		htmlChild := node.Compiler.CompileTree(child)
-		// Inside [blockquote], convert back <br> into \n
-		htmlChild = replaceBrTagWithNewLine(htmlChild)
+		// Inside [blockquote], convert back all <br> tag into new line "\n"
+		htmlChild = convertBrTagIntoNewLine(htmlChild)
 		divHtmlTag.AppendChild(htmlChild)
 	}
 
@@ -103,7 +103,7 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	return blockquoteHtmlTag, false
 }
 
-func replaceBrTagWithNewLine(tag *bbcode.HTMLTag) *bbcode.HTMLTag {
+func convertBrTagIntoNewLine(tag *bbcode.HTMLTag) *bbcode.HTMLTag {
 	if tag == nil {
 		return nil
 	}
@@ -121,7 +121,7 @@ func replaceBrTagWithNewLine(tag *bbcode.HTMLTag) *bbcode.HTMLTag {
 	out.Value = tag.Value
 	out.Attrs = tag.Attrs
 	for _, child := range tag.Children {
-		out.AppendChild(replaceBrTagWithNewLine(child))
+		out.AppendChild(convertBrTagIntoNewLine(child))
 	}
 	return out
 }

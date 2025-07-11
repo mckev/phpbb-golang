@@ -30,7 +30,7 @@ func TestConvertBbcodeToHtml_BlockQuoteStandard(t *testing.T) {
 	}
 }
 
-func TestConvertBbcodeToHtml_BlockQuoteWithLineFeed(t *testing.T) {
+func TestConvertBbcodeToHtml_BlockQuoteWithNewLines(t *testing.T) {
 	bbcodeStr := `[blockquote user_name=User123 user_id=123 post_id=321 time=1234567890]
 text
 [/blockquote]`
@@ -44,7 +44,7 @@ text
 	}
 }
 
-func TestConvertBbcodeToHtml_RegularLineFeed(t *testing.T) {
+func TestConvertBbcodeToHtml_RegularNewLines(t *testing.T) {
 	bbcodeStr := `Testing
 1..2..3
 
