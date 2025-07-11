@@ -1,9 +1,13 @@
 package bbcode
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/frustra/bbcode"
 
 	"phpbb-golang/internal/helper"
+	"phpbb-golang/model"
 )
 
 func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
@@ -21,60 +25,72 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	//               - timeTag <span>
 	//                   - <time>
 	//           - <node.Children>
-	blockquoteHtmlTag := bbcode.NewHTMLTag("")
-	blockquoteHtmlTag.Name = "blockquote"
 	in := node.GetOpeningTag()
 	username := ""
 	if val, ok := in.Args["user_name"]; ok && val != "" {
 		username = val
 	}
-	userid := ""
+	userid := model.INVALID_USER_ID
 	if val, ok := in.Args["user_id"]; ok && val != "" {
-		userid = val
+		userid = helper.StrToInt(val, model.INVALID_USER_ID)
 	}
-	postid := ""
+	postid := model.INVALID_POST_ID
 	if val, ok := in.Args["post_id"]; ok && val != "" {
-		postid = val
+		postid = helper.StrToInt(val, model.INVALID_POST_ID)
 	}
 	var unixTime int64
 	if val, ok := in.Args["time"]; ok && val != "" {
 		unixTime = helper.StrToInt64(val, 0)
 	}
+	now := time.Now().UTC()
+	currentTime := now.Unix()
+
+	blockquoteHtmlTag := bbcode.NewHTMLTag("")
+	blockquoteHtmlTag.Name = "blockquote"
 	divHtmlTag := bbcode.NewHTMLTag("")
 	divHtmlTag.Name = "div"
 	citeHtmlTag := bbcode.NewHTMLTag("")
 	citeHtmlTag.Name = "cite"
-	userLinkTag := bbcode.NewHTMLTag("")
-	userLinkTag.Name = "a"
-	userLinkTag.Attrs = map[string]string{
-		"href": bbcode.ValidURL("./users?u=" + userid),
+	if username != "" && userid != model.INVALID_USER_ID {
+		userLinkTag := bbcode.NewHTMLTag("")
+		userLinkTag.Name = "a"
+		userLinkTag.Attrs = map[string]string{
+			"href": bbcode.ValidURL(fmt.Sprintf("./users?u=%d", userid)),
+		}
+		userLinkTag.AppendChild(bbcode.NewHTMLTag(username))
+		citeHtmlTag.AppendChild(userLinkTag)
+		citeHtmlTag.AppendChild(bbcode.NewHTMLTag(" wrote: "))
+	} else {
+		citeHtmlTag.AppendChild(bbcode.NewHTMLTag("Quote"))
 	}
-	userLinkTag.AppendChild(bbcode.NewHTMLTag(username))
-	citeHtmlTag.AppendChild(userLinkTag)
-	citeHtmlTag.AppendChild(bbcode.NewHTMLTag(" wrote: "))
-	postLinkTag := bbcode.NewHTMLTag("")
-	postLinkTag.Name = "a"
-	postLinkTag.Attrs = map[string]string{
-		"href":       bbcode.ValidURL("./posts?p=" + postid + "#p" + postid),
-		"aria-label": "View quoted post",
+	if postid != model.INVALID_POST_ID {
+		postLinkTag := bbcode.NewHTMLTag("")
+		postLinkTag.Name = "a"
+		postLinkTag.Attrs = map[string]string{
+			"href":       bbcode.ValidURL(fmt.Sprintf("./posts?p=%d#p%d", postid, postid)),
+			"aria-label": "View quoted post",
+		}
+		postIconTag := bbcode.NewHTMLTag("")
+		postIconTag.Name = "i"
+		postIconTag.Attrs = map[string]string{
+			"class":       "icon fa-arrow-circle-up fa-fw",
+			"aria-hidden": "true",
+		}
+		postIconTag.AppendChild(bbcode.NewHTMLTag(""))
+		postLinkTag.AppendChild(postIconTag)
+		citeHtmlTag.AppendChild(postLinkTag)
 	}
-	postIconTag := bbcode.NewHTMLTag("")
-	postIconTag.Name = "i"
-	postIconTag.Attrs = map[string]string{
-		"class":       "icon fa-arrow-circle-up fa-fw",
-		"aria-hidden": "true",
+	if unixTime > 0 && unixTime <= currentTime {
+		timeTag := bbcode.NewHTMLTag("")
+		timeTag.Name = "span"
+		timeTag.Attrs = map[string]string{
+			"class": "responsive-hide",
+		}
+		timeTag.AppendChild(bbcode.NewHTMLTag(helper.UnixTimeToStr(unixTime)))
+		citeHtmlTag.AppendChild(timeTag)
 	}
-	postIconTag.AppendChild(bbcode.NewHTMLTag(""))
-	postLinkTag.AppendChild(postIconTag)
-	citeHtmlTag.AppendChild(postLinkTag)
-	timeTag := bbcode.NewHTMLTag("")
-	timeTag.Name = "span"
-	timeTag.Attrs = map[string]string{
-		"class": "responsive-hide",
-	}
-	timeTag.AppendChild(bbcode.NewHTMLTag(helper.UnixTimeToStr(unixTime)))
-	citeHtmlTag.AppendChild(timeTag)
 	divHtmlTag.AppendChild(citeHtmlTag)
+
 	// Process things within [blockquote]...[/blockquote], including another [blockquote]
 	for _, child := range node.Children {
 		htmlChild := node.Compiler.CompileTree(child)
@@ -82,6 +98,7 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 		htmlChild = replaceBrTagWithNewLine(htmlChild)
 		divHtmlTag.AppendChild(htmlChild)
 	}
+
 	blockquoteHtmlTag.AppendChild(divHtmlTag)
 	return blockquoteHtmlTag, false
 }

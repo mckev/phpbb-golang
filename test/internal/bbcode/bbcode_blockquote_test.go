@@ -9,9 +9,19 @@ import (
 	"phpbb-golang/model"
 )
 
-func TestConvertBbcodeToHtml_BlockQuote(t *testing.T) {
+func TestConvertBbcodeToHtml_BlockQuoteBasic(t *testing.T) {
+	bbcodeStr := "[blockquote]text[/blockquote]"
+	actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
+	expected := "<blockquote><div><cite>Quote</cite>text</div></blockquote>"
+	if actual != expected {
+		t.Errorf("Got %s, wanted %s", actual, expected)
+		return
+	}
+}
+
+func TestConvertBbcodeToHtml_BlockQuoteStandard(t *testing.T) {
 	// 1234567890 is 2009-02-13 23:31:30 +0000 UTC
-	bbcodeStr := `[blockquote user_name=User123 user_id=123 post_id=321 time=1234567890]text[/blockquote]`
+	bbcodeStr := "[blockquote user_name=User123 user_id=123 post_id=321 time=1234567890]text[/blockquote]"
 	actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
 	expected := `<blockquote><div><cite><a href="./users?u=123">User123</a> wrote: <a aria-label="View quoted post" href="./posts?p=321#p321"><i aria-hidden="true" class="icon fa-arrow-circle-up fa-fw"></i></a><span class="responsive-hide">13 Feb 09 23:31 UTC</span></cite>text</div></blockquote>`
 	if actual != expected {
@@ -52,11 +62,13 @@ func TestConvertBbcodeToHtml_NestedBlockQuote(t *testing.T) {
 	bbcodeStr := `[blockquote user_name="User 123" user_id=123 post_id=321 time=1234567890]
 [blockquote user_name="User 456" user_id=456 post_id=654 time=1234567890]inner[/blockquote]
 outer
+
 [/blockquote]`
 	actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
 	expected := `<blockquote><div><cite><a href="./users?u=123">User 123</a> wrote: <a aria-label="View quoted post" href="./posts?p=321#p321"><i aria-hidden="true" class="icon fa-arrow-circle-up fa-fw"></i></a><span class="responsive-hide">13 Feb 09 23:31 UTC</span></cite>
 <blockquote><div><cite><a href="./users?u=456">User 456</a> wrote: <a aria-label="View quoted post" href="./posts?p=654#p654"><i aria-hidden="true" class="icon fa-arrow-circle-up fa-fw"></i></a><span class="responsive-hide">13 Feb 09 23:31 UTC</span></cite>inner</div></blockquote>
 outer
+
 </div></blockquote>`
 	if actual != expected {
 		t.Errorf("Got %s, wanted %s", actual, expected)
@@ -65,9 +77,9 @@ outer
 }
 
 func TestConvertBbcodeToHtml_BlockQuote_Xss(t *testing.T) {
-	bbcodeStr := `[blockquote=<script>alert('Test BB Attack')</script> user_name="User<script>alert('Test BB Attack')</script>" <script> user_id="123<script>alert('Test BB Attack')</script>" post_id="<script>alert('Test BB Attack')</script>321" time="<script>alert('Test BB Attack')</script>" <script>="<script>"]a <script>alert('Test BB Attack')</script> test[/blockquote]`
+	bbcodeStr := `[blockquote=<script>alert('Test BB Attack')</script> user_name="User<script>alert('Test BB Attack')</script>" <script> user_id="123" post_id="<script>alert('Test BB Attack')</script>321" time="<script>alert('Test BB Attack')</script>" <script>="<script>"]a <script>alert('Test BB Attack')</script> test[/blockquote]`
 	actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
-	expected := `<blockquote><div><cite><a href="./users?u=123&lt;script&gt;alert(&#39;Test BB Attack&#39;)&lt;/script&gt;">User&lt;script&gt;alert(&#39;Test BB Attack&#39;)&lt;/script&gt;</a> wrote: <a aria-label="View quoted post" href="./posts?p=&lt;script&gt;alert(&#39;Test BB Attack&#39;)&lt;/script&gt;321#p%3Cscript%3Ealert(%27Test%20BB%20Attack%27)%3C/script%3E321"><i aria-hidden="true" class="icon fa-arrow-circle-up fa-fw"></i></a><span class="responsive-hide">01 Jan 70 00:00 UTC</span></cite>a &lt;script&gt;alert(&#39;Test BB Attack&#39;)&lt;/script&gt; test</div></blockquote>`
+	expected := `<blockquote><div><cite><a href="./users?u=123">User&lt;script&gt;alert(&#39;Test BB Attack&#39;)&lt;/script&gt;</a> wrote: </cite>a &lt;script&gt;alert(&#39;Test BB Attack&#39;)&lt;/script&gt; test</div></blockquote>`
 	if actual != expected {
 		t.Errorf("Got %s, wanted %s", actual, expected)
 		return
