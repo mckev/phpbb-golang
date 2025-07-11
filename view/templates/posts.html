@@ -57,7 +57,7 @@
                     </h3>
                     <ul class="post-buttons">
                         <li>
-                            <a href="./posting.php?mode=quote&amp;p={{ $post.PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" title="Reply with quote" class="button button-icon-only">
+                            <a href='{{ fnUrlWithSID (printf "./post_write?mode=quote&p=%d" $post.PostId) $root.Session.SessionId }}' title="Reply with quote" class="button button-icon-only">
                                 <i class="icon fa-quote-left fa-fw" aria-hidden="true"></i><span class="sr-only">Quote</span>
                             </a>
                         </li>
@@ -73,7 +73,7 @@
                         </a>
                         <span class="responsive-hide">by <strong><a href="./memberlist.php?mode=viewprofile&amp;u={{ $user.UserId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" class="username">{{ $user.UserName }}</a></strong> &raquo; </span><time>{{ $post.PostTime | fnUnixTimeToStr }}</time>
                     </p>
-                    <span class="hide postdetails" data-quote-url="./posting.php?mode=quote&amp;p={{ $post.PostId }}&amp;sid=16b0d49d7062ba91d398d249acdd580f" data-posttime="{{ $post.PostTime }}" data-poster-id="{{ $user.UserId }}" data-poster-name="{{ $user.UserName }}"></span>
+                    <span class="hide postdetails" data-quote-url='{{ fnUrlWithSID (printf "./post_write?mode=quote&p=%d" $post.PostId) $root.Session.SessionId }}' data-posttime="{{ $post.PostTime }}" data-poster-id="{{ $user.UserId }}" data-poster-name="{{ $user.UserName }}"></span>
                     <div class="content">
                         {{ $post.PostText | fnBbcodeToHtml }}
                     </div>

@@ -25,6 +25,21 @@ func PostWritePage(w http.ResponseWriter, r *http.Request) {
 	}
 	formData := FormData{}
 
+	// Case specify post id
+	mode := queryParams.Get("mode")
+	postId := helper.StrToInt(queryParams.Get("p"), model.INVALID_POST_ID)
+	if mode == "quote" && postId > 0 {
+		post, err := model.GetPost(ctx, postId)
+		if err != nil {
+			logger.Errorf(ctx, "Error while getting post id %d: %s", postId, err)
+			return
+		}
+		topicId = post.TopicId
+		formData.Subject = post.PostSubject
+		formData.Message = fmt.Sprintf("[blockquote user_name=%s user_id=%d post_id=%d time=%d]\n%s\n[/blockquote]", helper.FormatAttributeValue(post.PostUserName), post.PostUserId, post.PostId, post.PostTime, post.PostText)
+		formData.Subject = post.PostSubject
+	}
+
 	switch r.Method {
 	case "POST":
 		err := r.ParseForm()
