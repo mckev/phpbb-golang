@@ -1,6 +1,8 @@
 package bbcode
 
-import "github.com/frustra/bbcode"
+import (
+	"github.com/frustra/bbcode"
+)
 
 func ConvertBbcodeToHtml(bbcodeStr string) string {
 	// Ref: https://github.com/frustra/bbcode

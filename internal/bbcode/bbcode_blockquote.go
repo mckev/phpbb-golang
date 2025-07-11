@@ -78,8 +78,33 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	// Process things within [blockquote]...[/blockquote], including another [blockquote]
 	for _, child := range node.Children {
 		htmlChild := node.Compiler.CompileTree(child)
+		// Inside [blockquote], convert back <br> into \n
+		htmlChild = replaceBrTagWithNewLine(htmlChild)
 		divHtmlTag.AppendChild(htmlChild)
 	}
 	blockquoteHtmlTag.AppendChild(divHtmlTag)
 	return blockquoteHtmlTag, false
+}
+
+func replaceBrTagWithNewLine(tag *bbcode.HTMLTag) *bbcode.HTMLTag {
+	if tag == nil {
+		return nil
+	}
+
+	if tag.Name == "br" {
+		out := bbcode.NewHTMLTag("")
+		out.Value = "\n"
+		return out
+	}
+
+	// Create a copy of the tag, and recursively filter its children
+	// Ref: https://github.com/frustra/bbcode/blob/master/html.go
+	out := bbcode.NewHTMLTag("")
+	out.Name = tag.Name
+	out.Value = tag.Value
+	out.Attrs = tag.Attrs
+	for _, child := range tag.Children {
+		out.AppendChild(replaceBrTagWithNewLine(child))
+	}
+	return out
 }
