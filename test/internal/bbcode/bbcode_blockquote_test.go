@@ -51,7 +51,7 @@ func TestConvertBbcodeToHtml_RegularNewLines(t *testing.T) {
 
 Two newlines above`
 	actual := bbcode.ConvertBbcodeToHtml(bbcodeStr)
-	expected := `Testing<br>1..2..3<br><br><br>Two newlines above`
+	expected := "Testing<br>1..2..3<br><br><br>Two newlines above"
 	if actual != expected {
 		t.Errorf("Got %s, wanted %s", actual, expected)
 		return
@@ -88,14 +88,6 @@ func TestConvertBbcodeToHtml_BlockQuote_Xss(t *testing.T) {
 
 func TestConvertBbcodeToHtml_NestedBlockQuote_BBAttack(t *testing.T) {
 	userName := `"]an escape[/blockquote]<script>alert('Test XSS User name')</script>`
-
-	// Use Go HTML Template to simulate rendered HTML
-	const templateString = `[blockquote user_name="{{ .User.UserName }}" user_id={{ .User.UserId }} post_id=321 time=1234567890][blockquote user_name="{{ .User.UserName }}" user_id=456 post_id=654 time=1234567890]inner[/blockquote]outer[/blockquote]`
-	templateOutput, err := template.New("").Parse(templateString)
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-		return
-	}
 	type TestPageData struct {
 		User model.User
 	}
@@ -104,6 +96,13 @@ func TestConvertBbcodeToHtml_NestedBlockQuote_BBAttack(t *testing.T) {
 			UserName: userName,
 			UserId:   123,
 		},
+	}
+	// Use Go HTML Template to simulate rendered HTML
+	const templateString = `[blockquote user_name="{{ .User.UserName }}" user_id={{ .User.UserId }} post_id=321 time=1234567890][blockquote user_name="{{ .User.UserName }}" user_id=456 post_id=654 time=1234567890]inner[/blockquote]outer[/blockquote]`
+	templateOutput, err := template.New("").Parse(templateString)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+		return
 	}
 	var buffer bytes.Buffer
 	err = templateOutput.Execute(&buffer, testPageData)
