@@ -19,13 +19,6 @@ func TopicsPage(w http.ResponseWriter, r *http.Request) {
 	forumId := helper.StrToInt(queryParams.Get("f"), model.INVALID_FORUM_ID)
 	startItem := helper.StrToInt(queryParams.Get("start"), 0)
 
-	// Prepare template files
-	templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/topics.html")
-	if err != nil {
-		logger.Errorf(ctx, "Error while parsing topics template files: %s", err)
-		return
-	}
-
 	// Prepare data
 	forum, err := model.GetForum(ctx, forumId)
 	if err != nil {
@@ -75,6 +68,11 @@ func TopicsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute template
+	templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/topics.html")
+	if err != nil {
+		logger.Errorf(ctx, "Error while parsing topics template files: %s", err)
+		return
+	}
 	err = templateOutput.ExecuteTemplate(w, "overall", topicsPageData)
 	if err != nil {
 		logger.Errorf(ctx, "Error while executing topics template: %s", err)

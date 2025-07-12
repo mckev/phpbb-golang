@@ -22,13 +22,6 @@ func ForumsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Prepare template files
-	templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/forums.html")
-	if err != nil {
-		logger.Errorf(ctx, "Error while parsing forums template files: %s", err)
-		return
-	}
-
 	// Prepare data
 	forum, err := model.GetForum(ctx, forumId)
 	if err != nil {
@@ -60,6 +53,11 @@ func ForumsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute template
+	templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/forums.html")
+	if err != nil {
+		logger.Errorf(ctx, "Error while parsing forums template files: %s", err)
+		return
+	}
 	err = templateOutput.ExecuteTemplate(w, "overall", forumsPageData)
 	if err != nil {
 		logger.Errorf(ctx, "Error while executing forums template: %s", err)

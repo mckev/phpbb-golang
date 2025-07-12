@@ -123,12 +123,6 @@ func UserRegisterPage(w http.ResponseWriter, r *http.Request) {
 		fallthrough
 
 	case "GET":
-		// Prepare template files
-		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/user_register.html")
-		if err != nil {
-			logger.Errorf(ctx, "Error while parsing user register template files: %s", err)
-			return
-		}
 		// Prepare data
 		type UserRegisterPageData struct {
 			FormData                FormData
@@ -142,7 +136,13 @@ func UserRegisterPage(w http.ResponseWriter, r *http.Request) {
 			RedirectURIForLoginPage: "./",
 			ForumNavTrails:          []forumhelper.ForumNavTrail{},
 		}
+
 		// Execute template
+		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/user_register.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing user register template files: %s", err)
+			return
+		}
 		err = templateOutput.ExecuteTemplate(w, "overall", userRegisterPageData)
 		if err != nil {
 			logger.Errorf(ctx, "Error while executing user register template: %s", err)

@@ -36,13 +36,6 @@ func PostsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Prepare template files
-	templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
-	if err != nil {
-		logger.Errorf(ctx, "Error while parsing posts template files: %s", err)
-		return
-	}
-
 	// Prepare data
 	topic, err := model.GetTopic(ctx, topicId)
 	if err != nil {
@@ -101,6 +94,11 @@ func PostsPage(w http.ResponseWriter, r *http.Request) {
 	//     If you need to access data from a parent template, you can either pass it explicitly to the nested template or use variables to store the data before calling the nested template.
 	//   - In Go templates, . refers to the current context, which changes within a range loop to the current element being iterated over.
 	//     To access the outer struct's fields from within the inner loop, $ is used, which always refers to the root context (the original data passed to the template).
+	templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/posts.html")
+	if err != nil {
+		logger.Errorf(ctx, "Error while parsing posts template files: %s", err)
+		return
+	}
 	err = templateOutput.ExecuteTemplate(w, "overall", postsPageData)
 	if err != nil {
 		logger.Errorf(ctx, "Error while executing posts template: %s", err)

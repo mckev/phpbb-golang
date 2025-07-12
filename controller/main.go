@@ -15,13 +15,6 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	session := getSession(r)
 
-	// Prepare template files
-	templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/main.html")
-	if err != nil {
-		logger.Errorf(ctx, "Error while parsing forums template files: %s", err)
-		return
-	}
-
 	// Prepare data
 	now := time.Now().UTC()
 	currentTime := now.Unix()
@@ -47,6 +40,11 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute template
+	templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/main.html")
+	if err != nil {
+		logger.Errorf(ctx, "Error while parsing forums template files: %s", err)
+		return
+	}
 	err = templateOutput.ExecuteTemplate(w, "overall", forumsPageData)
 	if err != nil {
 		logger.Errorf(ctx, "Error while executing forums template: %s", err)

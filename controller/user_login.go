@@ -95,13 +95,6 @@ func UserLoginPage(w http.ResponseWriter, r *http.Request) {
 		fallthrough
 
 	case "GET":
-		// Prepare template files
-		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/user_login.html")
-		if err != nil {
-			logger.Errorf(ctx, "Error while parsing user login template files: %s", err)
-			return
-		}
-
 		// Prepare data
 		if formData.RedirectTo == "" {
 			// If say, user entered a wrong password, then we shall keep the hidden input "redirect" intact.
@@ -126,6 +119,11 @@ func UserLoginPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Execute template
+		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/user_login.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing user login template files: %s", err)
+			return
+		}
 		err = templateOutput.ExecuteTemplate(w, "overall", userLoginPageData)
 		if err != nil {
 			logger.Errorf(ctx, "Error while executing user login template: %s", err)

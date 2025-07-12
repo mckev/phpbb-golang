@@ -53,13 +53,6 @@ func PostWritePage(w http.ResponseWriter, r *http.Request) {
 		fallthrough
 
 	case "GET":
-		// Prepare template files
-		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/post_write.html")
-		if err != nil {
-			logger.Errorf(ctx, "Error while parsing post write template files: %s", err)
-			return
-		}
-
 		// Prepare data
 		topic, err := model.GetTopic(ctx, topicId)
 		if err != nil {
@@ -109,6 +102,11 @@ func PostWritePage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Execute template
+		templateOutput, err := template.New("").Funcs(funcMap).ParseFiles("./view/templates/overall.html", "./view/templates/post_write.html")
+		if err != nil {
+			logger.Errorf(ctx, "Error while parsing post write template files: %s", err)
+			return
+		}
 		err = templateOutput.ExecuteTemplate(w, "overall", postWritePageData)
 		if err != nil {
 			logger.Errorf(ctx, "Error while executing post write template: %s", err)
