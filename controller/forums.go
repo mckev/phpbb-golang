@@ -3,6 +3,7 @@ package controller
 import (
 	"html/template"
 	"net/http"
+	"net/url"
 
 	"phpbb-golang/internal/forumhelper"
 	"phpbb-golang/internal/helper"
@@ -48,7 +49,7 @@ func ForumsPage(w http.ResponseWriter, r *http.Request) {
 		Forum:                   forum,
 		ForumChildNodes:         forumChildNodes,
 		Session:                 session,
-		RedirectURIForLoginPage: helper.UrlWithSID(r.URL.RequestURI(), ""),
+		RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), "")),
 		ForumNavTrails:          forumNavTrails,
 	}
 

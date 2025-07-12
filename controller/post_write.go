@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"phpbb-golang/internal/forumhelper"
@@ -145,7 +146,7 @@ func PostWritePage(w http.ResponseWriter, r *http.Request) {
 			Posts:                   posts,
 			UsersMap:                usersMap,
 			Session:                 session,
-			RedirectURIForLoginPage: helper.UrlWithSID(r.URL.RequestURI(), ""),
+			RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), "")),
 			ForumNavTrails:          forumNavTrails,
 		}
 
