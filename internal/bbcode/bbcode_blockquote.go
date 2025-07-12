@@ -63,7 +63,7 @@ func blockquoteBBTagHandler(node *bbcode.BBCodeNode) (*bbcode.HTMLTag, bool) {
 	} else {
 		citeHtmlTag.AppendChild(bbcode.NewHTMLTag("Quote"))
 	}
-	if postid != model.INVALID_POST_ID {
+	if postid > 0 {
 		postLinkTag := bbcode.NewHTMLTag("")
 		postLinkTag.Name = "a"
 		postLinkTag.Attrs = map[string]string{

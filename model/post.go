@@ -48,10 +48,6 @@ func InitPosts(ctx context.Context) error {
 }
 
 func InsertPost(ctx context.Context, topicId int, forumId int, postSubject string, postText string, postUserId int, postUserName string) (int, error) {
-	err := CheckIfGuestUser(ctx, postUserId, postUserName)
-	if err != nil {
-		return INVALID_POST_ID, fmt.Errorf("Error while inserting post subject '%s' with topic id %d and forum id %d: %s", postSubject, topicId, forumId, err)
-	}
 	db := OpenDb(ctx, "posts")
 	defer db.Close()
 	now := time.Now().UTC()

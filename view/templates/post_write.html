@@ -24,6 +24,13 @@
             <div class="inner">
                 <h3>Post a reply</h3>
                 <fieldset class="fields1">
+                    {{ if gt (len $root.FormData.Errors) 0 }}
+                    <div class="error">
+                        {{ range $counter, $error := $root.FormData.Errors }}
+                        {{ $error }}{{ if lt (fnAdd $counter 1) (len $root.FormData.Errors) }}<br />{{ end }}
+                        {{ end }}
+                    </div>
+                    {{ end }}
                     <dl style="clear: left;">
                         <dt><label for="subject">Subject:</label></dt>
                         <dd>
