@@ -49,7 +49,7 @@ func ForumsPage(w http.ResponseWriter, r *http.Request) {
 		Forum:                   forum,
 		ForumChildNodes:         forumChildNodes,
 		Session:                 session,
-		RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), "")),
+		RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), helper.NO_SID)),
 		ForumNavTrails:          forumNavTrails,
 	}
 

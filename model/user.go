@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	INVALID_USER_ID = 0
+	INVALID_USER_ID = -1
 	ADMIN_USER_ID   = 1
 	ADMIN_USER_NAME = "admin"
 	GUEST_USER_ID   = 1000
@@ -189,20 +189,20 @@ func CheckIfUserExists(ctx context.Context, userName string) (bool, error) {
 	return isExists, nil
 }
 
-func CheckIfGuestUser(ctx context.Context, userId int, userName string) error {
+func CheckIfGuestUser(ctx context.Context, userId int, userName string) bool {
 	if userId == GUEST_USER_ID {
-		return fmt.Errorf("Guest user")
+		return true
 	}
 	if userId == INVALID_USER_ID {
-		return fmt.Errorf("Invalid user")
+		return true
 	}
 	if userId == 0 {
-		return fmt.Errorf("Empty user id")
+		return true
 	}
 	if userName == "" {
-		return fmt.Errorf("Empty user name")
+		return true
 	}
-	return nil
+	return false
 }
 
 func GetUserForLogin(ctx context.Context, userName string) (User, error) {

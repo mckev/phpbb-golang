@@ -83,7 +83,7 @@ func PostsPage(w http.ResponseWriter, r *http.Request) {
 		UsersMap:                usersMap,
 		Paginations:             paginations,
 		Session:                 session,
-		RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), "")),
+		RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), helper.NO_SID)),
 		ForumNavTrails:          forumNavTrails,
 	}
 

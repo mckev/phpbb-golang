@@ -28,9 +28,15 @@ func PostWritePage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	session := getSession(r)
 	queryParams := r.URL.Query()
-	topicId := helper.StrToInt(queryParams.Get("t"), model.INVALID_TOPIC_ID)
+
+	// Must login to continue
+	if model.CheckIfGuestUser(ctx, session.SessionUserId, session.SessionUserName) {
+		http.Redirect(w, r, fmt.Sprintf("./user_login?mode=reply&redirect=%s", url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), helper.NO_SID))), http.StatusFound)
+		return
+	}
 
 	mode := POST_WRITE_MODE_COMPOSE
+	topicId := helper.StrToInt(queryParams.Get("t"), model.INVALID_TOPIC_ID)
 	type FormData struct {
 		Subject string
 		Message string
@@ -146,7 +152,7 @@ func PostWritePage(w http.ResponseWriter, r *http.Request) {
 			Posts:                   posts,
 			UsersMap:                usersMap,
 			Session:                 session,
-			RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), "")),
+			RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), helper.NO_SID)),
 			ForumNavTrails:          forumNavTrails,
 		}
 
@@ -165,9 +171,8 @@ func PostWritePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func InsertPost(ctx context.Context, topicId int, forumId int, postSubject string, postText string, postUserId int, postUserName string) (int, error) {
-	err := model.CheckIfGuestUser(ctx, postUserId, postUserName)
-	if err != nil {
-		return model.INVALID_POST_ID, fmt.Errorf("Error while inserting post subject '%s' with topic id %d for user id %d: %s", postSubject, topicId, postUserId, err)
+	if model.CheckIfGuestUser(ctx, postUserId, postUserName) {
+		return model.INVALID_POST_ID, fmt.Errorf("Error while inserting post subject '%s' with topic id %d for user id %d: Guest user", postSubject, topicId, postUserId)
 	}
 	postId, err := model.InsertPost(ctx, topicId, forumId, postSubject, postText, postUserId, postUserName)
 	if err != nil {

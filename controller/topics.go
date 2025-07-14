@@ -64,7 +64,7 @@ func TopicsPage(w http.ResponseWriter, r *http.Request) {
 		TopicsWithInfo:          topicsWithInfo,
 		TopicPaginations:        topicPaginations,
 		Session:                 session,
-		RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), "")),
+		RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(r.URL.RequestURI(), helper.NO_SID)),
 		ForumNavTrails:          forumNavTrails,
 	}
 

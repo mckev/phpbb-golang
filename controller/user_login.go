@@ -106,12 +106,18 @@ func UserLoginPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		type UserLoginPageData struct {
+			PageTitle               string
 			FormData                FormData
 			Session                 model.Session
 			RedirectURIForLoginPage string
 			ForumNavTrails          []forumhelper.ForumNavTrail
 		}
+		pageTitle := "Login"
+		if queryParams.Get("mode") == "reply" {
+			pageTitle = "You need to login in order to reply to topics within this forum."
+		}
 		userLoginPageData := UserLoginPageData{
+			PageTitle:               pageTitle,
 			FormData:                formData,
 			Session:                 session,
 			RedirectURIForLoginPage: "./",

@@ -84,7 +84,7 @@
                         </li>
 
                         <!-- Account Menu dropdown (case logged in) -->
-                        {{ if ne $root.Session.SessionUserId 0 }}
+                        {{ if ne $root.Session.SessionId "" }}
                         <li id="username_logged_in" class="rightside " data-skip-responsive="true">
                             <div class="header-profile dropdown-container">
                                 <a href="./ucp.php" class="header-avatar dropdown-trigger"> <span class="username">{{ $root.Session.SessionUserName }}</span></a>
@@ -147,7 +147,7 @@
                         {{ end }}
 
                         <!-- Login and Register (case not logged in) -->
-                        {{ if eq $root.Session.SessionUserId 0 }}
+                        {{ if eq $root.Session.SessionId "" }}
                         <li class="rightside" data-skip-responsive="true">
                             <a href='{{ fnUrlWithSID (printf "./user_login?redirect=%s" $root.RedirectURIForLoginPage) $root.Session.SessionId }}' title="Login" accesskey="x" role="menuitem">
                                 <i class="icon fa-power-off fa-fw" aria-hidden="true"></i><span>Login</span>

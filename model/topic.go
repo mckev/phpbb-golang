@@ -59,9 +59,8 @@ func InitTopics(ctx context.Context) error {
 }
 
 func InsertTopic(ctx context.Context, forumId int, topicTitle string, topicUserId int, topicUserName string) (int, error) {
-	err := CheckIfGuestUser(ctx, topicUserId, topicUserName)
-	if err != nil {
-		return INVALID_TOPIC_ID, fmt.Errorf("Error while inserting topic title '%s' with forum id %d: %s", topicTitle, forumId, err)
+	if CheckIfGuestUser(ctx, topicUserId, topicUserName) {
+		return INVALID_TOPIC_ID, fmt.Errorf("Error while inserting topic title '%s' with forum id %d: Guest user", topicTitle, forumId)
 	}
 	db := OpenDb(ctx, "topics")
 	defer db.Close()

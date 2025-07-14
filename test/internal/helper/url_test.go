@@ -130,7 +130,7 @@ func TestUrlWithSID_SimulateRedirectionForLoginPage(t *testing.T) {
 		Session                 model.Session
 	}
 	testPageData := TestPageData{
-		RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(uri, "")),
+		RedirectURIForLoginPage: url.QueryEscape(helper.UrlWithSID(uri, helper.NO_SID)),
 		Session:                 model.Session{},
 	}
 	// Use Go HTML Template to simulate rendered HTML

@@ -47,9 +47,8 @@ func getSession(r *http.Request) model.Session {
 
 func createSession(ctx context.Context, userId int, userName string, ip string, browser string, forwardedFor string) (model.Session, error) {
 	// Create user session (for user registration and user login)
-	err := model.CheckIfGuestUser(ctx, userId, userName)
-	if err != nil {
-		return model.Session{}, fmt.Errorf("Error while creating user session: %s", err)
+	if model.CheckIfGuestUser(ctx, userId, userName) {
+		return model.Session{}, fmt.Errorf("Error while creating user session: Invalid user id or user name")
 	}
 	sessionId, err := helper.GenerateSessionId()
 	if err != nil {
