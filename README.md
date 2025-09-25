@@ -1,5 +1,5 @@
 # phpbb-golang
-A bulletin board inspired by phpBB. Written in Golang. It is using basic HTML, without JavaScript.
+A bulletin board inspired by phpBB. Written in Golang. It is using basic HTML, with optional JavaScript.
 
 While the user interface is intentionally minimalistic, it is powered by a modern tech stack under the hood:
   - Golang: Fast, statically typed, and built for performance.
