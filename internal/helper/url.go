@@ -30,5 +30,9 @@ func ExtractUserFingerprint(r *http.Request) (string, string, string) {
 	}
 	browser := r.Header.Get("User-Agent")
 	forwardedFor := r.Header.Get("X-Forwarded-For")
+	// Low-resolution hash of sensitive information
+	ip = Crc32(ip)
+	browser = Crc32(browser)
+	forwardedFor = Crc32(forwardedFor)
 	return ip, browser, forwardedFor
 }

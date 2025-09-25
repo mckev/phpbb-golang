@@ -15,6 +15,15 @@ func TestSha256(t *testing.T) {
 	}
 }
 
+func TestCrc32(t *testing.T) {
+	actual := helper.Crc32("The quick brown fox jumps over the lazy dog")
+	expected := "414fa339"
+	if actual != expected {
+		t.Errorf("Got %s, wanted %s", actual, expected)
+		return
+	}
+}
+
 func TestGenerateSessionId(t *testing.T) {
 	sessionId, err := helper.GenerateSessionId()
 	if err != nil {

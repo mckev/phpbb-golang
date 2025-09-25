@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"hash/crc32"
 	"strings"
 )
 
@@ -15,6 +16,11 @@ const (
 func Sha256(s string) string {
 	sha256Hash := fmt.Sprintf("%x", sha256.Sum256([]byte(s)))
 	return sha256Hash
+}
+
+func Crc32(s string) string {
+	checksum := crc32.ChecksumIEEE([]byte(s))
+	return fmt.Sprintf("%08x", checksum)
 }
 
 func GenerateRandomBytesInHex(length int) (string, error) {
